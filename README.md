@@ -40,11 +40,11 @@ A papírméret váltásakor a havi alapbetűméretek és belső térközök ará
 ## GitHub Pages
 
 1. A tároló **Settings → Pages → Build and deployment → Source** mezőjében válaszd a **GitHub Actions** lehetőséget.
-2. A `main` ágra feltöltött változás elindítja a `.github/workflows/pages.yml` munkafolyamatot.
+2. A `main` ágra feltöltött alkalmazáskód-változás elindítja a `.github/workflows/pages.yml` munkafolyamatot.
 3. A workflow tesztel és fordít, Chrome/Chromium, Firefox és Edge motorral böngészős teszteket futtat, majd minden sikeres ellenőrzés után publikál.
 4. A cím repository-site esetén `https://amaihaiku.github.io/naptar/`. Ezt csak sikeres deployment után tekintsd működő szolgáltatásnak.
 
-A `VITE_BASE_PATH` környezeti változó támogatja az `/` felhasználói oldalt és a `/repo-neve/` repository-oldalt. Alapértéke `./`, ezért a build más statikus alkönyvtárba is telepíthető. Az alkalmazás nem használ szerveres útvonal-átírást. Saját doménhez a buildben `/` alapútvonal szükséges.
+A `VITE_BASE_PATH` környezeti változó támogatja az `/` felhasználói oldalt és a `/repo-neve/` repository-oldalt. Alapértéke `./`, ezért a build más statikus alkönyvtárba is telepíthető. A `/naptar/` alapútvonallal készült buildet is ellenőriztük. Az alkalmazás nem használ szerveres útvonal-átírást. Saját doménhez a buildben `/` alapútvonal szükséges.
 
 ## Böngészős ellenőrzés
 
@@ -55,7 +55,9 @@ npm run test:e2e
 
 A tesztek saját Vite szervert indítanak. Automatizálják az eseménykezelést, a visszavonást, a projektmentést/betöltést, a helyreállítást, az éves PDF-exportot és a 12 képes ZIP-et. A munkafolyamat letölthető tesztképeket, nyomdai mintákat és hiba esetén trace fájlokat ment.
 
-Az elkészítés környezetében a kezelt böngészős előnézet szolgáltatása nem volt elérhető. A helyben futtatott ellenőrzéseket és az ebből eredő korlátokat a [VALIDATION.md](VALIDATION.md) rögzíti. A hozzáadott Playwright tesztek eredményét az Actions felületén kell ellenőrizni.
+A végső kódállapot ellenőrzése sikeres: **59 matematikai/projekt/export teszt**, továbbá **30 böngészőteszt (Chromium, Firefox, Edge: 10–10)** és a production build. Az SVG-előnézet és a 300 DPI-s PNG képi összevetése mindhárom motorban sikeres. A [VALIDATION.md](VALIDATION.md) tartalmazza a futás hivatkozását és a még nem teljesen lefedett eseteket.
+
+**Az éles publikálás még nem sikerült:** a tárolóban először engedélyezni kell a GitHub Pagest a fenti beállításban. Ezután az Actions felületen a **Run workflow** indítja a teljes ellenőrzést és telepítést. A munkafolyamatban minden ellenőrzés zöld volt; a deploy lépés az engedélyezés hiánya miatt 404-et kapott. A csak Markdown-dokumentációt módosító commitok nem indítanak új telepítést.
 
 ## Szerkezet
 

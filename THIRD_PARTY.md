@@ -36,7 +36,7 @@ A PDF a betűfájlokat teljes egészükben ágyazza be, így a szöveg másik g�
 | idb-keyval | Apache-2.0 | Böngészős helyreállítás |
 | lucide-react | ISC | Kezelőfelületi ikonok |
 
-A pontos telepített verziókat a `package-lock.json` rögzíti. Fejlesztéshez TypeScript (Apache-2.0), Vite és tsx (MIT), Playwright (Apache-2.0), valamint @napi-rs/canvas (MIT) használatos. A fejlesztői Canvas nem kerül a böngészős csomagba. A torta- és virágikonok az exportban a projekt saját egyszerű vektoralakzatai, nem emoji-betűk.
+A pontos telepített verziókat a `package-lock.json` rögzíti. Fejlesztéshez TypeScript (Apache-2.0), Vite és tsx (MIT), Playwright (Apache-2.0), valamint @napi-rs/canvas és pngjs (MIT) használatos. A fejlesztői Canvas nem kerül a böngészős csomagba. A torta- és virágikonok az exportban a projekt saját egyszerű vektoralakzatai, nem emoji-betűk.
 
 ## Adatkezelés
 
