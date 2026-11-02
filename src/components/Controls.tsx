@@ -128,7 +128,11 @@ export function Select({
 }) {
   return (
     <Field label={label}>
-      <select value={value} onChange={(e) => onChange(e.target.value)}>
+      <select
+        aria-label={label}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      >
         {options.map((o) =>
           Array.isArray(o) ? (
             <option key={o[0]} value={o[0]}>
