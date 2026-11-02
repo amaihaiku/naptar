@@ -1,0 +1,71 @@
+name: Ellenőrzés és GitHub Pages
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+        env:
+          VITE_BASE_PATH: ${{ github.event.repository.name == format('{0}.github.io', github.repository_owner) && '/' || format('/{0}/', github.event.repository.name) }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: export-ellenorzes
+          path: test-results
+  browsers:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, edge]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox
+        if: matrix.browser != 'edge'
+      - run: npx playwright install --with-deps msedge
+        if: matrix.browser == 'edge'
+      - run: npm run test:e2e -- --project=${{ matrix.browser }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bongeszo-${{ matrix.browser }}
+          path: |
+            test-results
+            playwright-report
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: [build, browsers]
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment

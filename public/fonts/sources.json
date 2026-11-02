@@ -1,0 +1,38 @@
+[
+  {
+    "file": "NotoSans-400.ttf",
+    "sha256": "8f5952d5406c97a5b9275b4b5957c10668c5d4abe0441f97506c8cc1b4f48281",
+    "source": "https://github.com/google/fonts/tree/main/ofl/notosans",
+    "processing": "fontTools variable instance; wght=400; wdth=100"
+  },
+  {
+    "file": "Montserrat-400.ttf",
+    "sha256": "c1e718a79756dfd19fed16934472f244ca45219e58024e37e9d45524d431d465",
+    "source": "https://github.com/google/fonts/tree/main/ofl/montserrat",
+    "processing": "fontTools variable instance; wght=400"
+  },
+  {
+    "file": "NotoSans-700.ttf",
+    "sha256": "808d20eadc4eea04d42675b345ba3e31836d470f1ba077d7592192ef4d6dd24f",
+    "source": "https://github.com/google/fonts/tree/main/ofl/notosans",
+    "processing": "fontTools variable instance; wght=700; wdth=100"
+  },
+  {
+    "file": "PTSerif-400.ttf",
+    "sha256": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a",
+    "source": "https://github.com/google/fonts/tree/main/ofl/ptserif",
+    "processing": "upstream static TTF"
+  },
+  {
+    "file": "Montserrat-700.ttf",
+    "sha256": "43d5f41c7224f1a4340181af3716b21585c8d2d1795d08bcc38e021c2be50d12",
+    "source": "https://github.com/google/fonts/tree/main/ofl/montserrat",
+    "processing": "fontTools variable instance; wght=700"
+  },
+  {
+    "file": "PTSerif-700.ttf",
+    "sha256": "038ba7336bd7ea14f12ad155bed51a4345cac5153275d521dec3ba04021c526e",
+    "source": "https://github.com/google/fonts/tree/main/ofl/ptserif",
+    "processing": "upstream static TTF"
+  }
+]

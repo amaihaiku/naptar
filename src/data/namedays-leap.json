@@ -1,0 +1,66 @@
+{
+  "25": {
+    "main": ["Mátyás"],
+    "other": ["Darinka", "Edömér", "Etel", "Hedda", "Hedvig", "János", "Jázmin"]
+  },
+  "26": {
+    "main": ["Géza"],
+    "other": [
+      "Aglája",
+      "Cézár",
+      "Félix",
+      "Gejza",
+      "Tacitusz",
+      "Taráz",
+      "Tarcal",
+      "Vanda"
+    ]
+  },
+  "27": {
+    "main": ["Edina"],
+    "other": [
+      "Balambér",
+      "Dénes",
+      "Edna",
+      "Géza",
+      "Győző",
+      "Izabella",
+      "Nesztor",
+      "Ottokár",
+      "Porfir",
+      "Rodelinda",
+      "Sándor",
+      "Szabella",
+      "Viktor"
+    ]
+  },
+  "28": {
+    "main": ["Ákos", "Bátor"],
+    "other": [
+      "Akács",
+      "Antigon",
+      "Antigoné",
+      "Balambér",
+      "Balda",
+      "Baldó",
+      "Éneás",
+      "Gábor",
+      "Gábriel",
+      "Ladiszla",
+      "Lantos",
+      "László",
+      "Leander",
+      "Orfeusz",
+      "Valdemár",
+      "Veronika"
+    ]
+  },
+  "24": {
+    "main": [],
+    "other": []
+  },
+  "29": {
+    "main": ["Elemér", "Antónia"],
+    "other": []
+  }
+}

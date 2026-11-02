@@ -1,0 +1,38 @@
+[
+  {
+    "family": "Noto Sans",
+    "weight": 400,
+    "file": "NotoSans-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Noto Sans",
+    "weight": 700,
+    "file": "NotoSans-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "PT Serif",
+    "weight": 400,
+    "file": "PTSerif-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "PT Serif",
+    "weight": 700,
+    "file": "PTSerif-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Montserrat",
+    "weight": 400,
+    "file": "Montserrat-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Montserrat",
+    "weight": 700,
+    "file": "Montserrat-700.ttf",
+    "hungarianGlyphsVerified": true
+  }
+]
