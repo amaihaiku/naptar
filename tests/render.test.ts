@@ -110,6 +110,22 @@ describe("Shared document layout", () => {
   });
 });
 describe("Print output", () => {
+  it("keeps a large custom vector PDF available when raster memory would be excessive", async () => {
+    const p = applyPaper(defaultProject(), "custom", "portrait", [600, 600]);
+    expect(
+      validateExport(p, false, "png").issues.some((i) => i.code === "memory"),
+    ).toBe(true);
+    expect(
+      validateExport(p, false, "pdf").issues.filter(
+        (i) => i.severity === "error",
+      ),
+    ).toEqual([]);
+    const data = await createPdf(p, exportScenes(p, false));
+    expect((await PDFDocument.load(data)).getPage(0).getWidth()).toBeCloseTo(
+      (600 / 25.4) * 72,
+      8,
+    );
+  });
   it("preflights all twelve A6 months without overflow at adaptive defaults", () => {
     const p = applyPaper(defaultProject(), "A6", "portrait");
     expect(

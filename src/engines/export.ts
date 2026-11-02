@@ -40,16 +40,42 @@ export function exportScenes(p: Project, all: boolean): Scene[] {
       : [p.month]
   ).map((m) => buildScene(p, m));
 }
-export function validateExport(p: Project, all: boolean) {
+export function validateExport(
+  p: Project,
+  all: boolean,
+  format: "pdf" | "png" | "jpg" = "png",
+) {
   const scenes = exportScenes(p, all);
   const issues = scenes.flatMap((s) => s.issues);
   const { width, height } = rasterDimensions(p.page.width, p.page.height);
-  if (width * height > 40_000_000 || width > 16384 || height > 16384)
+  if (
+    format !== "pdf" &&
+    (width * height > 40_000_000 || width > 16384 || height > 16384)
+  )
     issues.push({
       severity: "error",
       code: "memory",
       message:
-        "A lap 300 DPI felbontáson túllépi a biztonságos képméretet. Válassz kisebb papírt; a felbontást nem csökkentjük.",
+        "A lap 300 DPI felbontáson túllépi a biztonságos képméretet. Válassz vektoros PDF-et vagy kisebb papírt; a felbontást nem csökkentjük.",
+    });
+  for (const photo of p.photos.filter((i) => i.visible)) {
+    const pixels = rasterDimensions(photo.box.w, photo.box.h);
+    if (format === "pdf" && pixels.width * pixels.height > 40_000_000)
+      issues.push({
+        severity: "error",
+        code: "image-memory",
+        message: `${photo.name}: a fénykép 300 DPI-s feldolgozása meghaladja a biztonságos képméretet. Csökkentsd a kép keretét.`,
+      });
+  }
+  const decoded = p.photos.reduce(
+    (bytes, photo) => bytes + photo.pixelWidth * photo.pixelHeight * 4,
+    0,
+  );
+  if (decoded > 256_000_000)
+    issues.push({
+      severity: "warning",
+      code: "decoded-memory",
+      message: `A képek becsült kibontott memóriaigénye ${Math.round(decoded / 1_000_000)} MB. Nagy projektnél egyenként exportáld a hónapokat.`,
     });
   return {
     scenes,
@@ -286,7 +312,7 @@ export async function exportCalendar(
 ): Promise<void> {
   await document.fonts.ready;
   await validatePhotos(p.photos);
-  const { scenes, issues } = validateExport(p, all);
+  const { scenes, issues } = validateExport(p, all, format);
   const errors = issues.filter((i) => i.severity === "error");
   if (errors.length) throw new Error(errors.map((i) => i.message).join("\n"));
   const base = `naptar-${p.year}`;

@@ -1,4 +1,29 @@
 import { test, expect } from "@playwright/test";
+
+test("A4 JPG has actual print pixels and 300 DPI density", async ({ page }) => {
+  await page.getByRole("button", { name: "Exportálás", exact: true }).click();
+  await page.getByRole("button", { name: /JPG Fotóbarát/ }).click();
+  const pending = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Letöltés", exact: true }).click();
+  const fs = await import("node:fs/promises");
+  const data = await fs.readFile((await (await pending).path())!);
+  const jfif = data.indexOf(Buffer.from("JFIF\0"));
+  expect(jfif).toBeGreaterThan(0);
+  expect(data[jfif + 7]).toBe(1);
+  expect(data.readUInt16BE(jfif + 8)).toBe(300);
+  expect(data.readUInt16BE(jfif + 10)).toBe(300);
+  let dimensions: [number, number] | undefined;
+  for (let i = 2; i < data.length - 9;) {
+    if (data[i] !== 255) break;
+    const marker = data[i + 1];
+    if ([192, 193, 194].includes(marker)) {
+      dimensions = [data.readUInt16BE(i + 7), data.readUInt16BE(i + 5)];
+      break;
+    }
+    i += 2 + data.readUInt16BE(i + 2);
+  }
+  expect(dimensions).toEqual([2480, 3508]);
+});
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("calendar-paper")).toBeVisible();

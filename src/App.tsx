@@ -202,8 +202,8 @@ export default function App() {
   }, [history.project]);
   const scene = useMemo(() => (ready ? buildScene(p) : null), [p, ready]);
   const preflight = useMemo(
-    () => (ready && exportOpen ? validateExport(p, allMonths) : null),
-    [p, allMonths, ready, exportOpen],
+    () => (ready && exportOpen ? validateExport(p, allMonths, format) : null),
+    [p, allMonths, ready, exportOpen, format],
   );
   function change<K extends keyof Project>(key: K, value: Project[K]) {
     commit((v) => ({ ...v, [key]: value }));

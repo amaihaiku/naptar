@@ -19,26 +19,13 @@ test("SVG preview and 300 DPI PNG preserve the same visible geometry", async ({
   await page.getByRole("button", { name: "Letöltés", exact: true }).click();
   const path = await (await pending).path();
   const exported = await readFile(path!);
-  const comparable = await page.evaluate(
-    async ({ source, width, height }) => {
-      const image = new window.Image();
-      image.src = source;
-      await image.decode();
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      const context = canvas.getContext("2d")!;
-      context.drawImage(image, 0, 0, width, height);
-      return canvas.toDataURL("image/png");
-    },
-    {
-      source: "data:image/png;base64," + exported.toString("base64"),
-      width: expected.width,
-      height: expected.height,
-    },
+  await writeFile(
+    `test-results/full-300dpi-${test.info().project.name}.png`,
+    exported,
   );
-  const actualBytes = Buffer.from(comparable.split(",")[1], "base64");
-  const actual = PNG.sync.read(actualBytes);
+  const full = PNG.sync.read(exported);
+  const actual = areaDownsample(full, expected.width, expected.height);
+  const actualBytes = PNG.sync.write(actual);
   // Compare visible ink with one screen-pixel antialiasing tolerance. Missing text
   // and displaced lines fail, while browser-specific font edge shading may differ.
   const mask = (png: PNG) =>
@@ -87,3 +74,41 @@ test("SVG preview and 300 DPI PNG preserve the same visible geometry", async ({
   expect(unmatched(a, b)).toBeLessThan(0.08);
   expect(unmatched(b, a)).toBeLessThan(0.08);
 });
+
+// Use the same area integration for every engine. Firefox's low-quality Canvas
+// drawImage downsampling samples too few source pixels and creates false missing
+// strokes when shrinking a 300 DPI image to a small editor screenshot.
+function areaDownsample(source: PNG, width: number, height: number): PNG {
+  const target = new PNG({ width, height });
+  const sx = source.width / width,
+    sy = source.height / height;
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const left = x * sx,
+        right = (x + 1) * sx,
+        top = y * sy,
+        bottom = (y + 1) * sy;
+      const sum = [0, 0, 0];
+      for (
+        let iy = Math.floor(top);
+        iy < Math.ceil(bottom) && iy < source.height;
+        iy++
+      ) {
+        const wy = Math.min(iy + 1, bottom) - Math.max(iy, top);
+        for (
+          let ix = Math.floor(left);
+          ix < Math.ceil(right) && ix < source.width;
+          ix++
+        ) {
+          const weight = wy * (Math.min(ix + 1, right) - Math.max(ix, left));
+          const index = (iy * source.width + ix) * 4;
+          for (let c = 0; c < 3; c++) sum[c] += source.data[index + c] * weight;
+        }
+      }
+      const index = (y * width + x) * 4;
+      for (let c = 0; c < 3; c++)
+        target.data[index + c] = Math.round(sum[c] / (sx * sy));
+      target.data[index + 3] = 255;
+    }
+  return target;
+}
