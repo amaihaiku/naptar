@@ -67,12 +67,29 @@ export function renderCanvas(
     }
     if (n.kind === "text") {
       const t = n.type;
-      ctx.font = `${t.weight} ${t.size * mmPerPt}px "${t.family}"`;
+      // Rasterize glyphs at their device size, rather than hinting a 1–4 px
+      // millimetre-space font and enlarging that result with the CTM. Firefox
+      // otherwise quantizes small letters before the 300 DPI scaling step.
+      const matrix = ctx.getTransform();
+      const pixelScale = Math.max(
+        Math.hypot(matrix.a, matrix.b),
+        Math.hypot(matrix.c, matrix.d),
+        1,
+      );
+      ctx.setTransform(
+        matrix.a / pixelScale,
+        matrix.b / pixelScale,
+        matrix.c / pixelScale,
+        matrix.d / pixelScale,
+        matrix.e,
+        matrix.f,
+      );
+      ctx.font = `${t.weight} ${t.size * mmPerPt * pixelScale}px "${t.family}"`;
       ctx.textBaseline = "alphabetic";
       ctx.fillStyle = t.color;
       let x = n.x;
       for (const c of n.text) {
-        ctx.fillText(c, x, n.y);
+        ctx.fillText(c, x * pixelScale, n.y * pixelScale);
         x += advance(c, t) + t.spacing;
       }
     }
