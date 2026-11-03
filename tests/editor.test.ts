@@ -29,15 +29,23 @@ describe("Requested cover/month and typography behavior", () => {
     const p = { ...defaultProject(), year: 2027, month: 2 };
     const regular = buildScene(p);
     const extended = buildScene({ ...p, adjacent: true });
-    expect(regular.cells).toHaveLength(28);
-    expect(extended.cells).toHaveLength(35);
-    expect(extended.cells.slice(28).map((c) => c.date)).toEqual(
-      Array.from({ length: 7 }, (_, i) => ({
-        year: 2027,
-        month: 3,
-        day: i + 1,
-      })),
-    );
+    const dates = (scene: ReturnType<typeof buildScene>) =>
+      scene.nodes.flatMap((node) =>
+        node.kind === "text" && node.z === 2 && /^\d+$/.test(node.text)
+          ? [node.text]
+          : [],
+      );
+    expect(dates(regular)).toHaveLength(28);
+    expect(dates(extended)).toHaveLength(35);
+    expect(dates(extended).slice(28)).toEqual([
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+    ]);
   });
   it("defaults to the current Budapest year", () =>
     expect(defaultProject().year).toBe(

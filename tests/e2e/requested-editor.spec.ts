@@ -238,7 +238,10 @@ test("shared photo slots retain their geometry and allow monthly replacement and
     await chooser
   ).setFiles({ name: "aprilis.png", mimeType: "image/png", buffer: file });
   await expect(
-    page.locator(".photo-layer").getByText("aprilis.png", { exact: true }),
+    page.getByRole("button", {
+      name: "aprilis.png Közös képhely",
+      exact: true,
+    }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Kép törlése", exact: true }).click();
   await expect(
@@ -246,7 +249,7 @@ test("shared photo slots retain their geometry and allow monthly replacement and
   ).toBeVisible();
   await page.getByRole("button", { name: "Május", exact: true }).click();
   await expect(
-    page.locator(".photo-layer").getByText("foto.png", { exact: true }),
+    page.getByRole("button", { name: "foto.png Közös képhely", exact: true }),
   ).toBeVisible();
   const project = await savedProject(page);
   expect(project.photos).toHaveLength(1);
