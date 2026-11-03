@@ -78,6 +78,34 @@ describe("Requested cover/month and typography behavior", () => {
     expect(!!year).toBe(true);
     expect(year!.y > 40).toBe(true);
   });
+  it("positions day numbers and namedays independently inside cells", () => {
+    const p = { ...defaultProject(), year: 2027, month: 3 };
+    const first = buildScene(p);
+    const cell = first.cells.find(
+      (c) => c.date.month === 3 && c.date.day === 1,
+    )!;
+    const within = (scene: ReturnType<typeof buildScene>, category: string) =>
+      scene.nodes.find(
+        (n) =>
+          n.kind === "text" &&
+          n.clip &&
+          n.x >= cell.x &&
+          n.x < cell.x + cell.w &&
+          n.y > cell.y &&
+          n.y < cell.y + cell.h &&
+          (category === "date" ? n.text === "1" : n.text.includes("Albin")),
+      )!;
+    const before = within(first, "date");
+    p.style.typography.date.vertical = "middle";
+    p.style.typography.nameday.vertical = "bottom";
+    const scene = buildScene(p);
+    expect(within(scene, "date").y > before.y + 2).toBe(true);
+    expect(within(scene, "nameday").y > within(scene, "date").y).toBe(true);
+    expect(scene.issues.some((i) => i.code === "overflow")).toBe(false);
+    expect(
+      parseProject(serializeProject(p)).style.typography.nameday.vertical,
+    ).toBe("bottom");
+  });
   it("anchors personal events from the cell bottom upwards", () => {
     const p = { ...defaultProject(), year: 2027, month: 3 };
     p.events = [

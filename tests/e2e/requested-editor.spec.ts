@@ -95,6 +95,27 @@ test("monthly formatting remains identical across all twelve pages and cover rem
   await page.getByLabel("Elem", { exact: true }).selectOption("grid");
   await expect(page.getByLabel("X pozíció", { exact: true })).toHaveCount(0);
 });
+test("day and nameday cell positions are independently shared across months", async ({
+  page,
+}) => {
+  await page.getByLabel("Szövegelem", { exact: true }).selectOption("date");
+  await page
+    .getByLabel("Nap elhelyezése", { exact: true })
+    .selectOption("right");
+  await page.getByLabel("Nap függőleges elhelyezése").selectOption("middle");
+  await page.getByLabel("Szövegelem", { exact: true }).selectOption("nameday");
+  await page
+    .getByLabel("Névnapok függőleges elhelyezése")
+    .selectOption("bottom");
+  await page.getByRole("button", { name: "December", exact: true }).click();
+  await expect(page.getByLabel("Névnapok függőleges elhelyezése")).toHaveValue(
+    "bottom",
+  );
+  const p = await savedProject(page);
+  expect(p.style.typography.date.align).toBe("right");
+  expect(p.style.typography.date.vertical).toBe("middle");
+  expect(p.style.typography.nameday.vertical).toBe("bottom");
+});
 test("font style variants are real, local and independently selectable", async ({
   page,
 }) => {

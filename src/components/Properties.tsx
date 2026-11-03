@@ -568,6 +568,25 @@ export function Properties({
                 typography({ align: align as Typography["align"] })
               }
             />
+            {!cover && (cat === "date" || cat === "nameday") && (
+              <Select
+                label={
+                  cat === "date"
+                    ? "Nap függőleges elhelyezése"
+                    : "Névnapok függőleges elhelyezése"
+                }
+                value={t.vertical}
+                options={[
+                  ["auto", cat === "nameday" ? "Nap száma alatt" : "Felül"],
+                  ...(cat === "nameday" ? [["top", "Felül"] as const] : []),
+                  ["middle", "Középen"],
+                  ["bottom", "Alul"],
+                ]}
+                onChange={(vertical) =>
+                  typography({ vertical: vertical as Typography["vertical"] })
+                }
+              />
+            )}
             <Num
               label="Betűköz"
               value={t.spacing}

@@ -48,6 +48,7 @@ export const typeSchema = z
     spacing: num(-1, 5),
     lineHeight: num(0.8, 3),
     align: z.enum(["left", "center", "right"]),
+    vertical: z.enum(["auto", "top", "middle", "bottom"]).default("auto"),
     uppercase: z.boolean(),
   })
   .strict();
@@ -297,6 +298,7 @@ const text = (
   lineHeight: 1.25,
   uppercase: false,
   italic: false,
+  vertical: "auto",
 });
 export function defaultProject(): Project {
   const p: Project = {

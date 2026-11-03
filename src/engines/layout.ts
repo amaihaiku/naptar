@@ -280,10 +280,27 @@ export function buildScene(root: Project, month = root.month): Scene {
       };
       if (highlight) dt.color = s.holidayColor;
       if (!inMonth) dt.color = "#a7ada9";
-      const numberBox = box(b.x + pad, b.y + pad, b.w - 2 * pad, b.h - pad);
+      const positionY = (
+        vertical: Typography["vertical"],
+        height: number,
+        fallback: number,
+      ) =>
+        vertical === "middle"
+          ? b.y + (b.h - height) / 2
+          : vertical === "bottom"
+            ? b.y + b.h - pad - height
+            : vertical === "top"
+              ? b.y + pad
+              : fallback;
+      const dateHeight = dt.size * mmPerPt * dt.lineHeight;
+      const dateY = annual
+        ? b.y + pad
+        : positionY(dt.vertical, dateHeight, b.y + pad);
+      const numberBox = box(b.x + pad, dateY, b.w - 2 * pad, b.h - pad);
       text(String(d.day), numberBox, dt, 2, clip);
       if (!annual) {
-        let cursor = b.y + pad + dt.size * mmPerPt * dt.lineHeight + 0.7;
+        let contentBottom = dateY + dateHeight;
+        let cursor = contentBottom + 0.7;
         if (s.showNamedays) {
           const nt = s.typography.nameday;
           const names = namedays(
@@ -293,11 +310,15 @@ export function buildScene(root: Project, month = root.month): Scene {
             p.year,
           ).join(", ");
           const nameLines = wrap(names, nt, b.w - 2 * pad);
+          const nameHeight =
+            nameLines.length * nt.size * mmPerPt * nt.lineHeight;
+          let nameY = positionY(nt.vertical, nameHeight, cursor);
           for (const line of nameLines) {
-            text(line, box(b.x + pad, cursor, b.w - 2 * pad, b.h), nt, 2, clip);
-            cursor += nt.size * mmPerPt * nt.lineHeight;
+            text(line, box(b.x + pad, nameY, b.w - 2 * pad, b.h), nt, 2, clip);
+            nameY += nt.size * mmPerPt * nt.lineHeight;
           }
-          cursor += 0.6;
+          contentBottom = Math.max(contentBottom, nameY);
+          cursor = contentBottom + 0.6;
         }
         if (inMonth) {
           let bottom = b.y + b.h - pad;
@@ -345,7 +366,7 @@ export function buildScene(root: Project, month = root.month): Scene {
             );
           }
         }
-        if (cursor > b.y + b.h - pad)
+        if (contentBottom > b.y + b.h - pad + 0.001)
           issues.push({
             severity: "error",
             code: "overflow",
