@@ -519,5 +519,10 @@
     "italic": false,
     "file": "AbrilFatface-400.ttf",
     "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Special Elite",
+    "weight": 400,
+    "file": "SpecialElite-400.ttf"
   }
 ]

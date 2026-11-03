@@ -54,9 +54,11 @@ test("current year, year arrows, A4 orientation and margin slider", async ({
     String(current + 1),
   );
   await page.getByRole("button", { name: "Előző év", exact: true }).click();
-  await page.getByRole("slider", { name: "Margó", exact: true }).press("End");
+  await page
+    .getByRole("slider", { name: "Vízszintes margó", exact: true })
+    .press("End");
   await expect(
-    page.getByRole("slider", { name: "Margó", exact: true }),
+    page.getByRole("slider", { name: "Vízszintes margó", exact: true }),
   ).toHaveValue("20");
   await page.getByRole("button", { name: "Fekvő", exact: true }).click();
   const p = await savedProject(page);
@@ -140,11 +142,13 @@ test("font style variants are real, local and independently selectable", async (
 test("photo mask freely resizes and its image can be panned within it", async ({
   page,
 }) => {
-  await page.getByRole("button", { name: "Képek", exact: true }).click();
+  await page.getByRole("button", { name: "Képhelyek", exact: true }).click();
+  await page.getByRole("button", { name: "Új képhely", exact: true }).click();
+  const chooser = page.waitForEvent("filechooser");
   await page
-    .locator("input[type=file]")
-    .nth(2)
-    .setInputFiles("tests/fixtures/foto.png");
+    .getByRole("button", { name: "Kép betöltése", exact: true })
+    .click();
+  await (await chooser).setFiles("tests/fixtures/foto.png");
   const zoom = page.getByRole("slider", {
     name: "Kép mérete a maszkban",
     exact: true,
@@ -217,44 +221,70 @@ test("title and year can be dragged independently by their own text areas", asyn
   expect(year.cover.titleBox).toEqual(title.cover.titleBox);
 });
 
-test("shared photo slots retain their geometry and allow monthly replacement and deletion", async ({
+test("a shared slot keeps its mask and stores independently edited photos per month", async ({
   page,
 }) => {
-  await page.getByRole("button", { name: "Képek", exact: true }).click();
-  const shared = page.getByLabel("Képek ugyanott minden hónapnál");
-  await shared.check();
-  const input = page.locator("input[type=file]").nth(2);
-  await input.setInputFiles("tests/fixtures/foto.png");
+  await page.getByRole("button", { name: "Képhelyek", exact: true }).click();
+  await page.getByRole("button", { name: "Új képhely", exact: true }).click();
+  await page.getByLabel("Minden hónapban", { exact: true }).check();
+  async function upload() {
+    const chooser = page.waitForEvent("filechooser");
+    await page
+      .getByRole("button", { name: "Kép betöltése", exact: true })
+      .click();
+    await (await chooser).setFiles("tests/fixtures/foto.png");
+    await expect(
+      page.getByRole("button", { name: "Képcsere", exact: true }),
+    ).toBeVisible();
+  }
+  await upload();
+  await page
+    .getByRole("button", { name: "Tükrözés vízszintesen", exact: true })
+    .click();
+  await page
+    .getByRole("slider", { name: "Fényerő", exact: true })
+    .press("ArrowRight");
+  await page.getByRole("button", { name: "Április", exact: true }).click();
+  await page
+    .locator(".photo-layer")
+    .getByRole("button", { name: "Képhely 1", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Kép betöltése", exact: true }),
+  ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Képcsere", exact: true }),
-  ).toHaveCount(1);
-  await shared.uncheck();
-  await page.getByRole("button", { name: "Április", exact: true }).click();
-  await expect(page.getByText("Közös képhely", { exact: true })).toBeVisible();
-  const file = await readFile("tests/fixtures/foto.png");
-  const chooser = page.waitForEvent("filechooser");
-  await page.getByRole("button", { name: "Képcsere", exact: true }).click();
-  await (
-    await chooser
-  ).setFiles({ name: "aprilis.png", mimeType: "image/png", buffer: file });
-  await expect(
-    page.getByRole("button", {
-      name: "aprilis.png Közös képhely",
-      exact: true,
-    }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: "Kép törlése", exact: true }).click();
-  await expect(
-    page.getByRole("button", { name: /Kép betöltése az üres maszkba/ }),
-  ).toBeVisible();
-  await page.getByRole("button", { name: "Május", exact: true }).click();
-  await expect(
-    page.getByRole("button", { name: "foto.png Közös képhely", exact: true }),
-  ).toBeVisible();
+  ).toHaveCount(0);
+  await upload();
   const project = await savedProject(page);
   expect(project.photos).toHaveLength(1);
-  expect(project.photos[0].monthlyImages["4"]).toBeNull();
-  expect(project.sharedPhotoPlacement).toBe(false);
+  expect(project.photos[0].monthlyImages["3"].edits).toEqual({
+    flipX: true,
+    brightness: 1,
+  });
+  expect(project.photos[0].monthlyImages["4"].edits).toBeUndefined();
+
+  await page.getByRole("button", { name: "Stílus", exact: true }).click();
+  await page.getByLabel("Sablon neve", { exact: true }).fill("Nyári sablon");
+  const download = page.waitForEvent("download");
+  await page
+    .getByRole("button", { name: "Sablon mentése", exact: true })
+    .click();
+  const path = (await (await download).path())!;
+  const template = JSON.parse(await readFile(path, "utf8"));
+  expect(template.name).toBe("Nyári sablon");
+  expect(template.photos[0].box).toEqual(project.photos[0].box);
+  expect(template.photos[0].data).toBe("");
+  expect(template.photos[0].monthlyImages).toBeUndefined();
+  await page
+    .locator("input[type=file]")
+    .nth(1)
+    .setInputFiles({
+      name: "sablon.json",
+      mimeType: "application/json",
+      buffer: await readFile(path),
+    });
+  await expect(page.locator(".loaded-template")).toContainText("Nyári sablon");
 });
 
 test("an out-of-page title can be exported with the cover and all months", async ({

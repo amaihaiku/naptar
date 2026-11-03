@@ -5,6 +5,7 @@ const num = (min: number, max: number) => z.number().finite().min(min).max(max);
 const color = z.string().regex(/^#[0-9a-fA-F]{6}$/);
 export const families = [
   "Noto Sans",
+  "Special Elite",
   "PT Serif",
   "Inter",
   "Roboto",
@@ -61,6 +62,7 @@ export const styleSchema = z
     accent: color,
     holidayColor: color,
     holidayBackground: color,
+    customHolidayBackground: color.optional(),
     cellBackground: color,
     gridColor: color,
     gridLine: num(0, 3),
@@ -124,12 +126,14 @@ export type Box = z.infer<typeof boxSchema>;
 export const eventSchema = z
   .object({
     id: z.string().min(1).max(80),
-    kind: z.enum(["birthday", "nameday"]),
+    kind: z.enum(["birthday", "nameday", "other"]),
     name: z.string().trim().min(1).max(80),
     month: z.number().int().min(1).max(12),
     day: z.number().int().min(1).max(31),
     birthYear: z.number().int().min(1).max(9999).nullable(),
     showAge: z.boolean(),
+    publicHoliday: z.boolean().optional(),
+    coloredDay: z.boolean().optional(),
     hidden: z.boolean(),
   })
   .strict()
@@ -144,9 +148,21 @@ const photoAssetSchema = z
     data: z
       .string()
       .max(40_000_000)
-      .regex(/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/),
+      .regex(/^(?:data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+)?$/),
     pixelWidth: z.number().int().min(1).max(30000),
     pixelHeight: z.number().int().min(1).max(30000),
+    edits: z
+      .object({
+        flipX: z.boolean().optional(),
+        flipY: z.boolean().optional(),
+        rotation: num(-180, 180).optional(),
+        brightness: num(-100, 100).optional(),
+        contrast: num(-100, 100).optional(),
+        saturation: num(-100, 100).optional(),
+        temperature: num(-100, 100).optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 export type PhotoAsset = z.infer<typeof photoAssetSchema>;
@@ -169,6 +185,8 @@ export const imageSchema = z
     visible: z.boolean(),
     aspectLock: z.boolean(),
     page: z.number().int().min(0).max(12).optional(),
+    slotNumber: z.number().int().positive().optional(),
+    sharedSlot: z.boolean().optional(),
     monthlyImages: z
       .record(
         z.string().regex(/^(?:[1-9]|1[0-2])$/),
@@ -223,12 +241,15 @@ export const projectSchema = z
         width: num(40, 600),
         height: num(40, 600),
         margin: num(0, 50),
+        marginY: num(0, 50).optional(),
+        linkedMargins: z.boolean().optional(),
       })
       .strict(),
     firstDay: z.union([z.literal(1), z.literal(7)]),
     isoWeeks: z.boolean(),
     adjacent: z.boolean(),
     sharedPhotoPlacement: z.boolean().optional(),
+    templateName: z.string().max(100).optional(),
     leapPolicy: z.enum(["feb28", "mar1"]),
     style: styleSchema,
     monthOverrides: z.record(
@@ -483,19 +504,33 @@ export function updateView(
     },
   };
 }
+export const emptyPhoto: PhotoAsset = {
+  name: "",
+  data: "",
+  pixelWidth: 1,
+  pixelHeight: 1,
+};
 export function photoAssets(photos: Photo[]): PhotoAsset[] {
-  return photos.flatMap((photo) => [
-    photo,
-    ...Object.values(photo.monthlyImages ?? {}).filter(
-      (asset) => asset !== null,
-    ),
-  ]);
+  return photos
+    .flatMap((photo) => [
+      photo,
+      ...Object.values(photo.monthlyImages ?? {}).filter(
+        (asset) => asset !== null,
+      ),
+    ])
+    .filter((asset) => asset.data);
 }
 export function pagePhotos(
   p: Project,
   page = p.mode === "annual" ? 0 : p.month,
 ): Photo[] {
   return p.photos.flatMap((photo) => {
+    if (photo.slotNumber !== undefined) {
+      if (photo.page !== page && !(photo.sharedSlot && page > 0)) return [];
+      if (page === 0) return [photo];
+      const asset = photo.monthlyImages?.[page];
+      return [{ ...photo, ...emptyPhoto, edits: undefined, ...asset }];
+    }
     if (photo.monthlyImages) {
       if (page === 0) return [];
       const asset = photo.monthlyImages[page];
@@ -504,15 +539,48 @@ export function pagePhotos(
     return photo.page === undefined || photo.page === page ? [photo] : [];
   });
 }
-export function applyMargin(p: Project, margin: number): Project {
+export function setSlotAsset(
+  p: Project,
+  id: string,
+  page: number,
+  asset: PhotoAsset,
+): Project {
+  return {
+    ...p,
+    photos: p.photos.map((slot) =>
+      slot.id !== id
+        ? slot
+        : page === 0
+          ? { ...slot, ...asset, edits: asset.edits }
+          : {
+              ...slot,
+              monthlyImages: {
+                ...slot.monthlyImages,
+                [page]: asset.data ? asset : null,
+              },
+            },
+    ),
+  };
+}
+export function slotLabel(photo: Photo) {
+  return photo.slotNumber === undefined
+    ? photo.name
+    : `Képhely ${photo.slotNumber}`;
+}
+export function applyMargin(
+  p: Project,
+  margin: number,
+  marginY = margin,
+): Project {
   const old = p.page.margin;
+  const oldY = p.page.marginY ?? old;
   const sx = (p.page.width - 2 * margin) / Math.max(10, p.page.width - 2 * old);
   const sy =
-    (p.page.height - 2 * margin) / Math.max(10, p.page.height - 2 * old);
+    (p.page.height - 2 * marginY) / Math.max(10, p.page.height - 2 * oldY);
   const inset = (b: Box): Box => ({
     ...b,
     x: margin + (b.x - old) * sx,
-    y: margin + (b.y - old) * sy,
+    y: marginY + (b.y - oldY) * sy,
     w: Math.max(10, b.w * sx),
     h: Math.max(10, b.h * sy),
   });
@@ -520,7 +588,7 @@ export function applyMargin(p: Project, margin: number): Project {
   const cover = p.cover ?? defaultCover(p);
   return {
     ...p,
-    page: { ...p.page, margin },
+    page: { ...p.page, margin, marginY },
     grid: inset(p.grid),
     titleBox: textInset(p.titleBox),
     yearBox: textInset(yearBoxFor({ ...p, mode: "monthly" })),
@@ -592,6 +660,10 @@ export function applyPaper(
       width,
       height,
       margin: Math.min(size === "A4" ? 20 : 40, p.page.margin * ratio),
+      marginY: Math.min(
+        size === "A4" ? 20 : 40,
+        (p.page.marginY ?? p.page.margin) * ratio,
+      ),
     },
   };
   if (p.mode === "monthly" && !(p.page.size === "A4" && size === "A4")) {
@@ -703,11 +775,39 @@ export const serializeProject = (p: Project) =>
 export function editorProject(p: Project): Project {
   const next =
     p.page.size === "A4" ? p : applyPaper(p, "A4", p.page.orientation);
+  const currentPage = next.mode === "annual" ? 0 : next.month;
+  const used = Math.max(
+    0,
+    ...next.photos.map((photo) => photo.slotNumber ?? 0),
+  );
+  const photos = next.photos.map((photo, i): Photo => {
+    if (photo.slotNumber !== undefined) return photo;
+    const { name, data, pixelWidth, pixelHeight, edits } = photo;
+    const asset = { name, data, pixelWidth, pixelHeight, edits };
+    const page = photo.page ?? (photo.monthlyImages ? next.month : currentPage);
+    return {
+      ...photo,
+      ...(page > 0 ? { ...emptyPhoto, edits: undefined } : {}),
+      page,
+      sharedSlot: Boolean(photo.monthlyImages || photo.page === undefined),
+      monthlyImages:
+        page > 0
+          ? { [page]: asset, ...photo.monthlyImages }
+          : photo.monthlyImages,
+      slotNumber: used + i + 1,
+    };
+  });
+  const margin = Math.min(20, next.page.margin);
+  const marginY = Math.min(20, next.page.marginY ?? next.page.margin);
+  const fitted =
+    margin !== next.page.margin ||
+    marginY !== (next.page.marginY ?? next.page.margin)
+      ? applyMargin(next, margin, marginY)
+      : next;
   return {
-    ...(next.page.margin > 20 ? applyMargin(next, 20) : next),
+    ...fitted,
     monthOverrides: {},
-    ...(!next.cover && next.page.margin <= 20
-      ? { cover: defaultCover(next) }
-      : {}),
+    cover: fitted.cover ?? defaultCover(fitted),
+    photos,
   };
 }

@@ -47,6 +47,40 @@ describe("Requested cover/month and typography behavior", () => {
       "7",
     ]);
   });
+  it("renders a custom event and applies its selected date color and background", () => {
+    const p = { ...defaultProject(), year: 2027, month: 3 };
+    p.style.highlight = false;
+    p.style.customHolidayBackground = "#fedcba";
+    p.events = [
+      {
+        id: "other",
+        kind: "other",
+        name: "Iskolai ünnep",
+        month: 3,
+        day: 1,
+        birthYear: null,
+        showAge: false,
+        hidden: false,
+        publicHoliday: true,
+        coloredDay: true,
+      },
+    ];
+    const scene = buildScene(p);
+    expect(
+      scene.nodes.some((n) => n.kind === "text" && n.text === "Iskolai ünnep"),
+    ).toBe(true);
+    expect(
+      scene.nodes.some((n) => n.kind === "rect" && n.fill === "#fedcba"),
+    ).toBe(true);
+    expect(
+      scene.nodes.some(
+        (n) =>
+          n.kind === "text" &&
+          n.text === "1" &&
+          n.type.color === p.style.holidayColor,
+      ),
+    ).toBe(true);
+  });
   it("defaults to the current Budapest year", () =>
     expect(defaultProject().year).toBe(
       Number(

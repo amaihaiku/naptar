@@ -1,13 +1,24 @@
-import { photoAssets, type Photo } from "../model";
+import {
+  emptyPhoto,
+  photoAssets,
+  type Photo,
+  type PhotoAsset,
+  type Project,
+} from "../model";
 export const imageCache = new Map<string, HTMLImageElement>();
 export function cropGeometry(p: Photo) {
+  const radians = ((p.edits?.rotation ?? 0) * Math.PI) / 180;
+  const sin = Math.abs(Math.sin(radians)),
+    cos = Math.abs(Math.cos(radians));
+  const requiredW = cos * p.box.w + sin * p.box.h;
+  const requiredH = sin * p.box.w + cos * p.box.h;
   const scale =
-    Math.max(p.box.w / p.pixelWidth, p.box.h / p.pixelHeight) * p.zoom;
+    Math.max(requiredW / p.pixelWidth, requiredH / p.pixelHeight) * p.zoom;
   const w = p.pixelWidth * scale,
     h = p.pixelHeight * scale;
   return {
-    x: p.box.x + (p.box.w - w) / 2 + (p.panX * (w - p.box.w)) / 2,
-    y: p.box.y + (p.box.h - h) / 2 + (p.panY * (h - p.box.h)) / 2,
+    x: p.box.x + (p.box.w - w) / 2 + (p.panX * (w - requiredW)) / 2,
+    y: p.box.y + (p.box.h - h) / 2 + (p.panY * (h - requiredH)) / 2,
     w,
     h,
   };
@@ -38,11 +49,7 @@ export function pruneImages(photos: Photo[]) {
   for (const key of imageCache.keys())
     if (!active.has(key)) imageCache.delete(key);
 }
-export async function readPhoto(
-  file: File,
-  pageWidth: number,
-  pageHeight: number,
-): Promise<Photo> {
+export async function readPhoto(file: File): Promise<PhotoAsset> {
   if (file.size > 25_000_000) throw new Error("A kép legfeljebb 25 MB lehet.");
   const bytes = new Uint8Array(await file.slice(0, 16).arrayBuffer());
   const png =
@@ -64,21 +71,26 @@ export async function readPhoto(
     );
   });
   const image = await decodeImage(data);
-  const w = pageWidth * 0.8,
-    h = Math.max(
-      10,
-      Math.min(
-        pageHeight * 0.4,
-        (w * image.naturalHeight) / image.naturalWidth,
-      ),
-    );
   return {
-    id: crypto.randomUUID(),
     name: file.name.slice(0, 120),
     data,
     pixelWidth: image.naturalWidth,
     pixelHeight: image.naturalHeight,
-    box: { x: pageWidth * 0.1, y: 8, w, h, locked: false },
+  };
+}
+export function createSlot(p: Project): Photo {
+  const page = p.mode === "annual" ? 0 : p.month;
+  const w = p.page.width * 0.8;
+  const y = page === 0 ? p.page.height * 0.23 : 8;
+  const h = p.page.height * 0.26;
+  const slotNumber =
+    Math.max(0, ...p.photos.map((slot) => slot.slotNumber ?? 0)) + 1;
+  return {
+    id: crypto.randomUUID(),
+    ...emptyPhoto,
+    page,
+    slotNumber,
+    box: { x: p.page.width * 0.1, y, w, h, locked: false },
     role: "photo",
     z: -1,
     zoom: 1,
@@ -91,7 +103,7 @@ export async function readPhoto(
     shadow: 0,
     opacity: 1,
     visible: true,
-    aspectLock: true,
+    aspectLock: false,
   };
 }
 export function photoPath(
@@ -121,6 +133,65 @@ export function photoPath(
       Math.min(p.radius, w / 2, h / 2),
     );
 }
+// The same sRGB matrix is used for the SVG preview and both export paths.
+export function photoColorMatrix(edits: Photo["edits"]): number[] | undefined {
+  const {
+    brightness = 0,
+    contrast = 0,
+    saturation = 0,
+    temperature = 0,
+  } = edits ?? {};
+  if (!brightness && !contrast && !saturation && !temperature) return;
+  const light = 1 + brightness / 100;
+  const contrastScale = 1 + contrast / 100;
+  const chroma = 1 + saturation / 100;
+  const warmth = temperature / 250;
+  const channelScales = [1 + warmth, 1, 1 - warmth];
+  const luma = [0.2126, 0.7152, 0.0722];
+  return [
+    ...channelScales.flatMap((gain, row) => [
+      ...luma.map(
+        (weight, col) =>
+          gain *
+          light *
+          contrastScale *
+          ((1 - chroma) * weight + (row === col ? chroma : 0)),
+      ),
+      0,
+      (gain * (1 - contrastScale)) / 2,
+    ]),
+    0,
+    0,
+    0,
+    1,
+    0,
+  ];
+}
+function adjustColors(image: HTMLImageElement, matrix: number[]) {
+  const canvas = document.createElement("canvas");
+  canvas.width = image.naturalWidth;
+  canvas.height = image.naturalHeight;
+  const ctx = canvas.getContext("2d", {
+    colorSpace: "srgb",
+    willReadFrequently: true,
+  });
+  if (!ctx) throw new Error("A kép színei nem dolgozhatók fel.");
+  ctx.drawImage(image, 0, 0);
+  const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const rgba = pixels.data;
+  for (let i = 0; i < rgba.length; i += 4) {
+    const r = rgba[i],
+      g = rgba[i + 1],
+      b = rgba[i + 2];
+    rgba[i] = matrix[0] * r + matrix[1] * g + matrix[2] * b + matrix[4] * 255;
+    rgba[i + 1] =
+      matrix[5] * r + matrix[6] * g + matrix[7] * b + matrix[9] * 255;
+    rgba[i + 2] =
+      matrix[10] * r + matrix[11] * g + matrix[12] * b + matrix[14] * 255;
+  }
+  ctx.putImageData(pixels, 0, 0);
+  return canvas;
+}
 export function paintPhoto(
   ctx: CanvasRenderingContext2D,
   p: Photo,
@@ -133,7 +204,18 @@ export function paintPhoto(
   photoPath(ctx, p, offsetX, offsetY);
   ctx.clip();
   const g = cropGeometry(p);
-  ctx.drawImage(image, g.x - offsetX, g.y - offsetY, g.w, g.h);
+  const centerX = p.box.x + p.box.w / 2;
+  const centerY = p.box.y + p.box.h / 2;
+  ctx.translate(centerX - offsetX, centerY - offsetY);
+  ctx.rotate(((p.edits?.rotation ?? 0) * Math.PI) / 180);
+  ctx.scale(p.edits?.flipX ? -1 : 1, p.edits?.flipY ? -1 : 1);
+  const matrix = photoColorMatrix(p.edits);
+  const adjusted = matrix ? adjustColors(image, matrix) : null;
+  ctx.drawImage(adjusted ?? image, g.x - centerX, g.y - centerY, g.w, g.h);
+  if (adjusted) {
+    adjusted.width = 0;
+    adjusted.height = 0;
+  }
   ctx.restore();
   if (p.border) {
     photoPath(ctx, p, offsetX, offsetY);

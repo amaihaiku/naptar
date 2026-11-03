@@ -23,6 +23,9 @@ import {
   updateView,
   defaultCover,
   pagePhotos,
+  slotLabel,
+  emptyPhoto,
+  setSlotAsset,
   yearBoxFor,
 } from "../model";
 import { months } from "../engines/date";
@@ -46,12 +49,14 @@ export function Properties({
   onSelect,
   commit,
   scene,
+  onLoadPhoto,
 }: {
   project: Project;
   selection: string;
   onSelect: (id: string) => void;
   commit: (p: Project | ((p: Project) => Project)) => void;
   scene: Scene | null;
+  onLoadPhoto: (id: string) => void;
 }) {
   const v = viewProject(p),
     s = v.style,
@@ -165,6 +170,19 @@ export function Properties({
       });
     });
   }
+  function editPhoto(patch: NonNullable<Photo["edits"]>) {
+    if (!photo?.data) return;
+    const { name, data, pixelWidth, pixelHeight } = photo;
+    commit((root) =>
+      setSlotAsset(root, photo.id, p.mode === "annual" ? 0 : p.month, {
+        name,
+        data,
+        pixelWidth,
+        pixelHeight,
+        edits: { ...photo.edits, ...patch },
+      }),
+    );
+  }
   function reorder(direction: -1 | 1) {
     if (photo) image({ z: Math.max(-20, Math.min(20, photo.z + direction)) });
   }
@@ -200,21 +218,30 @@ export function Properties({
             ...(!cover || p.cover?.showCalendar !== false
               ? [["grid", "Naptárrács"] as const]
               : []),
-            ...photos.map((i) => [i.id, i.name] as const),
+            ...photos.map((i) => [i.id, slotLabel(i)] as const),
           ]}
           onChange={onSelect}
         />
         {photo ? (
           <>
-            <Slider
-              label="Kép mérete a maszkban"
-              value={photo.zoom}
-              min={1}
-              max={8}
-              step={0.05}
-              unit="×"
-              onChange={(zoom) => image({ zoom })}
-            />
+            <button
+              className="outlined full"
+              onClick={() => onLoadPhoto(photo.id)}
+            >
+              {photo.data ? "Képcsere" : "Kép betöltése"}
+            </button>
+            {photo.data && <p className="small-note">{photo.name}</p>}
+            {photo.data && (
+              <Slider
+                label="Kép mérete a maszkban"
+                value={photo.zoom}
+                min={1}
+                max={8}
+                step={0.05}
+                unit="×"
+                onChange={(zoom) => image({ zoom })}
+              />
+            )}
             <button
               className="full"
               onClick={() => box({ x: (p.page.width - photo.box.w) / 2 })}
@@ -386,6 +413,44 @@ export function Properties({
           )
         )}
       </Section>
+      {photo?.data && (
+        <Section title="Képszerkesztés">
+          <div className="button-row">
+            <button
+              aria-pressed={photo.edits?.flipX ?? false}
+              onClick={() => editPhoto({ flipX: !photo.edits?.flipX })}
+            >
+              Tükrözés vízszintesen
+            </button>
+            <button
+              aria-pressed={photo.edits?.flipY ?? false}
+              onClick={() => editPhoto({ flipY: !photo.edits?.flipY })}
+            >
+              Tükrözés függőlegesen
+            </button>
+          </div>
+          {(
+            [
+              ["rotation", "Elforgatás", 180, "°"],
+              ["brightness", "Fényerő", 100, "%"],
+              ["contrast", "Kontraszt", 100, "%"],
+              ["saturation", "Telítettség", 100, "%"],
+              ["temperature", "Színhőmérséklet", 100, "%"],
+            ] as const
+          ).map(([key, label, max, unit]) => (
+            <Slider
+              key={key}
+              label={label}
+              value={photo.edits?.[key] ?? 0}
+              min={-max}
+              max={max}
+              step={1}
+              unit={unit}
+              onChange={(value) => editPhoto({ [key]: value })}
+            />
+          ))}
+        </Section>
+      )}
       {photo ? (
         <Section title="Kép maszk tulajdonságok">
           <Select
@@ -471,33 +536,23 @@ export function Properties({
             value={photo.visible}
             onChange={(visible) => image({ visible })}
           />
-          <button
-            className="danger full"
-            onClick={() => {
-              commit((root) => ({
-                ...root,
-                photos: root.photos.flatMap((i) =>
-                  i.id !== selection
-                    ? [i]
-                    : i.monthlyImages
-                      ? [
-                          {
-                            ...i,
-                            monthlyImages: {
-                              ...i.monthlyImages,
-                              [root.month]: null,
-                            },
-                          },
-                        ]
-                      : [],
-                ),
-              }));
-              onSelect("title");
-            }}
-          >
-            <Trash2 size={15} />
-            Kép eltávolítása
-          </button>
+          {photo.data && (
+            <button
+              className="danger full"
+              onClick={() =>
+                commit((root) =>
+                  setSlotAsset(
+                    root,
+                    photo.id,
+                    cover ? 0 : root.month,
+                    emptyPhoto,
+                  ),
+                )
+              }
+            >
+              <Trash2 size={15} /> Kép eltávolítása
+            </button>
+          )}
         </Section>
       ) : (
         <>
@@ -798,6 +853,14 @@ export function Properties({
                     value={s.holidayBackground}
                     onChange={(n) => style("holidayBackground", n)}
                   />
+                  <Color
+                    label="Munkaszüneti/ünnepnap"
+                    value={s.customHolidayBackground ?? s.holidayBackground}
+                    onChange={(value) =>
+                      style("customHolidayBackground", value)
+                    }
+                  />
+
                   {!cover && (
                     <>
                       <Color

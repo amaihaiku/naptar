@@ -70,7 +70,14 @@ export function validateExport(
       message:
         "A lap 300 DPI felbontáson túllépi a biztonságos képméretet. Válassz vektoros PDF-et vagy kisebb papírt; a felbontást nem csökkentjük.",
     });
-  for (const photo of p.photos.filter((i) => i.visible)) {
+  const exportPhotos = new Map(
+    scenes.flatMap((scene) =>
+      pagePhotos(p, scene.page)
+        .filter((photo) => photo.visible && photo.data)
+        .map((photo) => [photo.id, photo] as const),
+    ),
+  );
+  for (const photo of exportPhotos.values()) {
     const pixels = rasterDimensions(photo.box.w, photo.box.h);
     if (format === "pdf" && pixels.width * pixels.height > 40_000_000)
       issues.push({

@@ -655,5 +655,11 @@
     "sha256": "43d5f41c7224f1a4340181af3716b21585c8d2d1795d08bcc38e021c2be50d12",
     "source": "https://github.com/google/fonts/tree/main/ofl/montserrat",
     "processing": "fontTools variable instance; wght=700"
+  },
+  {
+    "file": "SpecialElite-400.ttf",
+    "sha256": "a776fcb4ceb8bdf03e2967688ebdad42680de5b91a7e62c17e718ae212d14bc4",
+    "source": "https://github.com/google/fonts/tree/main/apache/specialelite",
+    "processing": "Original upstream TTF"
   }
 ]

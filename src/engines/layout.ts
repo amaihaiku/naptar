@@ -165,7 +165,7 @@ export function buildScene(root: Project, month = root.month): Scene {
           -90,
         );
   }
-  for (const photo of photos.filter((i) => i.visible)) {
+  for (const photo of photos.filter((i) => i.visible && i.data)) {
     if (photo.shadow > 0)
       rect(
         {
@@ -276,9 +276,26 @@ export function buildScene(root: Project, month = root.month): Scene {
       if (!d || (!inMonth && (annual || !p.adjacent))) return;
       if (inMonth) cells.push({ ...b, date: d, inMonth: true });
       const holiday = inMonth ? holidayMap.get(dateKey(d)) : undefined;
+      const events =
+        !annual && inMonth
+          ? eventsFor(p, d).filter((event) => !event.hidden)
+          : [];
+      const customBackground = events.some((event) => event.coloredDay);
+      const publicHoliday = events.some((event) => event.publicHoliday);
       const highlight =
         !annual && s.highlight && inMonth && (holiday || weekday(d) >= 6);
-      if (highlight) rect(b, s.holidayBackground, "none", 0, 0, 0, clip);
+      if (highlight || customBackground)
+        rect(
+          b,
+          customBackground
+            ? (s.customHolidayBackground ?? s.holidayBackground)
+            : s.holidayBackground,
+          "none",
+          0,
+          0,
+          0,
+          clip,
+        );
       const pad = annual ? 0.4 * factor : s.padding;
       const dt = {
         ...s.typography.date,
@@ -289,7 +306,7 @@ export function buildScene(root: Project, month = root.month): Scene {
             }
           : {}),
       };
-      if (highlight) dt.color = s.holidayColor;
+      if (highlight || publicHoliday) dt.color = s.holidayColor;
       if (!inMonth) dt.color = "#a7ada9";
       const positionY = (
         vertical: Typography["vertical"],
@@ -359,17 +376,18 @@ export function buildScene(root: Project, month = root.month): Scene {
         }
         if (inMonth) {
           let bottom = b.y + b.h - pad;
-          for (const event of eventsFor(p, d)) {
-            if (event.hidden) continue;
+          for (const event of events) {
             const et =
               event.kind === "birthday"
                 ? s.typography.birthday
                 : s.typography.personalNameday;
-            const iconSize = Math.min(2.5, et.size * mmPerPt);
+            const iconSize =
+              event.kind === "other" ? 0 : Math.min(2.5, et.size * mmPerPt);
+            const iconSpace = iconSize ? iconSize + 0.8 : 0;
             const lines = wrap(
               eventLabel(event, p.year),
               et,
-              b.w - 2 * pad - iconSize - 0.8,
+              b.w - 2 * pad - iconSpace,
             );
             const height =
               lines.length * et.size * mmPerPt * et.lineHeight + 0.7;
@@ -380,20 +398,21 @@ export function buildScene(root: Project, month = root.month): Scene {
                 code: "overflow",
                 message: `${months[m - 1]} ${d.day}.: a személyes események nem férnek el a cellában.`,
               });
-            nodes.push({
-              ...common(box(b.x + pad, bottom + 0.5, iconSize, iconSize), 3),
-              kind: "icon",
-              icon: event.kind === "birthday" ? "cake" : "flower",
-              color: et.color,
-              clip,
-            });
+            if (iconSize)
+              nodes.push({
+                ...common(box(b.x + pad, bottom + 0.5, iconSize, iconSize), 3),
+                kind: "icon",
+                icon: event.kind === "birthday" ? "cake" : "flower",
+                color: et.color,
+                clip,
+              });
             lines.forEach((line, index) =>
               text(
                 line,
                 box(
-                  b.x + pad + iconSize + 0.8,
+                  b.x + pad + iconSpace,
                   bottom + index * et.size * mmPerPt * et.lineHeight,
-                  b.w - 2 * pad - iconSize - 0.8,
+                  b.w - 2 * pad - iconSpace,
                   b.h,
                 ),
                 et,
@@ -482,7 +501,7 @@ export function buildScene(root: Project, month = root.month): Scene {
       rect(g, "none", s.gridColor, s.border * factor, clip.r, 11);
   }
   const grid = { ...p.grid, y: p.grid.y + (s.titleGap - 10) };
-  for (const photo of photos.filter((i) => i.visible && i.z >= 0)) {
+  for (const photo of photos.filter((i) => i.visible && i.data && i.z >= 0)) {
     const b = photo.box;
     if (
       b.x < grid.x + grid.w &&
@@ -538,7 +557,7 @@ export function buildScene(root: Project, month = root.month): Scene {
   for (const [label, b] of [
     ...(showCalendar ? [["Naptárrács", grid]] : []),
     ...headerBoxes,
-    ...photos.filter((i) => i.visible).map((i) => [i.name, i.box]),
+    ...photos.filter((i) => i.visible && i.data).map((i) => [i.name, i.box]),
   ] as [string, Box][]) {
     if (
       b.x < 0 ||
@@ -553,9 +572,9 @@ export function buildScene(root: Project, month = root.month): Scene {
       });
     else if (
       b.x < p.page.margin ||
-      b.y < p.page.margin ||
+      b.y < (p.page.marginY ?? p.page.margin) ||
       b.x + b.w > p.page.width - p.page.margin ||
-      b.y + b.h > p.page.height - p.page.margin
+      b.y + b.h > p.page.height - (p.page.marginY ?? p.page.margin)
     )
       issues.push({
         severity: "warning",
@@ -563,7 +582,7 @@ export function buildScene(root: Project, month = root.month): Scene {
         message: `${label}: az elem a beállított margóra nyúlik.`,
       });
   }
-  for (const photo of photos.filter((i) => i.visible)) {
+  for (const photo of photos.filter((i) => i.visible && i.data)) {
     const scale =
       Math.max(
         photo.box.w / photo.pixelWidth,
