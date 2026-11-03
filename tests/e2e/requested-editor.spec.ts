@@ -108,6 +108,7 @@ test("day and nameday cell positions are independently shared across months", as
     .getByLabel("Névnapok függőleges elhelyezése")
     .selectOption("bottom");
   await page.getByRole("button", { name: "December", exact: true }).click();
+  await page.getByLabel("Szövegelem", { exact: true }).selectOption("nameday");
   await expect(page.getByLabel("Névnapok függőleges elhelyezése")).toHaveValue(
     "bottom",
   );
