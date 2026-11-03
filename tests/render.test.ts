@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it, each } from "./assert";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument, PDFDict, PDFName, PDFNumber } from "pdf-lib";
 import { defaultProject, applyPaper, type Project } from "../src/model";
 import { registerFont } from "../src/engines/fonts";
 import manifest from "../src/data/fonts.json";
@@ -12,7 +12,10 @@ import { createPdf, exportScenes, validateExport } from "../src/engines/export";
 beforeAll(() => {
   for (const f of manifest) {
     const path = new URL("../public/fonts/" + f.file, import.meta.url);
-    registerFont(`${f.family}-${f.weight}`, readFileSync(path));
+    registerFont(
+      `${f.family}-${f.weight}${"italic" in f && f.italic ? "-italic" : ""}`,
+      readFileSync(path),
+    );
   }
   mkdirSync("test-results", { recursive: true });
   execFileSync(
@@ -93,7 +96,7 @@ describe("Shared document layout", () => {
     expect(buildScene(p).issues.some((i) => i.code === "outside")).toBe(true);
     const tiny = applyPaper(
       { ...defaultProject(), mode: "annual" },
-      "A7",
+      "A4",
       "portrait",
     );
     expect(buildScene(tiny).issues.some((i) => i.code === "small-print")).toBe(
@@ -110,6 +113,24 @@ describe("Shared document layout", () => {
   });
 });
 describe("Print output", () => {
+  it("embeds the actual selected bold italic Google font in PDF", async () => {
+    const p = defaultProject();
+    p.style.typography.title = {
+      ...p.style.typography.title,
+      family: "Lora",
+      weight: 700,
+      italic: true,
+    };
+    const bytes = await createPdf(p, exportScenes(p, false));
+    const doc = await PDFDocument.load(bytes);
+    const italic = doc.context.enumerateIndirectObjects().some(([, o]) => {
+      if (!(o instanceof PDFDict)) return false;
+      const angle = o.get(PDFName.of("ItalicAngle"));
+      return angle instanceof PDFNumber && angle.asNumber() !== 0;
+    });
+    expect(italic).toBe(true);
+  });
+
   it("keeps a large custom vector PDF available when raster memory would be excessive", async () => {
     const p = applyPaper(defaultProject(), "custom", "portrait", [600, 600]);
     expect(

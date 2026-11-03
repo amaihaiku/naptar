@@ -3,6 +3,9 @@ import {
   type Project,
   type Typography,
   effectiveStyle,
+  viewProject,
+  yearBoxFor,
+  pagePhotos,
 } from "../model";
 import {
   type CivilDate,
@@ -80,11 +83,15 @@ const box = (x: number, y: number, w: number, h: number): Box => ({
   h,
   locked: false,
 });
-export function buildScene(p: Project, month = p.month): Scene {
+export function buildScene(root: Project, month = root.month): Scene {
+  const p = viewProject({ ...root, month });
+  const photos = pagePhotos(p);
+  const showCalendar = p.mode !== "annual" || (p.cover?.showCalendar ?? true);
   const s = effectiveStyle(p, month),
     nodes: SceneNode[] = [],
     cells: CellHit[] = [],
     issues: Issue[] = [];
+  const headerBoxes: Array<[string, Box]> = [];
   let seq = 0;
   const common = (b: Pick<Box, "x" | "y" | "w" | "h">, z = 0) => ({
     ...b,
@@ -158,7 +165,7 @@ export function buildScene(p: Project, month = p.month): Scene {
           -90,
         );
   }
-  for (const photo of p.photos.filter((i) => i.visible)) {
+  for (const photo of photos.filter((i) => i.visible)) {
     if (photo.shadow > 0)
       rect(
         {
@@ -179,20 +186,21 @@ export function buildScene(p: Project, month = p.month): Scene {
       opacity: photo.opacity,
     });
   }
-  const title = p.mode === "annual" ? String(p.year) : months[month - 1];
-  const titleType =
-    p.mode === "annual" ? s.typography.year : s.typography.month;
-  if (p.mode === "monthly" && s.showYear)
-    text(String(p.year), { ...p.titleBox, h: 10 }, { ...s.typography.year });
-  if (p.mode !== "annual" || s.showYear)
-    text(
-      title,
-      {
-        ...p.titleBox,
-        y: p.titleBox.y + (p.mode === "monthly" && s.showYear ? 8 : 0),
-      },
-      titleType,
-    );
+  function header(label: string, value: string, b: Box, t: Typography) {
+    if (!value) return;
+    text(value, b, t);
+    const node = nodes[nodes.length - 1] as TextNode;
+    headerBoxes.push([
+      label,
+      { ...b, x: node.x, w: node.w, h: t.size * mmPerPt * t.lineHeight },
+    ]);
+  }
+  const title =
+    p.mode === "annual" ? (p.cover?.title ?? "Naptár") : months[month - 1];
+  const titleType = s.typography.title;
+  if (s.showYear)
+    header("Évszám", String(p.year), yearBoxFor(p), s.typography.year);
+  if (title) header("Cím", title, p.titleBox, titleType);
   if (titleType.size * mmPerPt > p.titleBox.h)
     issues.push({
       severity: "warning",
@@ -292,6 +300,7 @@ export function buildScene(p: Project, month = p.month): Scene {
           cursor += 0.6;
         }
         if (inMonth) {
+          let bottom = b.y + b.h - pad;
           for (const event of eventsFor(p, d)) {
             if (event.hidden) continue;
             const et =
@@ -304,29 +313,36 @@ export function buildScene(p: Project, month = p.month): Scene {
               et,
               b.w - 2 * pad - iconSize - 0.8,
             );
+            const height =
+              lines.length * et.size * mmPerPt * et.lineHeight + 0.7;
+            bottom -= height;
+            if (bottom < cursor)
+              issues.push({
+                severity: "error",
+                code: "overflow",
+                message: `${months[m - 1]} ${d.day}.: a személyes események nem férnek el a cellában.`,
+              });
             nodes.push({
-              ...common(box(b.x + pad, cursor + 0.5, iconSize, iconSize), 3),
+              ...common(box(b.x + pad, bottom + 0.5, iconSize, iconSize), 3),
               kind: "icon",
               icon: event.kind === "birthday" ? "cake" : "flower",
               color: et.color,
               clip,
             });
-            for (const line of lines) {
+            lines.forEach((line, index) =>
               text(
                 line,
                 box(
                   b.x + pad + iconSize + 0.8,
-                  cursor,
+                  bottom + index * et.size * mmPerPt * et.lineHeight,
                   b.w - 2 * pad - iconSize - 0.8,
                   b.h,
                 ),
                 et,
                 3,
                 clip,
-              );
-              cursor += et.size * mmPerPt * et.lineHeight;
-            }
-            cursor += 0.7;
+              ),
+            );
           }
         }
         if (cursor > b.y + b.h - pad)
@@ -397,10 +413,10 @@ export function buildScene(p: Project, month = p.month): Scene {
         );
       }
     }
-    if (s.border > 0) rect(g, "none", s.borderColor, s.border, clip.r, 11);
+    if (s.border > 0) rect(g, "none", s.gridColor, s.border, clip.r, 11);
   }
   const grid = { ...p.grid, y: p.grid.y + (s.titleGap - 10) };
-  for (const photo of p.photos.filter((i) => i.visible && i.z >= 0)) {
+  for (const photo of photos.filter((i) => i.visible && i.z >= 0)) {
     const b = photo.box;
     if (
       b.x < grid.x + grid.w &&
@@ -414,7 +430,7 @@ export function buildScene(p: Project, month = p.month): Scene {
         message: `${photo.name}: a kép a naptárrács fölé nyúlik. Ellenőrizd a rétegsorrendet.`,
       });
   }
-  if (p.mode === "annual") {
+  if (showCalendar && p.mode === "annual") {
     const w = (grid.w - 2 * s.gapX) / 3,
       h = (grid.h - 3 * s.gapY) / 4;
     if (w <= 5 || h <= 10)
@@ -435,14 +451,14 @@ export function buildScene(p: Project, month = p.month): Scene {
           ),
           true,
         );
-    if (Math.min(w / 58, h / 49) * 8 < 6)
+    if ((Math.min(w / 58, h / 49) * s.typography.date.size * 4) / 7 < 6)
       issues.push({
         severity: "warning",
         code: "small-print",
         message:
           "Az éves dátumszámok 6 pt alattiak; a kis papírméreten nehezen olvashatók.",
       });
-  } else calendar(month, grid, false);
+  } else if (showCalendar) calendar(month, grid, false);
   if (s.watermark) {
     const t = {
       ...s.typography.month,
@@ -454,9 +470,9 @@ export function buildScene(p: Project, month = p.month): Scene {
     nodes[nodes.length - 1].opacity = s.watermarkOpacity;
   }
   for (const [label, b] of [
-    ["Naptárrács", grid],
-    ["Cím", p.titleBox],
-    ...p.photos.filter((i) => i.visible).map((i) => [i.name, i.box]),
+    ...(showCalendar ? [["Naptárrács", grid]] : []),
+    ...headerBoxes,
+    ...photos.filter((i) => i.visible).map((i) => [i.name, i.box]),
   ] as [string, Box][]) {
     if (
       b.x < 0 ||
@@ -481,7 +497,7 @@ export function buildScene(p: Project, month = p.month): Scene {
         message: `${label}: az elem a beállított margóra nyúlik.`,
       });
   }
-  for (const photo of p.photos.filter((i) => i.visible)) {
+  for (const photo of photos.filter((i) => i.visible)) {
     const scale =
       Math.max(
         photo.box.w / photo.pixelWidth,

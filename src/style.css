@@ -1279,3 +1279,114 @@ summary:focus-visible {
     height: 100% !important;
   }
 }
+
+/* Page navigation and the explicitly requested editor controls. */
+.sub-header {
+  padding-left: 15px;
+  padding-right: 15px;
+  gap: 8px;
+}
+.file-actions {
+  width: auto;
+  flex-shrink: 0;
+}
+.preview-controls {
+  justify-content: flex-end;
+  gap: 5px;
+}
+.page-navigation {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-right: 9px;
+}
+.page-navigation button {
+  width: 27px;
+  height: 29px;
+  padding: 3px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  font-size: 8px;
+}
+.page-navigation button.active {
+  box-shadow: inset 0 0 0 1px #8ca58b;
+}
+.page-navigation button > span {
+  line-height: 10px;
+}
+.slider-control {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  margin: 0 !important;
+}
+.slider-control input[type="range"] {
+  padding: 0 !important;
+  height: 22px !important;
+  border: 0 !important;
+  accent-color: #346549;
+  flex: 1;
+  width: 100%;
+  background: none !important;
+}
+.slider-control output {
+  min-width: 46px;
+  text-align: right;
+  font-size: 10px;
+  color: #5b7551;
+}
+.year-selector {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.year-selector > .field {
+  flex: 1;
+  min-width: 0;
+}
+.year-selector > button {
+  border: 0;
+  padding: 7px;
+}
+.number-wrap input::-webkit-inner-spin-button {
+  opacity: 1;
+}
+.number-wrap input {
+  padding-right: 24px !important;
+}
+.number-wrap i {
+  right: 26px;
+  font-size: 8px;
+}
+.number-wrap input {
+  padding-right: 40px !important;
+}
+.zoom-controls input[type="range"] {
+  width: 110px;
+  accent-color: #3d6c4c;
+}
+.photo-hit {
+  touch-action: none;
+  cursor: grab;
+}
+.photo-hit.active {
+  z-index: 6 !important;
+}
+.cell-hit {
+  z-index: 2;
+}
+.title-hit {
+  z-index: 7;
+}
+.selection-box {
+  z-index: 10;
+}
+.text-placement button {
+  font-size: 9px;
+  padding: 7px 4px;
+}
+.right-panel .field input[readonly] {
+  color: #8a9981;
+}

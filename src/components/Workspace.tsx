@@ -1,10 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { Lock, Move, Maximize2, Minus, Plus } from "lucide-react";
-import { effectiveStyle, type Box, type Project } from "../model";
+import { Lock, Move, Maximize2 } from "lucide-react";
+import {
+  effectiveStyle,
+  viewProject,
+  updateView,
+  yearBoxFor,
+  pagePhotos,
+  type Box,
+  type Project,
+} from "../model";
 import type { Scene } from "../engines/layout";
 import type { CivilDate } from "../engines/date";
 import { SceneView } from "./SceneView";
-export type Selection = "grid" | "title" | string;
+import { cropGeometry } from "../engines/images";
+export type Selection = "grid" | "title" | "year" | string;
 export function Workspace({
   project,
   scene,
@@ -26,8 +35,9 @@ export function Workspace({
   previewMode: boolean;
   guides: boolean;
 }) {
-  const container = useRef<HTMLDivElement>(null),
-    page = useRef<HTMLDivElement>(null);
+  const v = viewProject(project),
+    photos = pagePhotos(project),
+    container = useRef<HTMLDivElement>(null);
   const [available, setAvailable] = useState({ w: 720, h: 820 }),
     [zoom, setZoom] = useState(1);
   const drag = useRef<{
@@ -37,37 +47,41 @@ export function Workspace({
     x: number;
     y: number;
     scale: number;
-    resize: boolean;
+    kind: "move" | "resize" | "crop";
     next: Project;
   } | null>(null);
   useEffect(() => {
     const el = container.current;
     if (!el) return;
-    const o = new ResizeObserver(([e]) =>
+    const observer = new ResizeObserver(([e]) =>
       setAvailable({ w: e.contentRect.width, h: e.contentRect.height }),
     );
-    o.observe(el);
-    return () => o.disconnect();
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
   const fit = Math.min(
-    (available.w - 96) / project.page.width,
-    (available.h - 80) / project.page.height,
-  );
-  const scale = Math.max(0.4, fit) * zoom;
+      (available.w - 96) / project.page.width,
+      (available.h - 80) / project.page.height,
+    ),
+    scale = Math.max(0.4, fit) * zoom;
   const actualBox = (id: string) =>
     id === "grid"
-      ? {
-          ...project.grid,
-          y: project.grid.y + (effectiveStyle(project).titleGap - 10),
-        }
+      ? { ...v.grid, y: v.grid.y + (v.style.titleGap - 10) }
       : id === "title"
-        ? project.titleBox
-        : project.photos.find((i) => i.id === id)?.box;
-  function start(e: React.PointerEvent, id: string, resize = false) {
+        ? v.titleBox
+        : id === "year"
+          ? yearBoxFor(project)
+          : photos.find((p) => p.id === id)?.box;
+  function start(
+    e: React.PointerEvent,
+    id: string,
+    kind: "move" | "resize" | "crop" = "move",
+  ) {
     e.stopPropagation();
     const b = actualBox(id);
+    const already = selection === id;
     onSelect(id);
-    if (!b || b.locked) return;
+    if (!b || b.locked || (kind === "crop" && !already)) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     drag.current = {
       p: project,
@@ -76,7 +90,7 @@ export function Workspace({
       x: e.clientX,
       y: e.clientY,
       scale,
-      resize,
+      kind,
       next: project,
     };
   }
@@ -85,36 +99,64 @@ export function Workspace({
     if (!d) return;
     const dx = (e.clientX - d.x) / d.scale,
       dy = (e.clientY - d.y) / d.scale;
-    let b = { ...d.box };
-    const snap = (n: number) => (e.altKey ? n : Math.round(n));
-    if (d.resize) {
-      b.w = Math.max(10, Math.min(600, snap(d.box.w + dx)));
-      b.h = Math.max(10, Math.min(600, snap(d.box.h + dy)));
-      const photo = d.p.photos.find((v) => v.id === d.id);
-      if (photo?.aspectLock) {
-        b.h = Math.min(600, Math.max(10, (b.w * d.box.h) / d.box.w));
-      }
+    const photo = d.p.photos.find((p) => p.id === d.id);
+    let next: Project;
+    if (d.kind === "crop" && photo) {
+      const c = cropGeometry(photo),
+        extraX = c.w - photo.box.w,
+        extraY = c.h - photo.box.h;
+      next = {
+        ...d.p,
+        photos: d.p.photos.map((p) =>
+          p.id === d.id
+            ? {
+                ...p,
+                panX: Math.max(
+                  -1,
+                  Math.min(
+                    1,
+                    p.panX + (extraX > 0.001 ? (2 * dx) / extraX : 0),
+                  ),
+                ),
+                panY: Math.max(
+                  -1,
+                  Math.min(
+                    1,
+                    p.panY + (extraY > 0.001 ? (2 * dy) / extraY : 0),
+                  ),
+                ),
+              }
+            : p,
+        ),
+      };
     } else {
-      b.x = snap(d.box.x + dx);
-      b.y = snap(d.box.y + dy);
-      if (Math.abs(b.x + b.w / 2 - project.page.width / 2) < 1.5)
-        b.x = (project.page.width - b.w) / 2;
-      if (Math.abs(b.y + b.h / 2 - project.page.height / 2) < 1.5)
-        b.y = (project.page.height - b.h) / 2;
+      const snap = (n: number) => (e.altKey ? n : Math.round(n));
+      let b = { ...d.box };
+      if (d.kind === "resize") {
+        b.w = Math.max(10, Math.min(600, snap(d.box.w + dx)));
+        b.h = Math.max(10, Math.min(600, snap(d.box.h + dy)));
+      } else {
+        b.x = Math.max(-600, Math.min(1200, snap(d.box.x + dx)));
+        b.y = Math.max(-600, Math.min(1200, snap(d.box.y + dy)));
+        if (Math.abs(b.x + b.w / 2 - project.page.width / 2) < 1.5)
+          b.x = (project.page.width - b.w) / 2;
+      }
+      next =
+        d.id === "grid"
+          ? updateView(d.p, {
+              grid: { ...b, y: b.y - (effectiveStyle(d.p).titleGap - 10) },
+            })
+          : d.id === "title"
+            ? updateView(d.p, { titleBox: b })
+            : d.id === "year"
+              ? updateView(d.p, { yearBox: b })
+              : {
+                  ...d.p,
+                  photos: d.p.photos.map((p) =>
+                    p.id === d.id ? { ...p, box: b, aspectLock: false } : p,
+                  ),
+                };
     }
-    b = {
-      ...b,
-      x: Math.max(-600, Math.min(1200, b.x)),
-      y: Math.max(-600, Math.min(1200, b.y)),
-    };
-    let next = { ...d.p };
-    if (d.id === "grid")
-      next.grid = { ...b, y: b.y - (effectiveStyle(project).titleGap - 10) };
-    else if (d.id === "title") next.titleBox = b;
-    else
-      next.photos = d.p.photos.map((i) =>
-        i.id === d.id ? { ...i, box: b } : i,
-      );
     d.next = next;
     onPreview(next);
   }
@@ -125,25 +167,22 @@ export function Workspace({
     onPreview(null);
     onCommit(d.next);
   }
-  const selected = actualBox(selection);
-  const styleBox = (b: Box) => ({
-    left: b.x * scale,
-    top: b.y * scale,
-    width: b.w * scale,
-    height: b.h * scale,
-  });
+  const selected = actualBox(selection),
+    styleBox = (b: Box) => ({
+      left: b.x * scale,
+      top: b.y * scale,
+      width: b.w * scale,
+      height: b.h * scale,
+    });
   return (
     <div className="workspace-shell">
       <div className="workspace-top">
         <div className="canvas-label">
-          <span className="status-dot" />{" "}
-          {project.mode === "annual" ? "Éves kompozíció" : "Havi kompozíció"}
+          <span className="status-dot" />
+          {project.mode === "annual" ? "Borító" : "Havi kompozíció"}
           <span className="muted">
             {" "}
-            / {project.page.size === "custom"
-              ? "Egyedi"
-              : project.page.size} •{" "}
-            {project.page.orientation === "portrait" ? "álló" : "fekvő"}
+            / A4 • {project.page.orientation === "portrait" ? "álló" : "fekvő"}
           </span>
         </div>
         <span className="muted">
@@ -162,12 +201,11 @@ export function Workspace({
             <span>200</span>
           </div>
           <div className="ruler ruler-y">
-            0 <span>50</span>
+            0<span>50</span>
             <span>100</span>
             <span>150</span>
           </div>
           <div
-            ref={page}
             className="paper"
             data-testid="calendar-paper"
             style={{ width: scene.width * scale, height: scene.height * scale }}
@@ -184,23 +222,20 @@ export function Workspace({
                     <div className="center-guide" />
                   </>
                 )}
-                {project.photos
-                  .filter((i) => i.visible)
-                  .map((i) => (
+                {photos
+                  .filter((p) => p.visible)
+                  .map((p) => (
                     <button
-                      key={i.id}
-                      aria-label={`${i.name} kiválasztása`}
-                      className={`photo-hit ${selection === i.id ? "active" : ""}`}
-                      style={styleBox(i.box)}
-                      onClick={() => onSelect(i.id)}
+                      key={p.id}
+                      aria-label={`${p.name} kiválasztása és mozgatása a maszkban`}
+                      className={`photo-hit ${selection === p.id ? "active" : ""}`}
+                      style={{ ...styleBox(p.box), zIndex: p.z < 0 ? 1 : 5 }}
+                      onPointerDown={(e) => start(e, p.id, "crop")}
+                      onPointerMove={move}
+                      onPointerUp={stop}
+                      onPointerCancel={stop}
                     />
                   ))}
-                <button
-                  aria-label="Cím kiválasztása"
-                  className="title-hit"
-                  style={styleBox(project.titleBox)}
-                  onClick={() => onSelect("title")}
-                />
                 {project.mode === "monthly" &&
                   scene.cells.map((cell, i) => (
                     <button
@@ -211,40 +246,69 @@ export function Workspace({
                       onClick={() => onDate(cell.date)}
                     />
                   ))}
-                {selected && (
-                  <div className="selection-box" style={styleBox(selected)}>
-                    <span className="selection-label">
-                      {selection === "grid"
-                        ? "Naptárrács"
-                        : selection === "title"
-                          ? "Cím"
-                          : "Fénykép"}{" "}
-                      {selected.locked && <Lock size={10} />}
-                    </span>
-                    {!selected.locked && (
-                      <>
-                        <button
-                          className="move-handle"
-                          aria-label="Kijelölt elem mozgatása"
-                          onPointerDown={(e) => start(e, selection)}
-                          onPointerMove={move}
-                          onPointerUp={stop}
-                          onPointerCancel={stop}
-                        >
-                          <Move size={13} />
-                        </button>
-                        <button
-                          className="resize-handle"
-                          aria-label="Kijelölt elem átméretezése"
-                          onPointerDown={(e) => start(e, selection, true)}
-                          onPointerMove={move}
-                          onPointerUp={stop}
-                          onPointerCancel={stop}
-                        />
-                      </>
-                    )}
-                  </div>
+                <button
+                  aria-label="Cím kiválasztása"
+                  className="title-hit"
+                  style={styleBox(v.titleBox)}
+                  onClick={() => onSelect("title")}
+                  onPointerDown={(e) => start(e, "title")}
+                  onPointerMove={move}
+                  onPointerUp={stop}
+                  onPointerCancel={stop}
+                />
+                {v.style.showYear && (
+                  <button
+                    aria-label="Évszám kiválasztása"
+                    className="title-hit"
+                    style={styleBox(yearBoxFor(project))}
+                    onClick={() => onSelect("year")}
+                    onPointerDown={(e) => start(e, "year")}
+                    onPointerMove={move}
+                    onPointerUp={stop}
+                    onPointerCancel={stop}
+                  />
                 )}
+                {selected &&
+                  !(
+                    selection === "grid" &&
+                    project.mode === "annual" &&
+                    project.cover?.showCalendar === false
+                  ) && (
+                    <div className="selection-box" style={styleBox(selected)}>
+                      <span className="selection-label">
+                        {selection === "grid"
+                          ? "Naptárrács"
+                          : selection === "title"
+                            ? "Cím"
+                            : selection === "year"
+                              ? "Évszám"
+                              : "Kép maszk"}
+                        {selected.locked && <Lock size={10} />}
+                      </span>
+                      {!selected.locked && (
+                        <>
+                          <button
+                            className="move-handle"
+                            aria-label="Kijelölt elem mozgatása"
+                            onPointerDown={(e) => start(e, selection)}
+                            onPointerMove={move}
+                            onPointerUp={stop}
+                            onPointerCancel={stop}
+                          >
+                            <Move size={13} />
+                          </button>
+                          <button
+                            className="resize-handle"
+                            aria-label="Kijelölt elem átméretezése"
+                            onPointerDown={(e) => start(e, selection, "resize")}
+                            onPointerMove={move}
+                            onPointerUp={stop}
+                            onPointerCancel={stop}
+                          />
+                        </>
+                      )}
+                    </div>
+                  )}
               </div>
             )}
           </div>
@@ -254,22 +318,21 @@ export function Workspace({
         <span>
           {previewMode
             ? "Nyomtatási előnézet"
-            : "Kattints egy dátumra esemény hozzáadásához"}
+            : project.mode === "annual"
+              ? "A képet a maszkon belül húzva igazíthatod"
+              : "Kattints egy dátumra esemény hozzáadásához"}
         </span>
         <div className="zoom-controls">
-          <button
-            aria-label="Kicsinyítés"
-            onClick={() => setZoom((z) => Math.max(0.25, z - 0.1))}
-          >
-            <Minus size={15} />
-          </button>
-          <span>{Math.round(zoom * 100)}%</span>
-          <button
+          <input
             aria-label="Nagyítás"
-            onClick={() => setZoom((z) => Math.min(3, z + 0.1))}
-          >
-            <Plus size={15} />
-          </button>
+            type="range"
+            min={25}
+            max={300}
+            step={5}
+            value={Math.round(zoom * 100)}
+            onChange={(e) => setZoom(e.target.valueAsNumber / 100)}
+          />
+          <span>{Math.round(zoom * 100)}%</span>
           <button
             title="Laphoz igazítás"
             aria-label="Laphoz igazítás"

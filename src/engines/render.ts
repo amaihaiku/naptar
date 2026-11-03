@@ -84,7 +84,7 @@ export function renderCanvas(
         matrix.e,
         matrix.f,
       );
-      ctx.font = `${t.weight} ${t.size * mmPerPt * pixelScale}px "${t.family}"`;
+      ctx.font = `${t.italic ? "italic" : "normal"} ${t.weight} ${t.size * mmPerPt * pixelScale}px "${t.family}"`;
       ctx.textBaseline = "alphabetic";
       ctx.fillStyle = t.color;
       let x = n.x;

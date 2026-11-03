@@ -16,11 +16,11 @@ Ezen kívül a program minden évben egyértelműen modern szabályrendszer szer
 
 ## Betűk
 
-Az alkalmazás három, helyben csomagolt Google Fonts családot kínál normál (400) és félkövér (700) változattal: **Noto Sans**, **PT Serif**, **Montserrat**. A teljes Google Fonts katalógus hálózati keresése nincs beépítve; a kereső az ellenőrzött helyi választékot szűri. Nincs futásidejű Google Fonts hálózati kérés.
+Az alkalmazás a kért húsz Google Fonts családot helyben csomagolja: Inter, Roboto, Open Sans, Lato, Montserrat, Poppins, Nunito, Raleway, DM Sans, Oswald, Roboto Condensed, Playfair Display, Merriweather, Lora, EB Garamond, Cormorant Garamond, Libre Baskerville, Caveat, Dancing Script és Abril Fatface. A korábbi Noto Sans és PT Serif választék is megmaradt. A kereső a helyi választékot szűri; nincs futásidejű Google Fonts hálózati kérés.
 
-Forrás: [google/fonts](https://github.com/google/fonts), `ofl/notosans`, `ofl/ptserif`, `ofl/montserrat`. Mindhárom család SIL Open Font License 1.1 alatt érhető el. A licencszövegek a `public/fonts/*-OFL.txt` fájlokban vannak.
+Forrás: [Google Fonts](https://fonts.google.com/) és [google/fonts](https://github.com/google/fonts). A SIL Open Font License 1.1 licencszövegek a `public/fonts/*-OFL.txt` fájlokban vannak. Az új fájlokat a `scripts/download-fonts.py` tölti le változatlan statikus TTF-ként. Mindenhol csak ténylegesen létező normál, félkövér, dőlt és félkövér dőlt változat választható; az Oswald, Caveat és Dancing Script normál/félkövér, az Abril Fatface normál változatban érhető el. A korábban csomagolt betűfájlok megmaradtak.
 
-A PT Serif fájljai az upstream statikus web-TTF-ek, változatlan betűtartalommal. A Noto Sans és Montserrat változó forrásából fontTools segítségével 400/700 súlyú statikus példány készült; Noto Sans esetén a szélességtengely 100. E két forrás licencfejlécében nincs Reserved Font Name kikötés. A magyar kis- és nagybetűk tényleges cmap-lefedettségét a feldolgozás és a futásidejű betöltő is ellenőrzi. A csomagolt binárisok SHA-256 lenyomata a `public/fonts/sources.json` fájlban található.
+A magyar kis- és nagybetűk tényleges cmap-lefedettségét a letöltő, a tesztek és a futásidejű betöltő is ellenőrzi. A források és a csomagolt binárisok SHA-256 lenyomata a `public/fonts/sources.json` fájlban található.
 
 A PDF a betűfájlokat teljes egészükben ágyazza be, így a szöveg másik gépen is használható, a magyar ékezetek megmaradnak. A betűk külön nem értékesíthetők; a licenc feltételeit további terjesztésnél is meg kell tartani.
 

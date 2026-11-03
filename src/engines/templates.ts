@@ -4,6 +4,9 @@ import {
   projectSchema,
   type Style,
   type Project,
+  viewProject,
+  updateView,
+  defaultCover,
 } from "../model";
 export const presets = [
   "Minimalista",
@@ -11,7 +14,7 @@ export const presets = [
   "Elegáns",
   "Pasztell",
   "Fekete-fehér",
-  "Fotónaptár",
+  "Természetes",
 ] as const;
 export function presetStyle(name: string): Style {
   const s = defaultProject().style;
@@ -32,8 +35,8 @@ export function presetStyle(name: string): Style {
           {
             ...v,
             family: "Montserrat",
-            weight: k === "month" ? 700 : v.weight,
-            color: k === "month" ? "#263d77" : v.color,
+            weight: k === "month" || k === "title" ? 700 : v.weight,
+            color: k === "month" || k === "title" ? "#263d77" : v.color,
           },
         ]),
       ) as Style["typography"],
@@ -49,6 +52,7 @@ export function presetStyle(name: string): Style {
       typography: {
         ...s.typography,
         month: { ...s.typography.month, size: 35, spacing: 0.25 },
+        title: { ...s.typography.title, size: 35, spacing: 0.25 },
         date: { ...s.typography.date, family: "PT Serif", weight: 400 },
         weekday: {
           ...s.typography.weekday,
@@ -72,6 +76,7 @@ export function presetStyle(name: string): Style {
       typography: {
         ...s.typography,
         month: { ...s.typography.month, color: "#78627d", family: "PT Serif" },
+        title: { ...s.typography.title, color: "#78627d", family: "PT Serif" },
         weekday: { ...s.typography.weekday, color: "#a77a8d" },
       },
     };
@@ -95,41 +100,43 @@ export function presetStyle(name: string): Style {
     };
   return {
     ...s,
-    background: "#f6f2e9",
-    gridLine: 0,
-    border: 0,
-    radius: 0,
-    gapX: 4,
-    gapY: 4,
+    background: "#f3f7ef",
+    accent: "#5a7b4d",
+    gridColor: "#b9cdb2",
+    borderColor: "#b9cdb2",
+    gridLine: 0.2,
+    border: 0.4,
+    radius: 3,
+    holidayColor: "#4a7040",
+    holidayBackground: "#e4eedf",
     typography: {
       ...s.typography,
-      month: {
-        ...s.typography.month,
-        family: "Montserrat",
+      title: {
+        ...s.typography.title,
+        family: "DM Sans",
         weight: 700,
-        size: 24,
+        color: "#315638",
       },
-      year: { ...s.typography.year, size: 24 },
+      date: { ...s.typography.date, family: "Inter", color: "#1b4235" },
+      weekday: { ...s.typography.weekday, family: "Inter", color: "#54714b" },
     },
   };
 }
+
 export function applyPreset(p: Project, name: string): Project {
-  const next = { ...p, style: presetStyle(name), monthOverrides: {} };
-  if (name === "Fotónaptár") {
-    next.mode = "annual";
-    next.grid = {
-      ...p.grid,
-      x: p.page.margin,
-      y: p.page.height * 0.53,
-      w: p.page.width - 2 * p.page.margin,
-      h: p.page.height * 0.42,
-    };
-    next.titleBox = { ...p.titleBox, y: p.page.height * 0.46, h: 15 };
-  }
-  return next;
+  return updateView(p, { style: presetStyle(name) });
 }
 export function templateOf(p: Project) {
-  const { page, style, grid, titleBox, monthOverrides, photos } = p;
+  const {
+    page,
+    style,
+    grid,
+    titleBox,
+    yearBox,
+    cover,
+    monthOverrides,
+    photos,
+  } = p;
   return {
     kind: "naptar-template",
     version: 1,
@@ -137,6 +144,8 @@ export function templateOf(p: Project) {
     style,
     grid,
     titleBox,
+    yearBox,
+    cover,
     monthOverrides,
     photos,
   };
@@ -148,6 +157,8 @@ const templateSchema = projectSchema
     style: true,
     grid: true,
     titleBox: true,
+    yearBox: true,
+    cover: true,
     monthOverrides: true,
     photos: true,
   })

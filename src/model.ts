@@ -1,9 +1,34 @@
 import { z } from "zod";
+import fontManifest from "./data/fonts.json";
 import { daysInMonth } from "./engines/date";
 const num = (min: number, max: number) => z.number().finite().min(min).max(max);
 const color = z.string().regex(/^#[0-9a-fA-F]{6}$/);
-export const families = ["Noto Sans", "PT Serif", "Montserrat"] as const;
+export const families = [
+  "Noto Sans",
+  "PT Serif",
+  "Inter",
+  "Roboto",
+  "Open Sans",
+  "Lato",
+  "Montserrat",
+  "Poppins",
+  "Nunito",
+  "Raleway",
+  "DM Sans",
+  "Oswald",
+  "Roboto Condensed",
+  "Playfair Display",
+  "Merriweather",
+  "Lora",
+  "EB Garamond",
+  "Cormorant Garamond",
+  "Libre Baskerville",
+  "Caveat",
+  "Dancing Script",
+  "Abril Fatface",
+] as const;
 export const categories = [
+  "title",
   "year",
   "month",
   "weekday",
@@ -17,6 +42,7 @@ export const typeSchema = z
   .object({
     family: z.enum(families),
     size: num(2, 100),
+    italic: z.boolean().default(false),
     weight: z.union([z.literal(400), z.literal(700)]),
     color,
     spacing: num(-1, 5),
@@ -54,6 +80,17 @@ export const styleSchema = z
     watermarkOpacity: num(0.02, 0.6),
     typography: z
       .object({
+        title: typeSchema.default({
+          family: "PT Serif",
+          size: 32,
+          weight: 400,
+          italic: false,
+          color: "#173d36",
+          spacing: 0,
+          lineHeight: 1.25,
+          align: "center",
+          uppercase: false,
+        }),
         year: typeSchema,
         month: typeSchema,
         weekday: typeSchema,
@@ -117,6 +154,7 @@ export const imageSchema = z
     opacity: num(0.05, 1),
     visible: z.boolean(),
     aspectLock: z.boolean(),
+    page: z.number().int().min(0).max(12).optional(),
   })
   .strict();
 export type Photo = z.infer<typeof imageSchema>;
@@ -126,6 +164,7 @@ const styleOverrideSchema = styleSchema
   .extend({
     typography: z
       .object({
+        title: typeSchema.partial(),
         year: typeSchema.partial(),
         month: typeSchema.partial(),
         weekday: typeSchema.partial(),
@@ -137,6 +176,16 @@ const styleOverrideSchema = styleSchema
       .partial()
       .strict()
       .optional(),
+  })
+  .strict();
+const coverSchema = z
+  .object({
+    title: z.string().max(100),
+    showCalendar: z.boolean(),
+    grid: boxSchema,
+    titleBox: boxSchema,
+    yearBox: boxSchema,
+    style: styleSchema,
   })
   .strict();
 export const projectSchema = z
@@ -152,7 +201,7 @@ export const projectSchema = z
         orientation: z.enum(["portrait", "landscape"]),
         width: num(40, 600),
         height: num(40, 600),
-        margin: num(0, 40),
+        margin: num(0, 50),
       })
       .strict(),
     firstDay: z.union([z.literal(1), z.literal(7)]),
@@ -166,6 +215,8 @@ export const projectSchema = z
     ),
     grid: boxSchema,
     titleBox: boxSchema,
+    yearBox: boxSchema.optional(),
+    cover: coverSchema.optional(),
     events: z.array(eventSchema).max(2000),
     namedayOverrides: z.record(
       z.string().regex(/^(?:[1-9]|1[0-2])-(?:[1-9]|[12]\d|3[01])$/),
@@ -175,6 +226,24 @@ export const projectSchema = z
   })
   .strict()
   .superRefine((p, ctx) => {
+    for (const st of [p.style, p.cover?.style]) {
+      if (!st) continue;
+      for (const ty of Object.values(st.typography)) {
+        if (
+          !fontManifest.some(
+            (f) =>
+              f.family === ty.family &&
+              f.weight === ty.weight &&
+              Boolean("italic" in f && f.italic) === ty.italic,
+          )
+        )
+          ctx.addIssue({
+            code: "custom",
+            message: `Nem elérhető betűváltozat: ${ty.family}.`,
+          });
+      }
+    }
+
     if (p.page.size !== "custom") {
       const base = paperSizes[p.page.size];
       const expected =
@@ -227,12 +296,18 @@ const text = (
   spacing: 0,
   lineHeight: 1.25,
   uppercase: false,
+  italic: false,
 });
 export function defaultProject(): Project {
-  return {
+  const p: Project = {
     version: 1,
     title: "Az én naptáram",
-    year: 2027,
+    year: Number(
+      new Intl.DateTimeFormat("en", {
+        timeZone: "Europe/Budapest",
+        year: "numeric",
+      }).format(new Date()),
+    ),
     month: 3,
     mode: "monthly",
     page: {
@@ -272,6 +347,7 @@ export function defaultProject(): Project {
       watermark: "",
       watermarkOpacity: 0.1,
       typography: {
+        title: text(32, "#173d36", "PT Serif", 400, "center"),
         year: text(12, "#a17953", "Montserrat", 700, "center"),
         month: text(32, "#173d36", "PT Serif", 400, "center"),
         weekday: text(8, "#53665f", "Montserrat", 700, "center"),
@@ -283,20 +359,87 @@ export function defaultProject(): Project {
     },
     monthOverrides: {},
     grid: { x: 12, y: 61, w: 186, h: 216, locked: false },
-    titleBox: { x: 12, y: 16, w: 186, h: 26, locked: false },
+    titleBox: { x: 12, y: 24, w: 186, h: 18, locked: false },
+    yearBox: { x: 12, y: 16, w: 186, h: 10, locked: false },
     events: [],
     namedayOverrides: {},
     photos: [],
   };
+  return { ...p, cover: defaultCover(p) };
 }
-export function effectiveStyle(p: Project, month = p.month): Style {
-  if (p.mode !== "monthly") return p.style;
-  const o = p.monthOverrides[month];
-  if (!o) return p.style;
-  const typography = { ...p.style.typography };
-  for (const key of categories)
-    typography[key] = { ...typography[key], ...o.typography?.[key] };
-  return { ...p.style, ...o, typography };
+export function defaultCover(p: Project): NonNullable<Project["cover"]> {
+  return {
+    title: "Naptár",
+    showCalendar: true,
+    grid: {
+      x: p.page.margin,
+      y: p.page.height * 0.53,
+      w: p.page.width - 2 * p.page.margin,
+      h: p.page.height * 0.42,
+      locked: false,
+    },
+    titleBox: {
+      x: p.page.margin,
+      y: p.page.height * 0.05,
+      w: p.page.width - 2 * p.page.margin,
+      h: 20,
+      locked: false,
+    },
+    yearBox: {
+      x: p.page.margin,
+      y: p.page.height * 0.13,
+      w: p.page.width - 2 * p.page.margin,
+      h: 15,
+      locked: false,
+    },
+    style: {
+      ...p.style,
+      typography: {
+        ...p.style.typography,
+        year: { ...p.style.typography.year, size: 28 },
+        title: { ...p.style.typography.title, size: 32 },
+      },
+      pattern: "none",
+      watermark: "",
+    },
+  };
+}
+export function viewProject(p: Project): Project {
+  if (p.mode !== "annual") return p;
+  const cover = p.cover ?? defaultCover(p);
+  return {
+    ...p,
+    style: cover.style,
+    grid: cover.grid,
+    titleBox: cover.titleBox,
+    yearBox: cover.yearBox,
+  };
+}
+export function updateView(
+  p: Project,
+  patch: Partial<Pick<Project, "grid" | "titleBox" | "yearBox" | "style">>,
+): Project {
+  if (p.mode !== "annual") return { ...p, ...patch, monthOverrides: {} };
+  return {
+    ...p,
+    cover: { ...(p.cover ?? defaultCover(p)), ...patch } as NonNullable<
+      Project["cover"]
+    >,
+  };
+}
+export function pagePhotos(p: Project): Photo[] {
+  const page = p.mode === "annual" ? 0 : p.month;
+  return p.photos.filter(
+    (photo) => photo.page === undefined || photo.page === page,
+  );
+}
+export function yearBoxFor(p: Project): Box {
+  return (
+    viewProject(p).yearBox ?? { ...p.titleBox, y: p.titleBox.y - 8, h: 10 }
+  );
+}
+export function effectiveStyle(p: Project, _month = p.month): Style {
+  return viewProject(p).style;
 }
 export function fitPage(p: Project): Project {
   const m = p.page.margin,
@@ -311,10 +454,17 @@ export function fitPage(p: Project): Project {
       w: Math.max(10, w),
       h: Math.max(10, h * 0.73),
     },
+    yearBox: {
+      ...(p.yearBox ?? p.titleBox),
+      x: m,
+      y: h * 0.05,
+      w: Math.max(10, w),
+      h: 10,
+    },
     titleBox: {
       ...p.titleBox,
       x: m,
-      y: h * 0.05,
+      y: h * 0.08,
       w: Math.max(10, w),
       h: Math.max(10, h * 0.1),
     },
@@ -345,7 +495,7 @@ export function applyPaper(
       margin: Math.min(40, p.page.margin * ratio),
     },
   };
-  if (p.mode === "monthly") {
+  if (p.mode === "monthly" && !(p.page.size === "A4" && size === "A4")) {
     next.style = {
       ...p.style,
       padding: p.style.padding * ratio,
@@ -364,12 +514,67 @@ export function applyPaper(
       ) as Style["typography"],
     };
   }
-  return fitPage(next);
+  const fitted = fitPage(next);
+  if (p.cover) {
+    const cover = p.cover;
+    const sx = width / p.page.width,
+      sy = height / p.page.height;
+    const scale = (b: Box) => ({
+      ...b,
+      x: b.x * sx,
+      y: b.y * sy,
+      w: Math.max(10, b.w * sx),
+      h: Math.max(10, b.h * sy),
+    });
+    fitted.cover = {
+      ...cover,
+      grid: scale(cover.grid),
+      titleBox: scale(cover.titleBox),
+      yearBox: scale(cover.yearBox),
+    };
+  }
+  return fitted;
 }
 export function parseProject(source: string): Project {
   if (source.length > 80_000_000)
     throw new Error("A projekt legfeljebb 80 MB lehet.");
   const v: unknown = JSON.parse(source);
+  if (v && typeof v === "object" && !Array.isArray(v) && "style" in v) {
+    const st = (v as { style: unknown }).style;
+    if (st && typeof st === "object" && "typography" in st) {
+      const ty = st.typography;
+      if (ty && typeof ty === "object" && !("title" in ty) && "month" in ty)
+        Object.assign(ty, { title: ty.month });
+    }
+  }
+
+  if (
+    v &&
+    typeof v === "object" &&
+    !Array.isArray(v) &&
+    "version" in v &&
+    v.version === 1 &&
+    "titleBox" in v &&
+    !("yearBox" in v)
+  ) {
+    const old = v.titleBox;
+    if (
+      old &&
+      typeof old === "object" &&
+      "y" in old &&
+      typeof old.y === "number" &&
+      "h" in old &&
+      typeof old.h === "number"
+    ) {
+      Object.assign(v, {
+        yearBox: { ...old, h: Math.max(10, Math.min(old.h, 15)) },
+      });
+      if ("mode" in v && v.mode === "monthly")
+        Object.assign(v, {
+          titleBox: { ...old, y: old.y + 8, h: Math.max(10, old.h - 8) },
+        });
+    }
+  }
   const result = projectSchema.safeParse(v);
   if (!result.success)
     throw new Error(
@@ -379,7 +584,26 @@ export function parseProject(source: string): Project {
           .map((i) => i.path.join(".") + ": " + i.message)
           .join("; "),
     );
-  return result.data;
+  const parsed = result.data;
+  if (!parsed.cover && parsed.mode === "annual")
+    parsed.cover = {
+      ...defaultCover(parsed),
+      title: "",
+      grid: parsed.grid,
+      yearBox: parsed.yearBox ?? parsed.titleBox,
+      style: parsed.style,
+    };
+  return parsed;
 }
 export const serializeProject = (p: Project) =>
   JSON.stringify(projectSchema.parse(p));
+
+export function editorProject(p: Project): Project {
+  const next =
+    p.page.size === "A4" ? p : applyPaper(p, "A4", p.page.orientation);
+  return {
+    ...next,
+    monthOverrides: {},
+    cover: next.cover ?? defaultCover(next),
+  };
+}
