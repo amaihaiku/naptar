@@ -529,7 +529,6 @@ export function pagePhotos(
       if (photo.page !== page && !(photo.sharedSlot && page > 0)) return [];
       if (page === 0) return [photo];
       const asset = photo.monthlyImages?.[page];
-      if (asset === undefined) return [photo];
       return [{ ...photo, ...emptyPhoto, edits: undefined, ...asset }];
     }
     if (photo.monthlyImages) {
@@ -786,19 +785,15 @@ export function editorProject(p: Project): Project {
     const { name, data, pixelWidth, pixelHeight, edits } = photo;
     const asset = { name, data, pixelWidth, pixelHeight, edits };
     const page = photo.page ?? (photo.monthlyImages ? next.month : currentPage);
-    const sharedSlot = Boolean(
-      photo.monthlyImages || (photo.page === undefined && page > 0),
-    );
     return {
       ...photo,
-      ...(page > 0 && !sharedSlot ? { ...emptyPhoto, edits: undefined } : {}),
+      ...(page > 0 ? { ...emptyPhoto, edits: undefined } : {}),
       page,
-      sharedSlot,
-      monthlyImages: sharedSlot
-        ? photo.monthlyImages
-        : page > 0
-          ? { [page]: asset }
-          : undefined,
+      sharedSlot: Boolean(photo.monthlyImages || photo.page === undefined),
+      monthlyImages:
+        page > 0
+          ? { [page]: asset, ...photo.monthlyImages }
+          : photo.monthlyImages,
       slotNumber: used + i + 1,
     };
   });

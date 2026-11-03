@@ -807,27 +807,34 @@ export default function App() {
                     </div>
                     <small>
                       {slot.sharedSlot
-                        ? "Mind a 12 hónap"
+                        ? slot.page === 0
+                          ? "Borító és mind a 12 hónap"
+                          : "Mind a 12 hónap"
                         : slot.page === 0
                           ? "Borító"
                           : months[(slot.page ?? p.month) - 1]}
                     </small>
-                    {slot.page !== 0 && (
-                      <Toggle
-                        label="Minden hónapban"
-                        value={slot.sharedSlot ?? false}
-                        onChange={(sharedSlot) =>
-                          commit((root) => ({
-                            ...root,
-                            photos: root.photos.map((item) =>
-                              item.id === slot.id
-                                ? { ...item, sharedSlot }
-                                : item,
-                            ),
-                          }))
-                        }
-                      />
-                    )}
+                    <Toggle
+                      label="Minden hónapban"
+                      value={slot.sharedSlot ?? false}
+                      onChange={(sharedSlot) => {
+                        commit((root) => ({
+                          ...root,
+                          photos: root.photos.map((item) =>
+                            item.id === slot.id
+                              ? { ...item, sharedSlot }
+                              : item,
+                          ),
+                        }));
+                        const currentPage = p.mode === "annual" ? 0 : p.month;
+                        if (
+                          !sharedSlot &&
+                          selection === slot.id &&
+                          slot.page !== currentPage
+                        )
+                          setSelection("title");
+                      }}
+                    />
                   </div>
                 ))}
               </Section>
