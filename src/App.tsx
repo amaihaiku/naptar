@@ -44,6 +44,8 @@ import {
   effectiveStyle,
   applyPaper,
   applyMargin,
+  setSlotAsset,
+  slotLabel,
   parseProject,
   serializeProject,
   projectSchema,
@@ -64,7 +66,12 @@ import {
   loadTemplate,
 } from "./engines/templates";
 import { eventLabel, occurrence } from "./engines/events";
-import { readPhoto, validatePhotos, pruneImages } from "./engines/images";
+import {
+  createSlot,
+  readPhoto,
+  validatePhotos,
+  pruneImages,
+} from "./engines/images";
 import {
   download,
   exportCalendar,
@@ -96,6 +103,7 @@ export default function App() {
     [tab, setTab] = useState<Tab>("layout"),
     [selection, setSelection] = useState<Selection>("grid"),
     [eventSearch, setEventSearch] = useState(""),
+    [templateTitle, setTemplateTitle] = useState(""),
     [date, setDate] = useState<CivilDate | null>(null),
     [guides, setGuides] = useState(true),
     [preview, setPreview] = useState(false),
@@ -109,7 +117,7 @@ export default function App() {
   const projectInput = useRef<HTMLInputElement>(null),
     templateInput = useRef<HTMLInputElement>(null),
     photoInput = useRef<HTMLInputElement>(null),
-    replacePhoto = useRef<string | null>(null);
+    replacePhoto = useRef<{ id: string; page: number } | null>(null);
   const commit = history.commit;
   const s = effectiveStyle(p);
   const initFonts = () => {
@@ -226,6 +234,8 @@ export default function App() {
       const next = editorProject(loaded);
       await validatePhotos(next.photos);
       commit(next);
+      setSelection("title");
+      setTemplateTitle(template ? (next.templateName ?? "") : "");
       setMessage(
         template ? "A sablon betöltve." : "A teljes projekt betöltve.",
       );
@@ -239,54 +249,25 @@ export default function App() {
     }
   }
   async function upload(file?: File) {
-    if (!file) return;
+    const target = replacePhoto.current;
+    replacePhoto.current = null;
+    if (!file || !target) return;
     setBusy("Fénykép beolvasása…");
     try {
-      const replaceId = replacePhoto.current;
-      if (!replaceId && p.photos.length >= 16)
-        throw new Error("Legfeljebb 16 képhely adható a projekthez.");
-      const photo = {
-        ...(await readPhoto(file, p.page.width, p.page.height)),
-        page: p.mode === "annual" ? 0 : p.month,
-        aspectLock: false,
-        shadow: 0,
-        ...(p.mode === "monthly" && p.sharedPhotoPlacement
-          ? { monthlyImages: {} }
-          : {}),
-      };
-      if (p.mode === "annual")
-        photo.box = {
-          ...photo.box,
-          y: p.page.height * 0.23,
-          h: p.page.height * 0.26,
-        };
-      const { name, data, pixelWidth, pixelHeight } = photo;
-      const asset = { name, data, pixelWidth, pixelHeight };
-      const next = projectSchema.parse({
-        ...history.project,
-        photos: replaceId
-          ? history.project.photos.map((old) =>
-              old.id !== replaceId
-                ? old
-                : old.monthlyImages
-                  ? {
-                      ...old,
-                      monthlyImages: { ...old.monthlyImages, [p.month]: asset },
-                    }
-                  : { ...old, ...asset, panX: 0, panY: 0 },
-            )
-          : [...history.project.photos, photo],
-      });
-      commit(next);
-      setSelection(replaceId ?? photo.id);
-      setTab("photos");
+      const asset = await readPhoto(file);
+      commit((root) =>
+        projectSchema.parse(setSlotAsset(root, target.id, target.page, asset)),
+      );
     } catch (e) {
       setMessage(String((e as Error).message));
     } finally {
       setBusy("");
-      replacePhoto.current = null;
       if (photoInput.current) photoInput.current.value = "";
     }
+  }
+  function chooseSlotPhoto(id: string) {
+    replacePhoto.current = { id, page: p.mode === "annual" ? 0 : p.month };
+    photoInput.current?.click();
   }
   const errors = preflight?.issues.filter((i) => i.severity === "error") ?? [],
     warnings = preflight?.issues.filter((i) => i.severity === "warning") ?? [];
@@ -403,40 +384,43 @@ export default function App() {
             <Copy size={14} /> Másolat
           </button>
         </div>
-        <div className="preview-controls">
-          <nav className="page-navigation" aria-label="Naptároldalak">
-            {Array.from({ length: 13 }, (_, page) => (
-              <button
-                key={page}
-                className={
-                  (
-                    page === 0
-                      ? p.mode === "annual"
-                      : p.mode === "monthly" && p.month === page
-                  )
-                    ? "active"
-                    : ""
-                }
-                aria-label={page === 0 ? "Borító" : months[page - 1]}
-                aria-pressed={
+        <nav className="page-navigation" aria-label="Naptároldalak">
+          {Array.from({ length: 13 }, (_, page) => (
+            <button
+              key={page}
+              className={
+                (
                   page === 0
                     ? p.mode === "annual"
                     : p.mode === "monthly" && p.month === page
-                }
-                title={page === 0 ? "Borító" : months[page - 1]}
-                onClick={() => selectPage(page)}
-              >
-                {page === 0 ? (
+                )
+                  ? "active"
+                  : ""
+              }
+              aria-label={page === 0 ? "Borító" : months[page - 1]}
+              aria-pressed={
+                page === 0
+                  ? p.mode === "annual"
+                  : p.mode === "monthly" && p.month === page
+              }
+              title={page === 0 ? "Borító" : months[page - 1]}
+              onClick={() => selectPage(page)}
+            >
+              {page === 0 ? (
+                <>
                   <Image size={13} />
-                ) : (
-                  <>
-                    <CalendarDays size={13} />
-                    <span>{page}</span>
-                  </>
-                )}
-              </button>
-            ))}
-          </nav>
+                  <span>B</span>
+                </>
+              ) : (
+                <>
+                  <CalendarDays size={13} />
+                  <span>{page}</span>
+                </>
+              )}
+            </button>
+          ))}
+        </nav>
+        <div className="preview-controls">
           <button
             className={!preview ? "active" : ""}
             aria-pressed={!preview}
@@ -467,7 +451,7 @@ export default function App() {
               [
                 ["layout", SlidersHorizontal, "Elrendezés"],
                 ["design", Sparkles, "Stílus"],
-                ["photos", Image, "Képek"],
+                ["photos", Image, "Képhelyek"],
                 ["events", Cake, "Események"],
               ] as const
             ).map(([id, Icon, label]) => (
@@ -485,7 +469,7 @@ export default function App() {
           <div className="panel-content">
             {tab === "layout" && (
               <>
-                <Section title="A naptárad">
+                <Section title="A Naptár éve:">
                   <div className="year-selector no-number-arrows">
                     <button
                       aria-label="Előző év"
@@ -494,13 +478,17 @@ export default function App() {
                     >
                       <ChevronLeft size={16} />
                     </button>
-                    <Num
-                      label="Év"
-                      value={p.year}
+                    <input
+                      aria-label="Év"
+                      type="number"
                       min={1}
                       max={9999}
-                      unit=""
-                      onChange={(v) => change("year", Math.round(v))}
+                      value={p.year}
+                      onChange={(e) => {
+                        const year = e.target.valueAsNumber;
+                        if (Number.isInteger(year) && year >= 1 && year <= 9999)
+                          change("year", year);
+                      }}
                     />
                     <button
                       aria-label="Következő év"
@@ -512,35 +500,17 @@ export default function App() {
                   </div>
                   {p.mode === "monthly" && (
                     <div className="month-selector">
-                      <button
-                        aria-label="Előző hónap"
-                        onClick={() =>
-                          change("month", p.month === 1 ? 12 : p.month - 1)
-                        }
-                      >
-                        <ChevronLeft size={16} />
-                      </button>
                       <select
                         aria-label="Hónap"
                         value={p.month}
-                        onChange={(e) =>
-                          change("month", Number(e.target.value))
-                        }
+                        onChange={(e) => selectPage(Number(e.target.value))}
                       >
-                        {months.map((m, i) => (
-                          <option key={m} value={i + 1}>
-                            {m}
+                        {months.map((name, index) => (
+                          <option key={name} value={index + 1}>
+                            {name}
                           </option>
                         ))}
                       </select>
-                      <button
-                        aria-label="Következő hónap"
-                        onClick={() =>
-                          change("month", p.month === 12 ? 1 : p.month + 1)
-                        }
-                      >
-                        <ChevronRight size={16} />
-                      </button>
                     </div>
                   )}
                 </Section>
@@ -571,14 +541,58 @@ export default function App() {
                       Fekvő
                     </button>
                   </div>
+                  <button
+                    className="full"
+                    aria-pressed={p.page.linkedMargins !== false}
+                    onClick={() =>
+                      commit((root) => {
+                        const linkedMargins = root.page.linkedMargins === false;
+                        const next = linkedMargins
+                          ? applyMargin(root, root.page.margin)
+                          : root;
+                        return {
+                          ...next,
+                          page: { ...next.page, linkedMargins },
+                        };
+                      })
+                    }
+                  >
+                    Margók összekapcsolása
+                  </button>
                   <Slider
-                    label="Margó"
+                    label="Vízszintes margó"
                     value={p.page.margin}
                     min={0}
                     max={20}
                     step={0.1}
-                    onChange={(margin) =>
-                      commit((root) => applyMargin(root, margin))
+                    onChange={(value) =>
+                      commit((root) =>
+                        applyMargin(
+                          root,
+                          value,
+                          root.page.linkedMargins === false
+                            ? (root.page.marginY ?? root.page.margin)
+                            : value,
+                        ),
+                      )
+                    }
+                  />
+                  <Slider
+                    label="Függőleges margó"
+                    value={p.page.marginY ?? p.page.margin}
+                    min={0}
+                    max={20}
+                    step={0.1}
+                    onChange={(value) =>
+                      commit((root) =>
+                        applyMargin(
+                          root,
+                          root.page.linkedMargins === false
+                            ? root.page.margin
+                            : value,
+                          value,
+                        ),
+                      )
                     }
                   />
                   <div className="paper-info">
@@ -599,7 +613,7 @@ export default function App() {
                   {p.mode === "monthly" && (
                     <>
                       <Toggle
-                        label="ISO-hétszámok"
+                        label="Hetek számozása"
                         value={p.isoWeeks}
                         onChange={(v) => change("isoWeeks", v)}
                       />
@@ -675,14 +689,29 @@ export default function App() {
                   </div>
                 </Section>
                 <Section title="Saját sablon">
+                  <Field label="Sablon neve">
+                    <input
+                      value={templateTitle}
+                      maxLength={100}
+                      placeholder={p.templateName ?? "Saját sablon"}
+                      onChange={(e) => setTemplateTitle(e.target.value)}
+                    />
+                  </Field>
                   <button
                     className="outlined full"
-                    onClick={() =>
+                    onClick={() => {
+                      const name =
+                        templateTitle.trim() ||
+                        p.templateName ||
+                        "Saját sablon";
+                      const filename =
+                        name.replace(/[^\p{L}\p{N} _-]/gu, "").trim() ||
+                        "naptar-sablon";
                       download(
-                        JSON.stringify(templateOf(p)),
-                        `naptar-sablon.json`,
-                      )
-                    }
+                        JSON.stringify(templateOf(p, name)),
+                        `${filename}.json`,
+                      );
+                    }}
                   >
                     <LayoutTemplate size={16} /> Sablon mentése
                   </button>
@@ -692,9 +721,29 @@ export default function App() {
                   >
                     <FolderOpen size={16} /> Sablon betöltése
                   </button>
+                  {p.templateName && (
+                    <div className="preset-grid">
+                      <div
+                        className="preset loaded-template"
+                        style={{
+                          background: p.style.background,
+                          color: p.style.typography.date.color,
+                        }}
+                      >
+                        <span
+                          className="preset-preview"
+                          style={{ borderColor: p.style.gridColor }}
+                        >
+                          <i />
+                          <b>23</b>
+                          <i />
+                        </span>
+                        <span>{p.templateName}</span>
+                      </div>
+                    </div>
+                  )}
                   <p className="small-note">
-                    A sablon az arculatot és a képeket menti; az évet és a
-                    személyes eseményeket a projektedből tartja meg.
+                    A sablon a stílust és az üres képhelyeket menti.
                   </p>
                 </Section>
                 <Section title="Háttér">
@@ -707,130 +756,88 @@ export default function App() {
               </>
             )}
             {tab === "photos" && (
-              <>
-                <Section title="Képek és rétegek">
-                  {p.mode === "monthly" && (
-                    <>
+              <Section title="Képhelyek">
+                <button
+                  className="outlined full"
+                  onClick={() => {
+                    if (p.photos.length >= 16) {
+                      setMessage("Legfeljebb 16 képhely hozható létre.");
+                      return;
+                    }
+                    const slot = createSlot(p);
+                    commit((root) => ({
+                      ...root,
+                      photos: [...root.photos, slot],
+                    }));
+                    setSelection(slot.id);
+                  }}
+                >
+                  <Plus size={16} /> Új képhely
+                </button>
+                {p.photos.map((slot) => (
+                  <div className="photo-layer" key={slot.id}>
+                    <div className="button-row">
+                      <button
+                        className={selection === slot.id ? "selected" : ""}
+                        onClick={() => {
+                          if (
+                            !pagePhotos(p).some((item) => item.id === slot.id)
+                          )
+                            selectPage(slot.page ?? p.month);
+                          setSelection(slot.id);
+                        }}
+                      >
+                        {slotLabel(slot)}
+                      </button>
+                      <button
+                        className="icon-button danger"
+                        aria-label={`${slotLabel(slot)} törlése`}
+                        onClick={() => {
+                          commit((root) => ({
+                            ...root,
+                            photos: root.photos.filter(
+                              (item) => item.id !== slot.id,
+                            ),
+                          }));
+                          if (selection === slot.id) setSelection("title");
+                        }}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                    <small>
+                      {slot.sharedSlot
+                        ? "Mind a 12 hónap"
+                        : slot.page === 0
+                          ? "Borító"
+                          : months[(slot.page ?? p.month) - 1]}
+                    </small>
+                    {slot.page !== 0 && (
                       <Toggle
-                        label="Képek ugyanott minden hónapnál"
-                        value={p.sharedPhotoPlacement ?? false}
-                        onChange={(value) =>
-                          change("sharedPhotoPlacement", value)
+                        label="Minden hónapban"
+                        value={slot.sharedSlot ?? false}
+                        onChange={(sharedSlot) =>
+                          commit((root) => ({
+                            ...root,
+                            photos: root.photos.map((item) =>
+                              item.id === slot.id
+                                ? { ...item, sharedSlot }
+                                : item,
+                            ),
+                          }))
                         }
                       />
-                      <p className="small-note">
-                        A kapcsoló az új képhelyekre vonatkozik. A közös maszk
-                        mind a 12 hónapban együtt mozog, a kép havonta
-                        cserélhető vagy törölhető.
-                      </p>
-                    </>
-                  )}
-                  <button
-                    className="upload-zone"
-                    onClick={() => {
-                      replacePhoto.current = null;
-                      photoInput.current?.click();
-                    }}
-                  >
-                    <ImagePlus size={28} />
-                    <strong>Adj hozzá egy fényképet</strong>
-                    <span>JPG, PNG vagy WebP • legfeljebb 25 MB</span>
-                  </button>
-                  <p className="small-note">
-                    A képek és személyes adatok a böngésződben maradnak. A
-                    kivágás megőrzi az eredeti képet.
-                  </p>
-                  {pagePhotos(p).map((i) => (
-                    <div className="photo-layer" key={i.id}>
-                      <button
-                        className={`layer-item ${selection === i.id ? "selected" : ""}`}
-                        onClick={() => setSelection(i.id)}
-                      >
-                        <img src={i.data} alt="" />
-                        <span>
-                          {i.name}
-                          <small>
-                            {i.monthlyImages
-                              ? "Közös képhely"
-                              : `${i.pixelWidth} × ${i.pixelHeight} px`}
-                            {i.visible ? "" : " • rejtett"}
-                          </small>
-                        </span>
-                      </button>
-                      <div className="button-row">
-                        <button
-                          onClick={() => {
-                            replacePhoto.current = i.id;
-                            photoInput.current?.click();
-                          }}
-                        >
-                          Képcsere
-                        </button>
-                        <button
-                          onClick={() => {
-                            commit((root) => ({
-                              ...root,
-                              photos: root.photos.flatMap((old) =>
-                                old.id !== i.id
-                                  ? [old]
-                                  : old.monthlyImages
-                                    ? [
-                                        {
-                                          ...old,
-                                          monthlyImages: {
-                                            ...old.monthlyImages,
-                                            [root.month]: null,
-                                          },
-                                        },
-                                      ]
-                                    : [],
-                              ),
-                            }));
-                            if (selection === i.id) setSelection("title");
-                          }}
-                        >
-                          Kép törlése
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                  {p.mode === "monthly" &&
-                    p.photos
-                      .filter((i) => i.monthlyImages?.[p.month] === null)
-                      .map((i) => (
-                        <button
-                          key={i.id}
-                          className="full"
-                          onClick={() => {
-                            replacePhoto.current = i.id;
-                            photoInput.current?.click();
-                          }}
-                        >
-                          Kép betöltése az üres maszkba ({i.name})
-                        </button>
-                      ))}
-                  {!pagePhotos(p).length && (
-                    <p className="empty-state">
-                      Egy fotóval személyesebb lesz az éved.
-                    </p>
-                  )}
-                </Section>
-                {p.mode === "annual" && (
-                  <Section title="Borító elrendezés">
-                    <p className="small-note">
-                      A fénykép a felső részen, az éves naptár alatta helyezhető
-                      el. A naptár a jobb oldalon kikapcsolható.
-                    </p>
-                  </Section>
-                )}
-              </>
+                    )}
+                  </div>
+                ))}
+              </Section>
             )}
             {tab === "events" && (
               <>
                 <Section title="Személyes események">
                   <p className="section-intro">
                     Kattints egy napra a havi naptárban, és add hozzá a
-                    születésnapot vagy névnapot.
+                    eseményt.
                   </p>
                   {p.mode === "annual" && (
                     <button
@@ -951,6 +958,7 @@ export default function App() {
               onSelect={setSelection}
               commit={commit}
               scene={scene}
+              onLoadPhoto={chooseSlotPhoto}
             />
           </div>
         </aside>

@@ -6,6 +6,7 @@ import {
   updateView,
   yearBoxFor,
   pagePhotos,
+  slotLabel,
   type Box,
   type Project,
 } from "../model";
@@ -194,17 +195,37 @@ export function Workspace({
           className="page-stage"
           style={{ width: scene.width * scale, height: scene.height * scale }}
         >
-          <div className="ruler ruler-x">
-            MM <span>50</span>
-            <span>100</span>
-            <span>150</span>
-            <span>200</span>
-          </div>
-          <div className="ruler ruler-y">
-            0<span>50</span>
-            <span>100</span>
-            <span>150</span>
-          </div>
+          {(
+            [
+              ["x", scene.width],
+              ["y", scene.height],
+            ] as const
+          ).map(([axis, length]) => (
+            <div
+              key={axis}
+              className={`ruler ruler-${axis}`}
+              aria-label={`${length} mm`}
+            >
+              {[
+                0,
+                ...Array.from(
+                  { length: Math.floor((length - 1) / 50) },
+                  (_, i) => (i + 1) * 50,
+                ),
+                length,
+              ].map((tick) => (
+                <span
+                  key={tick}
+                  style={{
+                    [axis === "x" ? "left" : "top"]:
+                      `${(tick / length) * 100}%`,
+                  }}
+                >
+                  {tick}
+                </span>
+              ))}
+            </div>
+          ))}
           <div
             className="paper"
             data-testid="calendar-paper"
@@ -217,7 +238,9 @@ export function Workspace({
                   <>
                     <div
                       className="margin-guide"
-                      style={{ inset: project.page.margin * scale }}
+                      style={{
+                        inset: `${(project.page.marginY ?? project.page.margin) * scale}px ${project.page.margin * scale}px`,
+                      }}
                     />
                     <div className="center-guide" />
                   </>
@@ -227,14 +250,22 @@ export function Workspace({
                   .map((p) => (
                     <button
                       key={p.id}
-                      aria-label={`${p.name} kiválasztása és mozgatása a maszkban`}
-                      className={`photo-hit ${selection === p.id ? "active" : ""}`}
+                      aria-label={
+                        p.data
+                          ? `${p.name} kiválasztása és mozgatása a maszkban`
+                          : slotLabel(p)
+                      }
+                      className={`photo-hit ${p.data ? "" : "empty-slot"} ${selection === p.id ? "active" : ""}`}
                       style={{ ...styleBox(p.box), zIndex: p.z < 0 ? 1 : 5 }}
-                      onPointerDown={(e) => start(e, p.id, "crop")}
+                      onPointerDown={(e) =>
+                        start(e, p.id, p.data ? "crop" : "move")
+                      }
                       onPointerMove={move}
                       onPointerUp={stop}
                       onPointerCancel={stop}
-                    />
+                    >
+                      {!p.data && slotLabel(p)}
+                    </button>
                   ))}
                 {project.mode === "monthly" &&
                   scene.cells.map((cell, i) => (

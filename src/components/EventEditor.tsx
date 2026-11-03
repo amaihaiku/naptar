@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { X, Plus, Trash2, Pencil, Cake, Flower2 } from "lucide-react";
+import {
+  X,
+  Plus,
+  Trash2,
+  Pencil,
+  Cake,
+  Flower2,
+  CalendarDays,
+} from "lucide-react";
 import type { CivilDate } from "../engines/date";
 import { months, dateKey } from "../engines/date";
 import { eventsFor, eventLabel } from "../engines/events";
@@ -98,13 +106,19 @@ export function EventEditor({
             <div className="event-item" key={e.id}>
               {e.kind === "birthday" ? (
                 <Cake size={19} />
+              ) : e.kind === "other" ? (
+                <CalendarDays size={19} />
               ) : (
                 <Flower2 size={19} />
               )}
               <span>
                 <strong>{eventLabel(e, date.year)}</strong>
                 <small>
-                  {e.kind === "birthday" ? "Születésnap" : "Személyes névnap"}
+                  {e.kind === "birthday"
+                    ? "Születésnap"
+                    : e.kind === "other"
+                      ? "Egyéb esemény"
+                      : "Személyes névnap"}
                   {e.hidden ? " • Elrejtve" : ""}
                   {e.kind === "birthday" &&
                   e.birthYear !== null &&
@@ -149,12 +163,15 @@ export function EventEditor({
               options={[
                 ["birthday", "Születésnap"],
                 ["nameday", "Személyes névnap"],
+                ["other", "Egyéb esemény"],
               ]}
               onChange={(v) =>
                 setEditing({ ...editing, kind: v as PersonalEvent["kind"] })
               }
             />
-            <Field label="Keresztnév">
+            <Field
+              label={editing.kind === "other" ? "Esemény neve" : "Keresztnév"}
+            >
               <input
                 autoFocus
                 maxLength={80}
@@ -209,6 +226,18 @@ export function EventEditor({
                 />
               </>
             )}
+            <Toggle
+              label="Munkaszüneti / ünnepnap"
+              value={editing.publicHoliday ?? false}
+              onChange={(publicHoliday) =>
+                setEditing({ ...editing, publicHoliday })
+              }
+            />
+            <Toggle
+              label="Legyen a nap háttere színes"
+              value={editing.coloredDay ?? false}
+              onChange={(coloredDay) => setEditing({ ...editing, coloredDay })}
+            />
             <Toggle
               label="Elrejtés a naptárban és exportban"
               value={editing.hidden}

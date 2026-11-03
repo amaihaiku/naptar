@@ -332,6 +332,7 @@ summary:focus-visible {
 .field input:not([type="color"]),
 .field select,
 .month-selector select,
+.year-selector > input,
 .search-input input {
   border: 1px solid #e0e5dc;
   background: #fcfdfb;
@@ -1405,4 +1406,74 @@ summary:focus-visible {
 }
 .photo-layer .button-row {
   margin-top: 4px;
+}
+
+.sub-header {
+  display: grid;
+  grid-template-columns: 272px minmax(400px, 1fr) 274px;
+  gap: 0;
+  padding-inline: 0;
+}
+.sub-header > * {
+  padding-inline-start: 12px;
+}
+.sub-header .preview-controls {
+  justify-content: flex-start;
+}
+@media (max-width: 1250px) {
+  .sub-header {
+    grid-template-columns: 245px minmax(370px, 1fr) 245px;
+  }
+}
+@media (max-width: 900px) {
+  .sub-header {
+    display: flex;
+    flex-wrap: wrap;
+    height: auto;
+  }
+}
+.panel-section:has(.year-selector) .section-heading {
+  justify-content: center;
+}
+.year-selector,
+.month-selector {
+  align-items: center;
+}
+.year-selector > input,
+.month-selector > select {
+  font: inherit;
+  font-weight: 500;
+  text-align: center;
+  text-align-last: center;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+.ruler > span {
+  position: absolute;
+  white-space: nowrap;
+}
+.ruler-x > span {
+  transform: translateX(-50%);
+  bottom: 4px;
+}
+.ruler-y > span {
+  transform: translateY(-50%);
+  right: 5px;
+}
+.ruler-y {
+  width: 25px;
+}
+.ruler-x > span:first-child::before {
+  content: "mm ";
+}
+.photo-hit.empty-slot {
+  border: 1px dashed #8ca58b;
+  background: #eaf0e633;
+  color: #42634c;
+  pointer-events: auto;
+  z-index: 4 !important;
+}
+.loaded-template {
+  margin-top: 8px;
 }

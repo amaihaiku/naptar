@@ -5,6 +5,7 @@ import {
   type Style,
   type Project,
   defaultCover,
+  emptyPhoto,
 } from "../model";
 export const presets = [
   "Minimalista",
@@ -148,7 +149,7 @@ export function applyPreset(p: Project, name: string): Project {
     },
   };
 }
-export function templateOf(p: Project) {
+export function templateOf(p: Project, name = "Saját sablon") {
   const {
     page,
     style,
@@ -162,6 +163,7 @@ export function templateOf(p: Project) {
   return {
     kind: "naptar-template",
     version: 1,
+    name,
     page,
     style,
     grid,
@@ -169,7 +171,13 @@ export function templateOf(p: Project) {
     yearBox,
     cover,
     monthOverrides,
-    photos,
+    photos: photos.map((slot) => ({
+      ...slot,
+      ...emptyPhoto,
+      edits: undefined,
+      monthlyImages:
+        slot.slotNumber === undefined && slot.monthlyImages ? {} : undefined,
+    })),
   };
 }
 const templateSchema = projectSchema
@@ -184,9 +192,13 @@ const templateSchema = projectSchema
     monthOverrides: true,
     photos: true,
   })
-  .extend({ kind: z.literal("naptar-template"), version: z.literal(1) })
+  .extend({
+    kind: z.literal("naptar-template"),
+    version: z.literal(1),
+    name: z.string().trim().min(1).max(100).optional(),
+  })
   .strict();
 export function loadTemplate(p: Project, raw: unknown): Project {
-  const { kind: _, version: __, ...rest } = templateSchema.parse(raw);
-  return { ...p, ...rest };
+  const { kind: _, version: __, name, ...rest } = templateSchema.parse(raw);
+  return { ...p, ...rest, templateName: name ?? "Saját sablon" };
 }

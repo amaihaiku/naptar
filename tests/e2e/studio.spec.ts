@@ -153,11 +153,13 @@ test("representative editor screenshot", async ({ page }) => {
 test("photograph crop settings survive a portable project round trip", async ({
   page,
 }) => {
-  await page.getByRole("button", { name: "Képek", exact: true }).click();
+  await page.getByRole("button", { name: "Képhelyek", exact: true }).click();
+  await page.getByRole("button", { name: "Új képhely", exact: true }).click();
+  const chooser = page.waitForEvent("filechooser");
   await page
-    .locator("input[type=file]")
-    .nth(2)
-    .setInputFiles("tests/fixtures/foto.png");
+    .getByRole("button", { name: "Kép betöltése", exact: true })
+    .click();
+  await (await chooser).setFiles("tests/fixtures/foto.png");
   await expect(
     page.getByRole("slider", { name: "Kép mérete a maszkban", exact: true }),
   ).toBeVisible();
@@ -174,6 +176,9 @@ test("photograph crop settings survive a portable project round trip", async ({
   });
   await border.press("Home");
   for (let i = 0; i < 5; i++) await border.press("ArrowRight");
+  await page
+    .getByRole("slider", { name: "Telítettség", exact: true })
+    .press("Home");
   const pending = page.waitForEvent("download");
   await page
     .getByRole("button", { name: "Projekt mentése", exact: true })
@@ -181,7 +186,10 @@ test("photograph crop settings survive a portable project round trip", async ({
   const path = await (await pending).path();
   await page.getByRole("button", { name: "Új", exact: true }).click();
   await page.locator("input[type=file]").nth(0).setInputFiles(path!);
-  await page.getByRole("button", { name: /foto.png 1200/ }).click();
+  await page
+    .locator(".photo-layer")
+    .getByRole("button", { name: "Képhely 1", exact: true })
+    .click();
   await expect(
     page.getByRole("slider", { name: "Kép mérete a maszkban", exact: true }),
   ).toHaveValue("1.5");
@@ -189,6 +197,22 @@ test("photograph crop settings survive a portable project round trip", async ({
   await expect(page.getByTestId("calendar-paper").locator("image")).toHaveCount(
     1,
   );
+  await expect(
+    page.getByRole("slider", { name: "Telítettség", exact: true }),
+  ).toHaveValue("-100");
+  await page.getByRole("button", { name: "Exportálás", exact: true }).click();
+  await page.getByRole("button", { name: /PNG Veszteségmentes/ }).click();
+  const pngDownload = page.waitForEvent("download");
+  await page.getByRole("button", { name: /letöltés$/i }).click();
+  const { PNG } = await import("pngjs");
+  const { readFile } = await import("node:fs/promises");
+  const png = PNG.sync.read(
+    await readFile((await (await pngDownload).path())!),
+  );
+  const i = (550 * png.width + 1240) * 4;
+  const [r, g, b] = png.data.subarray(i, i + 3);
+  expect(r).toBeLessThan(250);
+  expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThanOrEqual(2);
 });
 test("preview zoom does not change exported PNG dimensions", async ({
   page,

@@ -1,7 +1,7 @@
 import { pagePhotos, type Project } from "../model";
 import type { Scene, SceneNode } from "../engines/layout";
 import { advance, mmPerPt } from "../engines/fonts";
-import { cropGeometry } from "../engines/images";
+import { cropGeometry, photoColorMatrix } from "../engines/images";
 import { roundPath, cakeRects, flowerCircles } from "../engines/render";
 export function SceneView({
   scene,
@@ -69,6 +69,10 @@ export function SceneView({
       const p = pagePhotos(project, scene.page).find((i) => i.id === n.photoId);
       if (p) {
         const c = cropGeometry(p);
+        const matrix = photoColorMatrix(p.edits);
+        const cx = p.box.x + p.box.w / 2,
+          cy = p.box.y + p.box.h / 2;
+        const transform = `translate(${cx} ${cy}) rotate(${p.edits?.rotation ?? 0}) scale(${p.edits?.flipX ? -1 : 1} ${p.edits?.flipY ? -1 : 1}) translate(${-cx} ${-cy})`;
         const shape =
           p.shape === "rectangle" ? (
             <rect
@@ -98,16 +102,24 @@ export function SceneView({
           <g>
             <defs>
               <clipPath id={`photo-${p.id}`}>{shape}</clipPath>
+              {matrix && (
+                <filter id={`color-${p.id}`} colorInterpolationFilters="sRGB">
+                  <feColorMatrix type="matrix" values={matrix.join(" ")} />
+                </filter>
+              )}
             </defs>
-            <image
-              href={p.data}
-              x={c.x}
-              y={c.y}
-              width={c.w}
-              height={c.h}
-              clipPath={`url(#photo-${p.id})`}
-              preserveAspectRatio="none"
-            />
+            <g clipPath={`url(#photo-${p.id})`}>
+              <image
+                href={p.data}
+                x={c.x}
+                y={c.y}
+                width={c.w}
+                height={c.h}
+                transform={transform}
+                filter={matrix ? `url(#color-${p.id})` : undefined}
+                preserveAspectRatio="none"
+              />
+            </g>
             <g fill="none" stroke={p.borderColor} strokeWidth={p.border}>
               {shape}
             </g>
