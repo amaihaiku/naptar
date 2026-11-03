@@ -24,15 +24,500 @@
     "hungarianGlyphsVerified": true
   },
   {
+    "family": "Inter",
+    "weight": 400,
+    "italic": false,
+    "file": "Inter-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Inter",
+    "weight": 700,
+    "italic": false,
+    "file": "Inter-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Inter",
+    "weight": 400,
+    "italic": true,
+    "file": "Inter-400-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Inter",
+    "weight": 700,
+    "italic": true,
+    "file": "Inter-700-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Roboto",
+    "weight": 400,
+    "italic": false,
+    "file": "Roboto-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Roboto",
+    "weight": 700,
+    "italic": false,
+    "file": "Roboto-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Roboto",
+    "weight": 400,
+    "italic": true,
+    "file": "Roboto-400-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Roboto",
+    "weight": 700,
+    "italic": true,
+    "file": "Roboto-700-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Open Sans",
+    "weight": 400,
+    "italic": false,
+    "file": "OpenSans-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Open Sans",
+    "weight": 700,
+    "italic": false,
+    "file": "OpenSans-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Open Sans",
+    "weight": 400,
+    "italic": true,
+    "file": "OpenSans-400-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Open Sans",
+    "weight": 700,
+    "italic": true,
+    "file": "OpenSans-700-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Lato",
+    "weight": 400,
+    "italic": false,
+    "file": "Lato-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Lato",
+    "weight": 700,
+    "italic": false,
+    "file": "Lato-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Lato",
+    "weight": 400,
+    "italic": true,
+    "file": "Lato-400-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Lato",
+    "weight": 700,
+    "italic": true,
+    "file": "Lato-700-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
     "family": "Montserrat",
     "weight": 400,
+    "italic": false,
     "file": "Montserrat-400.ttf",
     "hungarianGlyphsVerified": true
   },
   {
     "family": "Montserrat",
     "weight": 700,
+    "italic": false,
     "file": "Montserrat-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Montserrat",
+    "weight": 400,
+    "italic": true,
+    "file": "Montserrat-400-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Montserrat",
+    "weight": 700,
+    "italic": true,
+    "file": "Montserrat-700-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Poppins",
+    "weight": 400,
+    "italic": false,
+    "file": "Poppins-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Poppins",
+    "weight": 700,
+    "italic": false,
+    "file": "Poppins-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Poppins",
+    "weight": 400,
+    "italic": true,
+    "file": "Poppins-400-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Poppins",
+    "weight": 700,
+    "italic": true,
+    "file": "Poppins-700-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Nunito",
+    "weight": 400,
+    "italic": false,
+    "file": "Nunito-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Nunito",
+    "weight": 700,
+    "italic": false,
+    "file": "Nunito-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Nunito",
+    "weight": 400,
+    "italic": true,
+    "file": "Nunito-400-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Nunito",
+    "weight": 700,
+    "italic": true,
+    "file": "Nunito-700-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Raleway",
+    "weight": 400,
+    "italic": false,
+    "file": "Raleway-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Raleway",
+    "weight": 700,
+    "italic": false,
+    "file": "Raleway-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Raleway",
+    "weight": 400,
+    "italic": true,
+    "file": "Raleway-400-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Raleway",
+    "weight": 700,
+    "italic": true,
+    "file": "Raleway-700-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "DM Sans",
+    "weight": 400,
+    "italic": false,
+    "file": "DMSans-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "DM Sans",
+    "weight": 700,
+    "italic": false,
+    "file": "DMSans-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "DM Sans",
+    "weight": 400,
+    "italic": true,
+    "file": "DMSans-400-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "DM Sans",
+    "weight": 700,
+    "italic": true,
+    "file": "DMSans-700-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Oswald",
+    "weight": 400,
+    "italic": false,
+    "file": "Oswald-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Oswald",
+    "weight": 700,
+    "italic": false,
+    "file": "Oswald-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Roboto Condensed",
+    "weight": 400,
+    "italic": false,
+    "file": "RobotoCondensed-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Roboto Condensed",
+    "weight": 700,
+    "italic": false,
+    "file": "RobotoCondensed-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Roboto Condensed",
+    "weight": 400,
+    "italic": true,
+    "file": "RobotoCondensed-400-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Roboto Condensed",
+    "weight": 700,
+    "italic": true,
+    "file": "RobotoCondensed-700-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Playfair Display",
+    "weight": 400,
+    "italic": false,
+    "file": "PlayfairDisplay-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Playfair Display",
+    "weight": 700,
+    "italic": false,
+    "file": "PlayfairDisplay-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Playfair Display",
+    "weight": 400,
+    "italic": true,
+    "file": "PlayfairDisplay-400-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Playfair Display",
+    "weight": 700,
+    "italic": true,
+    "file": "PlayfairDisplay-700-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Merriweather",
+    "weight": 400,
+    "italic": false,
+    "file": "Merriweather-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Merriweather",
+    "weight": 700,
+    "italic": false,
+    "file": "Merriweather-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Merriweather",
+    "weight": 400,
+    "italic": true,
+    "file": "Merriweather-400-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Merriweather",
+    "weight": 700,
+    "italic": true,
+    "file": "Merriweather-700-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Lora",
+    "weight": 400,
+    "italic": false,
+    "file": "Lora-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Lora",
+    "weight": 700,
+    "italic": false,
+    "file": "Lora-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Lora",
+    "weight": 400,
+    "italic": true,
+    "file": "Lora-400-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Lora",
+    "weight": 700,
+    "italic": true,
+    "file": "Lora-700-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "EB Garamond",
+    "weight": 400,
+    "italic": false,
+    "file": "EBGaramond-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "EB Garamond",
+    "weight": 700,
+    "italic": false,
+    "file": "EBGaramond-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "EB Garamond",
+    "weight": 400,
+    "italic": true,
+    "file": "EBGaramond-400-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "EB Garamond",
+    "weight": 700,
+    "italic": true,
+    "file": "EBGaramond-700-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Cormorant Garamond",
+    "weight": 400,
+    "italic": false,
+    "file": "CormorantGaramond-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Cormorant Garamond",
+    "weight": 700,
+    "italic": false,
+    "file": "CormorantGaramond-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Cormorant Garamond",
+    "weight": 400,
+    "italic": true,
+    "file": "CormorantGaramond-400-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Cormorant Garamond",
+    "weight": 700,
+    "italic": true,
+    "file": "CormorantGaramond-700-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Libre Baskerville",
+    "weight": 400,
+    "italic": false,
+    "file": "LibreBaskerville-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Libre Baskerville",
+    "weight": 700,
+    "italic": false,
+    "file": "LibreBaskerville-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Libre Baskerville",
+    "weight": 400,
+    "italic": true,
+    "file": "LibreBaskerville-400-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Libre Baskerville",
+    "weight": 700,
+    "italic": true,
+    "file": "LibreBaskerville-700-italic.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Caveat",
+    "weight": 400,
+    "italic": false,
+    "file": "Caveat-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Caveat",
+    "weight": 700,
+    "italic": false,
+    "file": "Caveat-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Dancing Script",
+    "weight": 400,
+    "italic": false,
+    "file": "DancingScript-400.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Dancing Script",
+    "weight": 700,
+    "italic": false,
+    "file": "DancingScript-700.ttf",
+    "hungarianGlyphsVerified": true
+  },
+  {
+    "family": "Abril Fatface",
+    "weight": 400,
+    "italic": false,
+    "file": "AbrilFatface-400.ttf",
     "hungarianGlyphsVerified": true
   }
 ]

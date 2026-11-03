@@ -27,6 +27,7 @@ test("A4 JPG has actual print pixels and 300 DPI density", async ({ page }) => {
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("calendar-paper")).toBeVisible();
+  await page.getByLabel("Év", { exact: true }).fill("2027");
 });
 test("birthday entry, project save/load and undo/redo", async ({ page }) => {
   await page
@@ -87,7 +88,7 @@ test("personal nameday, editing and deletion", async ({ page }) => {
   );
 });
 test("annual A4 landscape layout and PDF download", async ({ page }) => {
-  await page.getByRole("button", { name: "Éves", exact: true }).click();
+  await page.getByRole("button", { name: "Borító", exact: true }).click();
   await page.getByRole("button", { name: "Fekvő", exact: true }).click();
   const paper = page.getByTestId("calendar-paper");
   await expect(paper.getByText("Január", { exact: true })).toBeVisible();
@@ -100,7 +101,9 @@ test("annual A4 landscape layout and PDF download", async ({ page }) => {
   expect((await pending).suggestedFilename()).toBe("naptar-2027.pdf");
 });
 test("recovery is offered after reload", async ({ page }) => {
+  await page.clock.install();
   await page.getByLabel("Projekt neve").fill("Helyreállítás próba");
+  await page.clock.fastForward(1500);
   await expect(
     page.getByText("Helyi helyreállítás mentve", { exact: true }),
   ).toBeVisible();
@@ -114,7 +117,6 @@ test("recovery is offered after reload", async ({ page }) => {
   );
 });
 test("monthly full-year PNG export contains 12 files", async ({ page }) => {
-  await page.getByLabel("Papírméret", { exact: true }).selectOption("A6");
   await page.getByRole("button", { name: "Exportálás", exact: true }).click();
   await page.getByRole("button", { name: /PNG Veszteségmentes/ }).click();
   await page.getByLabel("Exportált oldalak").selectOption("all");
@@ -148,10 +150,22 @@ test("photograph crop settings survive a portable project round trip", async ({
     .locator("input[type=file]")
     .nth(2)
     .setInputFiles("tests/fixtures/foto.png");
-  await expect(page.getByLabel("Kép nagyítása", { exact: true })).toBeVisible();
-  await page.getByLabel("Kép nagyítása", { exact: true }).fill("1.5");
-  await page.getByLabel("Kivágás alakja").selectOption("ellipse");
-  await page.getByLabel("Képkeret vastagsága", { exact: true }).fill("0.5");
+  await expect(
+    page.getByRole("slider", { name: "Kép mérete a maszkban", exact: true }),
+  ).toBeVisible();
+  const zoom = page.getByRole("slider", {
+    name: "Kép mérete a maszkban",
+    exact: true,
+  });
+  await zoom.press("Home");
+  for (let i = 0; i < 10; i++) await zoom.press("ArrowRight");
+  await page.getByLabel("Maszk alakja").selectOption("ellipse");
+  const border = page.getByRole("slider", {
+    name: "Maszk keret vastagsága",
+    exact: true,
+  });
+  await border.press("Home");
+  for (let i = 0; i < 5; i++) await border.press("ArrowRight");
   const pending = page.waitForEvent("download");
   await page
     .getByRole("button", { name: "Projekt mentése", exact: true })
@@ -160,10 +174,10 @@ test("photograph crop settings survive a portable project round trip", async ({
   await page.getByRole("button", { name: "Új", exact: true }).click();
   await page.locator("input[type=file]").nth(0).setInputFiles(path!);
   await page.getByRole("button", { name: /foto.png 1200/ }).click();
-  await expect(page.getByLabel("Kép nagyítása", { exact: true })).toHaveValue(
-    "1.5",
-  );
-  await expect(page.getByLabel("Kivágás alakja")).toHaveValue("ellipse");
+  await expect(
+    page.getByRole("slider", { name: "Kép mérete a maszkban", exact: true }),
+  ).toHaveValue("1.5");
+  await expect(page.getByLabel("Maszk alakja")).toHaveValue("ellipse");
   await expect(page.getByTestId("calendar-paper").locator("image")).toHaveCount(
     1,
   );
@@ -171,8 +185,9 @@ test("photograph crop settings survive a portable project round trip", async ({
 test("preview zoom does not change exported PNG dimensions", async ({
   page,
 }) => {
-  await page.getByRole("button", { name: "Nagyítás", exact: true }).click();
-  await page.getByRole("button", { name: "Nagyítás", exact: true }).click();
+  await page
+    .getByRole("slider", { name: "Nagyítás", exact: true })
+    .press("End");
   await page.getByRole("button", { name: "Exportálás", exact: true }).click();
   await page.getByRole("button", { name: /PNG Veszteségmentes/ }).click();
   const pending = page.waitForEvent("download");

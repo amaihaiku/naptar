@@ -47,6 +47,11 @@ import {
   parseProject,
   serializeProject,
   projectSchema,
+  viewProject,
+  updateView,
+  defaultCover,
+  pagePhotos,
+  editorProject,
 } from "./model";
 import { loadFonts } from "./engines/fonts";
 import { buildScene } from "./engines/layout";
@@ -68,18 +73,11 @@ import {
   Color,
   Toggle,
   Section,
+  Slider,
 } from "./components/Controls";
+import { Properties } from "./components/Properties";
 import { EventEditor } from "./components/EventEditor";
 import { Workspace, type Selection } from "./components/Workspace";
-const categoryNames: Record<Category, string> = {
-  year: "Évszám",
-  month: "Hónap neve",
-  weekday: "Hétköznapok",
-  date: "Dátumszámok",
-  nameday: "Hagyományos névnapok",
-  birthday: "Születésnapok",
-  personalNameday: "Személyes névnapok",
-};
 const RECOVERY = "naptar-studio-recovery-v1";
 type Tab = "layout" | "design" | "photos" | "events";
 export default function App() {
@@ -89,16 +87,12 @@ export default function App() {
   const [ready, setReady] = useState(false),
     [fontError, setFontError] = useState(""),
     [message, setMessage] = useState(""),
-    [advanced, setAdvanced] = useState(false),
     [tab, setTab] = useState<Tab>("layout"),
     [selection, setSelection] = useState<Selection>("grid"),
-    [category, setCategory] = useState<Category>("month"),
-    [fontSearch, setFontSearch] = useState(""),
     [eventSearch, setEventSearch] = useState(""),
     [date, setDate] = useState<CivilDate | null>(null),
     [guides, setGuides] = useState(true),
     [preview, setPreview] = useState(false),
-    [monthOnly, setMonthOnly] = useState(false),
     [recovery, setRecovery] = useState<Project | null>(null),
     [recoveryChecked, setRecoveryChecked] = useState(false),
     [autoStatus, setAutoStatus] = useState("Helyi helyreállítás előkészítése…"),
@@ -112,14 +106,6 @@ export default function App() {
     photoInput = useRef<HTMLInputElement>(null);
   const commit = history.commit;
   const s = effectiveStyle(p);
-  const t = s.typography[category];
-  const selectedPhoto = p.photos.find((i) => i.id === selection);
-  const selectedBox =
-    selection === "grid"
-      ? p.grid
-      : selection === "title"
-        ? p.titleBox
-        : selectedPhoto?.box;
   const initFonts = () => {
     setFontError("");
     loadFonts()
@@ -132,7 +118,7 @@ export default function App() {
     get<string>(RECOVERY)
       .then(async (source) => {
         if (source) {
-          const candidate = parseProject(source);
+          const candidate = editorProject(parseProject(source));
           await validatePhotos(candidate.photos);
           if (active) setRecovery(candidate);
         }
@@ -209,70 +195,18 @@ export default function App() {
     commit((v) => ({ ...v, [key]: value }));
   }
   function style<K extends keyof Style>(key: K, value: Style[K]) {
-    commit((v) =>
-      monthOnly && v.mode === "monthly"
-        ? {
-            ...v,
-            monthOverrides: {
-              ...v.monthOverrides,
-              [v.month]: { ...v.monthOverrides[v.month], [key]: value },
-            },
-          }
-        : { ...v, style: { ...v.style, [key]: value } },
-    );
-  }
-  function type<K extends keyof Typography>(key: K, value: Typography[K]) {
-    commit((v) => {
-      if (monthOnly && v.mode === "monthly") {
-        const o = v.monthOverrides[v.month] ?? {};
-        return {
-          ...v,
-          monthOverrides: {
-            ...v.monthOverrides,
-            [v.month]: {
-              ...o,
-              typography: {
-                ...o.typography,
-                [category]: { ...o.typography?.[category], [key]: value },
-              },
-            },
-          },
-        };
-      }
-      return {
-        ...v,
-        style: {
-          ...v.style,
-          typography: {
-            ...v.style.typography,
-            [category]: { ...v.style.typography[category], [key]: value },
-          },
-        },
-      };
+    commit((root) => {
+      const old = viewProject(root).style;
+      return updateView(root, { style: { ...old, [key]: value } });
     });
   }
-  function boxChange(patch: Partial<Box>) {
-    if (!selectedBox) return;
-    commit((v) =>
-      selection === "grid"
-        ? { ...v, grid: { ...v.grid, ...patch } }
-        : selection === "title"
-          ? { ...v, titleBox: { ...v.titleBox, ...patch } }
-          : {
-              ...v,
-              photos: v.photos.map((i) =>
-                i.id === selection ? { ...i, box: { ...i.box, ...patch } } : i,
-              ),
-            },
-    );
-  }
-  function photoChange(patch: Partial<Photo>) {
-    commit((v) => ({
-      ...v,
-      photos: v.photos.map((i) =>
-        i.id === selection ? { ...i, ...patch } : i,
-      ),
+  function selectPage(page: number) {
+    commit((root) => ({
+      ...root,
+      mode: page === 0 ? "annual" : "monthly",
+      ...(page ? { month: page } : {}),
     }));
+    setSelection("title");
   }
   async function importProject(file?: File, template = false) {
     if (!file) return;
@@ -280,9 +214,10 @@ export default function App() {
       if (file.size > 80_000_000)
         throw new Error("A fájl legfeljebb 80 MB lehet.");
       const raw = await file.text();
-      const next = template
+      const loaded = template
         ? projectSchema.parse(loadTemplate(history.project, JSON.parse(raw)))
         : parseProject(raw);
+      const next = editorProject(loaded);
       await validatePhotos(next.photos);
       commit(next);
       setMessage(
@@ -303,7 +238,18 @@ export default function App() {
     try {
       if (p.photos.length >= 16)
         throw new Error("Legfeljebb 16 kép adható a projekthez.");
-      const photo = await readPhoto(file, p.page.width, p.page.height);
+      const photo = {
+        ...(await readPhoto(file, p.page.width, p.page.height)),
+        page: p.mode === "annual" ? 0 : p.month,
+        aspectLock: false,
+        shadow: 0,
+      };
+      if (p.mode === "annual")
+        photo.box = {
+          ...photo.box,
+          y: p.page.height * 0.23,
+          h: p.page.height * 0.26,
+        };
       const next = projectSchema.parse({
         ...history.project,
         photos: [...history.project.photos, photo],
@@ -317,12 +263,6 @@ export default function App() {
       setBusy("");
       if (photoInput.current) photoInput.current.value = "";
     }
-  }
-  function mode(value: "annual" | "monthly") {
-    let next = { ...p, mode: value };
-    if (value === "monthly" && p.page.size === "A7")
-      next = applyPaper(next, "A6", p.page.orientation);
-    commit(next);
   }
   const errors = preflight?.issues.filter((i) => i.severity === "error") ?? [],
     warnings = preflight?.issues.filter((i) => i.severity === "warning") ?? [];
@@ -433,17 +373,59 @@ export default function App() {
           </button>
         </div>
         <div className="preview-controls">
+          <nav className="page-navigation" aria-label="Naptároldalak">
+            {Array.from({ length: 13 }, (_, page) => (
+              <button
+                key={page}
+                className={
+                  (
+                    page === 0
+                      ? p.mode === "annual"
+                      : p.mode === "monthly" && p.month === page
+                  )
+                    ? "active"
+                    : ""
+                }
+                aria-label={page === 0 ? "Borító" : months[page - 1]}
+                aria-pressed={
+                  page === 0
+                    ? p.mode === "annual"
+                    : p.mode === "monthly" && p.month === page
+                }
+                title={page === 0 ? "Borító" : months[page - 1]}
+                onClick={() => selectPage(page)}
+              >
+                {page === 0 ? (
+                  <Image size={13} />
+                ) : (
+                  <>
+                    <CalendarDays size={13} />
+                    <span>{page}</span>
+                  </>
+                )}
+              </button>
+            ))}
+          </nav>
           <button
-            className={guides ? "active" : ""}
-            onClick={() => setGuides((v) => !v)}
+            className={!preview ? "active" : ""}
+            aria-pressed={!preview}
+            onClick={() => {
+              setPreview(false);
+              setGuides(true);
+            }}
           >
             Segédvonalak
           </button>
           <button
             className={preview ? "active" : ""}
-            onClick={() => setPreview((v) => !v)}
+            aria-pressed={preview}
+            onClick={() => {
+              setPreview(true);
+              setGuides(false);
+            }}
           >
-            <Eye size={14} /> Nyomtatási nézet
+            <Eye size={14} />
+            Nyomtatási nézet
           </button>
           <button
             title="Böngésző nyomtatás"
@@ -454,18 +436,6 @@ export default function App() {
             <Printer size={15} />
           </button>
         </div>
-        <label className="advanced-switch">
-          Egyszerű
-          <input
-            type="checkbox"
-            checked={advanced}
-            onChange={(e) => {
-              setAdvanced(e.target.checked);
-              if (!e.target.checked) setMonthOnly(false);
-            }}
-          />
-          Haladó
-        </label>
       </div>
       <main className="editor-layout">
         <aside className="left-panel">
@@ -493,28 +463,30 @@ export default function App() {
             {tab === "layout" && (
               <>
                 <Section title="A naptárad">
-                  <div className="segmented">
+                  <div className="year-selector">
                     <button
-                      className={p.mode === "monthly" ? "selected" : ""}
-                      onClick={() => mode("monthly")}
+                      aria-label="Előző év"
+                      disabled={p.year <= 1}
+                      onClick={() => change("year", p.year - 1)}
                     >
-                      Havi
+                      <ChevronLeft size={16} />
                     </button>
+                    <Num
+                      label="Év"
+                      value={p.year}
+                      min={1}
+                      max={9999}
+                      unit=""
+                      onChange={(v) => change("year", Math.round(v))}
+                    />
                     <button
-                      className={p.mode === "annual" ? "selected" : ""}
-                      onClick={() => mode("annual")}
+                      aria-label="Következő év"
+                      disabled={p.year >= 9999}
+                      onClick={() => change("year", p.year + 1)}
                     >
-                      Éves
+                      <ChevronRight size={16} />
                     </button>
                   </div>
-                  <Num
-                    label="Év"
-                    value={p.year}
-                    min={1}
-                    max={9999}
-                    unit=""
-                    onChange={(v) => change("year", Math.round(v))}
-                  />
                   {p.mode === "monthly" && (
                     <div className="month-selector">
                       <button
@@ -550,109 +522,39 @@ export default function App() {
                   )}
                 </Section>
                 <Section title="Papír és méret">
-                  <Select
-                    label="Papírméret"
-                    value={p.page.size}
-                    options={(p.mode === "annual"
-                      ? ["A4", "A5", "A6", "A7"]
-                      : ["A4", "A5", "A6", "custom"]
-                    ).map(
-                      (v) => [v, v === "custom" ? "Egyedi méret" : v] as const,
-                    )}
-                    onChange={(v) =>
-                      commit(
-                        applyPaper(
-                          p,
-                          v as Project["page"]["size"],
-                          p.page.orientation,
-                        ),
-                      )
-                    }
-                  />
+                  <div className="paper-info">
+                    A4{" "}
+                    <span>
+                      {p.page.width} × {p.page.height} mm
+                    </span>
+                  </div>
                   <div className="segmented orientation">
                     <button
                       className={
                         p.page.orientation === "portrait" ? "selected" : ""
                       }
-                      onClick={() =>
-                        commit(
-                          applyPaper(
-                            p,
-                            p.page.size,
-                            "portrait",
-                            p.page.size === "custom"
-                              ? [
-                                  Math.min(p.page.width, p.page.height),
-                                  Math.max(p.page.width, p.page.height),
-                                ]
-                              : undefined,
-                          ),
-                        )
-                      }
+                      onClick={() => commit(applyPaper(p, "A4", "portrait"))}
                     >
-                      <span className="paper-icon portrait" /> Álló
+                      <span className="paper-icon portrait" />
+                      Álló
                     </button>
                     <button
                       className={
                         p.page.orientation === "landscape" ? "selected" : ""
                       }
-                      onClick={() =>
-                        commit(
-                          applyPaper(
-                            p,
-                            p.page.size,
-                            "landscape",
-                            p.page.size === "custom"
-                              ? [
-                                  Math.max(p.page.width, p.page.height),
-                                  Math.min(p.page.width, p.page.height),
-                                ]
-                              : undefined,
-                          ),
-                        )
-                      }
+                      onClick={() => commit(applyPaper(p, "A4", "landscape"))}
                     >
-                      <span className="paper-icon landscape" /> Fekvő
+                      <span className="paper-icon landscape" />
+                      Fekvő
                     </button>
                   </div>
-                  {p.page.size === "custom" && (
-                    <div className="two-col">
-                      <Num
-                        label="Lapszélesség"
-                        value={p.page.width}
-                        min={40}
-                        max={600}
-                        onChange={(v) =>
-                          commit(
-                            applyPaper(p, "custom", p.page.orientation, [
-                              v,
-                              p.page.height,
-                            ]),
-                          )
-                        }
-                      />
-                      <Num
-                        label="Lapmagasság"
-                        value={p.page.height}
-                        min={40}
-                        max={600}
-                        onChange={(v) =>
-                          commit(
-                            applyPaper(p, "custom", p.page.orientation, [
-                              p.page.width,
-                              v,
-                            ]),
-                          )
-                        }
-                      />
-                    </div>
-                  )}
-                  <Num
+                  <Slider
                     label="Margó"
                     value={p.page.margin}
                     min={0}
-                    max={40}
-                    onChange={(v) => change("page", { ...p.page, margin: v })}
+                    max={50}
+                    step={0.1}
+                    onChange={(margin) => change("page", { ...p.page, margin })}
                   />
                   <div className="paper-info">
                     {p.page.width} × {p.page.height} mm{" "}
@@ -757,35 +659,6 @@ export default function App() {
                     value={s.background}
                     onChange={(v) => style("background", v)}
                   />
-                  <Select
-                    label="Dekoratív minta"
-                    value={s.pattern}
-                    options={[
-                      ["none", "Nincs"],
-                      ["dots", "Pontozott"],
-                      ["lines", "Rövid vonalak"],
-                    ]}
-                    onChange={(v) => style("pattern", v as Style["pattern"])}
-                  />
-                  <Field label="Vízjel">
-                    <input
-                      value={s.watermark}
-                      maxLength={80}
-                      placeholder="Például: Családi pillanatok"
-                      onChange={(e) => style("watermark", e.target.value)}
-                    />
-                  </Field>
-                  {s.watermark && (
-                    <Num
-                      label="Vízjel átlátszatlansága"
-                      unit=""
-                      value={s.watermarkOpacity}
-                      min={0.02}
-                      max={0.6}
-                      step={0.02}
-                      onChange={(v) => style("watermarkOpacity", v)}
-                    />
-                  )}
                 </Section>
               </>
             )}
@@ -804,7 +677,7 @@ export default function App() {
                     A képek és személyes adatok a böngésződben maradnak. A
                     kivágás megőrzi az eredeti képet.
                   </p>
-                  {p.photos.map((i) => (
+                  {pagePhotos(p).map((i) => (
                     <button
                       className={`layer-item ${selection === i.id ? "selected" : ""}`}
                       key={i.id}
@@ -820,24 +693,20 @@ export default function App() {
                       </span>
                     </button>
                   ))}
-                  {!p.photos.length && (
+                  {!pagePhotos(p).length && (
                     <p className="empty-state">
                       Egy fotóval személyesebb lesz az éved.
                     </p>
                   )}
                 </Section>
-                <Section title="Fotónaptár elrendezés">
-                  <button
-                    className="outlined full"
-                    onClick={() => commit(applyPreset(p, "Fotónaptár"))}
-                  >
-                    <LayoutTemplate size={16} /> Fotó + éves naptár
-                  </button>
-                  <p className="small-note">
-                    A fénykép és a naptár területe külön méretezhető. A6-os
-                    lapra az éves rács például 74 × 105 mm-re állítható.
-                  </p>
-                </Section>
+                {p.mode === "annual" && (
+                  <Section title="Borító elrendezés">
+                    <p className="small-note">
+                      A fénykép a felső részen, az éves naptár alatta helyezhető
+                      el. A naptár a jobb oldalon kikapcsolható.
+                    </p>
+                  </Section>
+                )}
               </>
             )}
             {tab === "events" && (
@@ -850,7 +719,7 @@ export default function App() {
                   {p.mode === "annual" && (
                     <button
                       className="outlined full"
-                      onClick={() => mode("monthly")}
+                      onClick={() => selectPage(p.month)}
                     >
                       Havi naptár megnyitása
                     </button>
@@ -960,510 +829,13 @@ export default function App() {
             <h2>Tulajdonságok</h2>
           </div>
           <div className="panel-content">
-            <Section title="Kijelölt elem">
-              <Select
-                label="Elem"
-                value={selection}
-                options={[
-                  ["grid", "Naptárrács"],
-                  ["title", "Hónap / év címe"],
-                  ...p.photos.map((i) => [i.id, i.name] as const),
-                ]}
-                onChange={setSelection}
-              />
-              {selectedBox && (
-                <>
-                  <div className="two-col">
-                    <Num
-                      label="X pozíció"
-                      value={selectedBox.x}
-                      min={-600}
-                      max={1200}
-                      onChange={(v) => boxChange({ x: v })}
-                    />
-                    <Num
-                      label="Y pozíció"
-                      value={selectedBox.y}
-                      min={-600}
-                      max={1200}
-                      onChange={(v) => boxChange({ y: v })}
-                    />
-                    <Num
-                      label="Szélesség"
-                      value={selectedBox.w}
-                      min={10}
-                      max={600}
-                      onChange={(v) =>
-                        boxChange({
-                          w: v,
-                          ...(selectedPhoto?.aspectLock
-                            ? {
-                                h: Math.min(
-                                  600,
-                                  Math.max(
-                                    10,
-                                    (v * selectedBox.h) / selectedBox.w,
-                                  ),
-                                ),
-                              }
-                            : {}),
-                        })
-                      }
-                    />
-                    <Num
-                      label="Magasság"
-                      value={selectedBox.h}
-                      min={10}
-                      max={600}
-                      onChange={(v) =>
-                        boxChange({
-                          h: v,
-                          ...(selectedPhoto?.aspectLock
-                            ? {
-                                w: Math.min(
-                                  600,
-                                  Math.max(
-                                    10,
-                                    (v * selectedBox.w) / selectedBox.h,
-                                  ),
-                                ),
-                              }
-                            : {}),
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="button-row">
-                    <button
-                      title="Vízszintes középre igazítás"
-                      onClick={() =>
-                        boxChange({ x: (p.page.width - selectedBox.w) / 2 })
-                      }
-                    >
-                      <AlignCenter size={15} /> Középre
-                    </button>
-                    <button
-                      aria-label={
-                        selectedBox.locked ? "Elem feloldása" : "Elem zárolása"
-                      }
-                      onClick={() => boxChange({ locked: !selectedBox.locked })}
-                    >
-                      {selectedBox.locked ? (
-                        <Lock size={15} />
-                      ) : (
-                        <Unlock size={15} />
-                      )}
-                    </button>
-                  </div>
-                </>
-              )}
-            </Section>
-            {selectedPhoto ? (
-              <>
-                <Section title="Képkivágás">
-                  <Select
-                    label="Kép szerepe"
-                    value={selectedPhoto.role}
-                    options={[
-                      ["photo", "Fénykép"],
-                      ["background", "Háttérkép"],
-                      ["logo", "Logó"],
-                    ]}
-                    onChange={(v) =>
-                      photoChange({
-                        role: v as Photo["role"],
-                        ...(v === "background"
-                          ? {
-                              z: -20,
-                              box: {
-                                ...selectedPhoto.box,
-                                x: 0,
-                                y: 0,
-                                w: p.page.width,
-                                h: p.page.height,
-                              },
-                            }
-                          : {}),
-                      })
-                    }
-                  />
-                  <Select
-                    label="Kivágás alakja"
-                    value={selectedPhoto.shape}
-                    options={[
-                      ["rectangle", "Téglalap"],
-                      ["ellipse", "Ovális"],
-                      ["circle", "Kör"],
-                    ]}
-                    onChange={(v) =>
-                      photoChange({ shape: v as Photo["shape"] })
-                    }
-                  />
-                  <Num
-                    label="Kép nagyítása"
-                    value={selectedPhoto.zoom}
-                    min={1}
-                    max={8}
-                    step={0.1}
-                    unit="×"
-                    onChange={(v) => photoChange({ zoom: v })}
-                  />
-                  <div className="two-col">
-                    <Num
-                      label="Vízszintes képkivágás"
-                      value={selectedPhoto.panX}
-                      min={-1}
-                      max={1}
-                      step={0.05}
-                      unit=""
-                      onChange={(v) => photoChange({ panX: v })}
-                    />
-                    <Num
-                      label="Függőleges képkivágás"
-                      value={selectedPhoto.panY}
-                      min={-1}
-                      max={1}
-                      step={0.05}
-                      unit=""
-                      onChange={(v) => photoChange({ panY: v })}
-                    />
-                  </div>
-                  <Toggle
-                    label="Keret képarányának megtartása"
-                    value={selectedPhoto.aspectLock}
-                    onChange={(v) => photoChange({ aspectLock: v })}
-                  />
-                  <Num
-                    label="Lekerekítés"
-                    value={selectedPhoto.radius}
-                    min={0}
-                    max={50}
-                    onChange={(v) => photoChange({ radius: v })}
-                  />
-                  <Num
-                    label="Képkeret vastagsága"
-                    value={selectedPhoto.border}
-                    min={0}
-                    max={10}
-                    step={0.1}
-                    onChange={(v) => photoChange({ border: v })}
-                  />
-                  <Color
-                    label="Képkeret színe"
-                    value={selectedPhoto.borderColor}
-                    onChange={(v) => photoChange({ borderColor: v })}
-                  />
-                  <Num
-                    label="Árnyék mérete"
-                    value={selectedPhoto.shadow}
-                    min={0}
-                    max={15}
-                    step={0.5}
-                    onChange={(v) => photoChange({ shadow: v })}
-                  />
-                  <Num
-                    label="Rétegsorrend"
-                    unit=""
-                    value={selectedPhoto.z}
-                    min={-20}
-                    max={20}
-                    onChange={(v) => photoChange({ z: v })}
-                  />
-                  <Toggle
-                    label="Kép látható"
-                    value={selectedPhoto.visible}
-                    onChange={(v) => photoChange({ visible: v })}
-                  />
-                  {advanced && (
-                    <Num
-                      label="Kép átlátszatlansága"
-                      unit=""
-                      value={selectedPhoto.opacity}
-                      min={0.05}
-                      max={1}
-                      step={0.05}
-                      onChange={(v) => photoChange({ opacity: v })}
-                    />
-                  )}
-                  <button
-                    className="danger full"
-                    onClick={() => {
-                      change(
-                        "photos",
-                        p.photos.filter((i) => i.id !== selection),
-                      );
-                      setSelection("grid");
-                    }}
-                  >
-                    <Trash2 size={15} /> Kép eltávolítása
-                  </button>
-                </Section>
-              </>
-            ) : (
-              <>
-                {p.mode === "monthly" && advanced && (
-                  <Section title="Havi stílusfelülírás">
-                    <Toggle
-                      label="Csak erre a hónapra szerkesztek"
-                      value={monthOnly}
-                      onChange={setMonthOnly}
-                    />
-                    {p.monthOverrides[p.month] && (
-                      <button
-                        onClick={() => {
-                          const next = { ...p.monthOverrides };
-                          delete next[p.month];
-                          change("monthOverrides", next);
-                        }}
-                      >
-                        Havi felülírások törlése
-                      </button>
-                    )}
-                    <p className="small-note">
-                      A nem módosított tulajdonságok továbbra is az alapstílust
-                      követik.
-                    </p>
-                  </Section>
-                )}
-                <Section title="Tipográfia">
-                  <Select
-                    label="Szövegelem"
-                    value={category}
-                    options={categories.map(
-                      (c) => [c, categoryNames[c]] as const,
-                    )}
-                    onChange={(v) => setCategory(v as Category)}
-                  />
-                  {advanced && (
-                    <Field label="Betűcsalád keresése">
-                      <input
-                        value={fontSearch}
-                        placeholder="Google Fonts…"
-                        onChange={(e) => setFontSearch(e.target.value)}
-                      />
-                    </Field>
-                  )}
-                  <Select
-                    label="Betűcsalád"
-                    value={t.family}
-                    options={families.filter(
-                      (f) =>
-                        !fontSearch ||
-                        f.toLowerCase().includes(fontSearch.toLowerCase()) ||
-                        f === t.family,
-                    )}
-                    onChange={(v) => type("family", v as Typography["family"])}
-                  />
-                  <div className="two-col">
-                    <Num
-                      label="Betűméret"
-                      unit="pt"
-                      value={t.size}
-                      min={2}
-                      max={100}
-                      step={0.5}
-                      onChange={(v) => type("size", v)}
-                    />
-                    <Select
-                      label="Vastagság"
-                      value={t.weight}
-                      options={[
-                        ["400", "Normál"],
-                        ["700", "Félkövér"],
-                      ]}
-                      onChange={(v) => type("weight", Number(v) as 400 | 700)}
-                    />
-                  </div>
-                  <Color
-                    label="Betűszín"
-                    value={t.color}
-                    onChange={(v) => type("color", v)}
-                  />
-                  <Select
-                    label="Szöveg igazítása"
-                    value={t.align}
-                    options={[
-                      ["left", "Balra"],
-                      ["center", "Középre"],
-                      ["right", "Jobbra"],
-                    ]}
-                    onChange={(v) => type("align", v as Typography["align"])}
-                  />
-                  {advanced && (
-                    <>
-                      <Num
-                        label="Betűköz"
-                        value={t.spacing}
-                        min={-1}
-                        max={5}
-                        step={0.05}
-                        onChange={(v) => type("spacing", v)}
-                      />
-                      <Num
-                        label="Sorköz szorzója"
-                        unit="×"
-                        value={t.lineHeight}
-                        min={0.8}
-                        max={3}
-                        step={0.05}
-                        onChange={(v) => type("lineHeight", v)}
-                      />
-                      <Toggle
-                        label="Nagybetűs"
-                        value={t.uppercase}
-                        onChange={(v) => type("uppercase", v)}
-                      />
-                    </>
-                  )}
-                </Section>
-                <Section title="Rács és térközök">
-                  <div className="two-col">
-                    <Num
-                      label="Cellabelső"
-                      value={s.padding}
-                      min={0}
-                      max={10}
-                      step={0.25}
-                      onChange={(v) => style("padding", v)}
-                    />
-                    <Num
-                      label="Rácsvonal"
-                      value={s.gridLine}
-                      min={0}
-                      max={3}
-                      step={0.05}
-                      onChange={(v) => style("gridLine", v)}
-                    />
-                  </div>
-                  <Color
-                    label="Rácsvonal színe"
-                    value={s.gridColor}
-                    onChange={(v) => style("gridColor", v)}
-                  />
-                  <div className="two-col">
-                    <Num
-                      label="Külső keret"
-                      value={s.border}
-                      min={0}
-                      max={5}
-                      step={0.05}
-                      onChange={(v) => style("border", v)}
-                    />
-                    <Num
-                      label="Sarkok sugara"
-                      value={s.radius}
-                      min={0}
-                      max={30}
-                      step={0.5}
-                      onChange={(v) => style("radius", v)}
-                    />
-                  </div>
-                  {advanced && (
-                    <>
-                      <Color
-                        label="Külső keret színe"
-                        value={s.borderColor}
-                        onChange={(v) => style("borderColor", v)}
-                      />
-                      <Color
-                        label="Cellák alapszíne"
-                        value={s.cellBackground}
-                        onChange={(v) => style("cellBackground", v)}
-                      />
-                      <Num
-                        label="Cím és rács térköze"
-                        value={s.titleGap}
-                        min={-30}
-                        max={50}
-                        onChange={(v) => style("titleGap", v)}
-                      />
-                      {p.mode === "annual" ? (
-                        <div className="two-col">
-                          <Num
-                            label="Hónapok vízszintes köze"
-                            value={s.gapX}
-                            min={0}
-                            max={20}
-                            onChange={(v) => style("gapX", v)}
-                          />
-                          <Num
-                            label="Hónapok függőleges köze"
-                            value={s.gapY}
-                            min={0}
-                            max={20}
-                            onChange={(v) => style("gapY", v)}
-                          />
-                        </div>
-                      ) : (
-                        <Num
-                          label="Hétfejléc magassága"
-                          value={s.headerHeight}
-                          min={3}
-                          max={20}
-                          onChange={(v) => style("headerHeight", v)}
-                        />
-                      )}
-                      <Toggle
-                        label="Hétfejléc megjelenítése"
-                        value={s.showWeekdays}
-                        onChange={(v) => style("showWeekdays", v)}
-                      />
-                      <Select
-                        label="Hétköznapok felirata"
-                        value={s.weekdayStyle}
-                        options={[
-                          ["full", "Teljes név"],
-                          ["short", "Rövid név"],
-                          ["single", "Kezdőbetűk"],
-                        ]}
-                        onChange={(v) =>
-                          style("weekdayStyle", v as Style["weekdayStyle"])
-                        }
-                      />
-                    </>
-                  )}
-                </Section>
-                <Section
-                  title={
-                    p.mode === "annual"
-                      ? "Ünnepnapok"
-                      : "Hétvégék és ünnepnapok"
-                  }
-                >
-                  <Color
-                    label="Kiemelt számok színe"
-                    value={s.holidayColor}
-                    onChange={(v) => style("holidayColor", v)}
-                  />
-                  <Color
-                    label="Kiemelt napok háttere"
-                    value={s.holidayBackground}
-                    onChange={(v) => style("holidayBackground", v)}
-                  />
-                </Section>
-              </>
-            )}
-            {scene && scene.issues.length > 0 && (
-              <Section title="Nyomtatási ellenőrzés">
-                <div className="issue-list">
-                  {scene.issues.slice(0, 5).map((i, k) => (
-                    <p
-                      key={k}
-                      className={i.severity === "error" ? "error" : "warning"}
-                    >
-                      <AlertTriangle size={14} />
-                      {i.message}
-                    </p>
-                  ))}
-                  {scene.issues.length > 5 && (
-                    <small>
-                      További {scene.issues.length - 5} jelzés az
-                      exportellenőrzésben.
-                    </small>
-                  )}
-                </div>
-              </Section>
-            )}
+            <Properties
+              project={p}
+              selection={selection}
+              onSelect={setSelection}
+              commit={commit}
+              scene={scene}
+            />
           </div>
         </aside>
       </main>

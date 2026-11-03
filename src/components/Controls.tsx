@@ -148,3 +148,40 @@ export function Select({
     </Field>
   );
 }
+
+export function Slider({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+  step = 1,
+  unit = "mm",
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  min: number;
+  max: number;
+  step?: number;
+  unit?: string;
+}) {
+  return (
+    <Field label={label}>
+      <span className="slider-control">
+        <input
+          aria-label={label}
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(e.target.valueAsNumber)}
+        />
+        <output>
+          {Number(value.toFixed(2))} {unit}
+        </output>
+      </span>
+    </Field>
+  );
+}

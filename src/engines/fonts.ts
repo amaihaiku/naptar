@@ -13,13 +13,15 @@ export interface LoadedFont {
   font: Font;
 }
 const cache = new Map<string, LoadedFont>();
-export const fontKey = (t: Pick<Typography, "family" | "weight">) =>
-  `${t.family}-${t.weight}`;
+export const fontKey = (
+  t: Pick<Typography, "family" | "weight"> & { italic?: boolean },
+) => `${t.family}-${t.weight}${t.italic ? "-italic" : ""}`;
 export const mmPerPt = 25.4 / 72;
 export async function loadFonts(): Promise<void> {
   await Promise.all(
     manifest.map(async (f) => {
-      const key = `${f.family}-${f.weight}`;
+      const italic = "italic" in f && f.italic === true;
+      const key = `${f.family}-${f.weight}${italic ? "-italic" : ""}`;
       if (cache.has(key)) return;
       const response = await fetch(
         import.meta.env.BASE_URL + "fonts/" + f.file,
@@ -30,7 +32,10 @@ export async function loadFonts(): Promise<void> {
       for (const c of "áéíóöőúüűÁÉÍÓÖŐÚÜŰ")
         if (!font.hasGlyphForCodePoint(c.codePointAt(0)!))
           throw new Error("Hiányos magyar karakterkészlet: " + f.family);
-      const face = new FontFace(f.family, data, { weight: String(f.weight) });
+      const face = new FontFace(f.family, data, {
+        weight: String(f.weight),
+        style: italic ? "italic" : "normal",
+      });
       await face.load();
       document.fonts.add(face);
       cache.set(key, { data, font });
@@ -41,7 +46,9 @@ export async function loadFonts(): Promise<void> {
 export function registerFont(key: string, data: Uint8Array) {
   cache.set(key, { data, font: fontkit.create(data) as Font });
 }
-export function getFont(t: Pick<Typography, "family" | "weight">): LoadedFont {
+export function getFont(
+  t: Pick<Typography, "family" | "weight"> & { italic?: boolean },
+): LoadedFont {
   const f = cache.get(fontKey(t));
   if (!f) throw new Error("A betűk még nem állnak készen.");
   return f;
@@ -98,4 +105,23 @@ export function missingGlyphs(text: string, t: Typography): string[] {
       ),
     ),
   ];
+}
+
+export function fontVariants(family: string) {
+  return manifest
+    .filter((f) => f.family === family)
+    .map((f) => ({
+      weight: f.weight as 400 | 700,
+      italic: "italic" in f && f.italic === true,
+    }));
+}
+export function validTypography(t: Typography): Typography {
+  const options = fontVariants(t.family);
+  return options.some((v) => v.weight === t.weight && v.italic === t.italic)
+    ? t
+    : {
+        ...t,
+        weight: options[0]?.weight ?? 400,
+        italic: options[0]?.italic ?? false,
+      };
 }

@@ -8,7 +8,10 @@ import { rasterDimensions, withDpi } from "../src/engines/metadata";
 import { applyPaper, defaultProject } from "../src/model";
 for (const f of manifest) {
   const path = new URL("../public/fonts/" + f.file, import.meta.url);
-  registerFont(`${f.family}-${f.weight}`, readFileSync(path));
+  registerFont(
+    `${f.family}-${f.weight}${"italic" in f && f.italic ? "-italic" : ""}`,
+    readFileSync(path),
+  );
   GlobalFonts.registerFromPath(path.pathname, f.family);
 }
 mkdirSync("test-results", { recursive: true });

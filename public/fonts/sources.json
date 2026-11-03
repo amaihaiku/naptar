@@ -6,12 +6,6 @@
     "processing": "fontTools variable instance; wght=400; wdth=100"
   },
   {
-    "file": "Montserrat-400.ttf",
-    "sha256": "c1e718a79756dfd19fed16934472f244ca45219e58024e37e9d45524d431d465",
-    "source": "https://github.com/google/fonts/tree/main/ofl/montserrat",
-    "processing": "fontTools variable instance; wght=400"
-  },
-  {
     "file": "NotoSans-700.ttf",
     "sha256": "808d20eadc4eea04d42675b345ba3e31836d470f1ba077d7592192ef4d6dd24f",
     "source": "https://github.com/google/fonts/tree/main/ofl/notosans",
@@ -24,15 +18,642 @@
     "processing": "upstream static TTF"
   },
   {
-    "file": "Montserrat-700.ttf",
-    "sha256": "43d5f41c7224f1a4340181af3716b21585c8d2d1795d08bcc38e021c2be50d12",
-    "source": "https://github.com/google/fonts/tree/main/ofl/montserrat",
-    "processing": "fontTools variable instance; wght=700"
-  },
-  {
     "file": "PTSerif-700.ttf",
     "sha256": "038ba7336bd7ea14f12ad155bed51a4345cac5153275d521dec3ba04021c526e",
     "source": "https://github.com/google/fonts/tree/main/ofl/ptserif",
     "processing": "upstream static TTF"
+  },
+  {
+    "family": "Inter",
+    "weight": 400,
+    "italic": false,
+    "file": "Inter-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfMZhzPLGgus33XRSrPq9jBU0TnQcBSMQLMhU1Qt_4ifFCtC0co0a2A5lGMhjp-hfPOWWi7RMTdTjPFrlwEU1x0Gvwi4ntfHeX6yVMdkaKit1bjF8wBCMbZkOwvtmDp2VpadI2i1FsiUIcee3p1n99FdGsnhZbga5ElvLy9ahebZCM1_5bc8buAZMvYPNWVnSH7dhIvnhXtR3A4lOWrDlcH_MEXWdpisGSqVMRgFBGAUywx_GLfwoh_T1TkZIDoVR6qXsVsohrLW2Uc3bfcW0JQVwNb-Aq2JvMF4Y0Lr8NyrexLTpFGVaZ-9NS7XnSHf_4YVWTCUUMwgwnZY7a-YMKnPt-csf9-WHQt5c02QgW97qJN4ZgJcT_hEVHu9VV7Di6B0ibhMjIcEe4PRRVw80i7pfxSe3xAGPVcHSEPmUDMwlx3ZEvhQFYx2nhnZ7Kvu8zioe7oMFhej8GgFtInjybM0nbB3VnBd1graJ6AO9p6UEKjMuxd64ue8Th2RrHGu8W--GaW90Luz-PDz8-KAVwTODg5vlEZGDY8PakiTZHjUVNknrK2s87IDPUAg9r9PDpUkh7lKkErpETzaOLSkQlHzQpCC73aM7ICM_RcsPbrFWbk5y9aPw1klECOH3b1bTHW4jp9VLNY2NTR8_mr957OdVKkXNloWo4j3GjztZ5c2owBP9H1_xY1vQsX2z5S3XyQwPyQ0tTFYNDYGmn2IZ4mjHytoWnZu3lYtviJhHYTZofyc55YWA&skey=c491285d6722e4fa&v=v20",
+    "sha256": "bf35522e376e104cd22761a6fb4af8a78efe8cc327999122c864d698c28b0c31"
+  },
+  {
+    "family": "Inter",
+    "weight": 700,
+    "italic": false,
+    "file": "Inter-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYMZhzPLGgus33XRSrPq9jBU0TnQcBSMQLMhU1Qt_4ifFCtC0co0a2A5lGMhjp-hfPOWWi7RMTdTjPFrlwEU1x0Gvwi4ntfHeX6yVMdkaKit1bjF8wBCMbZkOwvtmDp2VpadI2i1FsiUIcee3p1n99FdGsnhZbga5ElvLy9ahebZCM1_5bc8buAZMvYPNWVnSH7dhIvnhXtR3A4lOWrDlcH_MEXWdpisGSqVMRgFBGAUywx_GLfwoh_T1TkZIDoVR6qXsVsohrLW2Uc3bfcW0JQVwNb-Aq2JvMF4Y0Lr8NyrexLTpFGVaZ-9NS7XnSHf_4YVWTCUUMwgwnZY7a-YMKnPt-csf9-WHQt5c02QgW97qJN4ZgJcT_hEVHu9VV7Di6B0ibhMjIcEe4PRRVw80i7pfxSe3xAGPVcHSEPmUDMwlx3ZEvhQFYx2nhnZ7Kvu8zioe7oMFhej8GgFtInjybM0nbB3VnBd1graJ6AO9p6UEKjMuxd64ue8Th2RrHGu8W--GaW90Luz-PDz8-KAVwTODg5vlEZGDY8PakiTZHjUVNknrK2s87IDPUAg9r9PDpUkh7lKkErpETzaOLSkQlHzQpCC73aM7ICM_RcsPbrFWbk5y9aPw1klECOH3b1bTHW4jp9VLNY2NTR8_mr957OdVKkXNloWo4j3GjztZ5c2owBP9H1_xY1vQsX2z5S3XyQwPyQ0tTFYNDYGmn2IZ4mjHytoWnZu3lYtviJhHYTZofyc55YWA&skey=c491285d6722e4fa&v=v20",
+    "sha256": "2b81469f5de8a784f17757d23fde7b0d5390b9933dc061ce2117316b7216cfba"
+  },
+  {
+    "family": "Inter",
+    "weight": 400,
+    "italic": true,
+    "file": "Inter-400-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=UcCM3FwrK3iLTcvneQg7Ca725JhhKnNqk4j1ebLhAm8SrXTc2dthjYcxn8_1WxKpPKFtB08VmwUDVtoJMBMzQN32h_NAsiseoTjIAZtANBrr9BnNO2Ok7xENazrNEL9yE0N_0mn2jYvvQkmV6SNKdESEhN9ZilkyBj0FZEG2uNuBqWtra9Qwie6yiUMceu3o1nh9FNGvnhdbjq5FlvHy9KhZbZGM1P5ac9nuAJMsYPJWUXSG7dtIv3hYtRzA4VOXrD5cHvMHXWZotcGTqVARgVBBAU2wxPGKfwUh_D1QkZMDplR7qXgVs4h0LWyUcHbecWoJQFwOb-Eq15vNF4U0L78KyraxLjpEGWmZ-tNR7XjSGv_5YVaTCEUDwg0nZo7b-YQKnft9csb95mHRt5Q02AgR97uJNIZhJcv_hUVEu9RV6zi7B0ubhc_3cEa4PhRUw8oi75fySezxD2PUcHeEP2UEMwhx3pEuhR5YxmninZ_Kue8yioS7ocFuej4Gg1tJnjubMknYB3RnOt1hraF6Ae9u6UAKj8uwd6EuesTi2RvHHe8X--KaWt0Uuz6PDD8_KAJwTeDj5vhEa2DZ8PWkiDZAjURNkXrL2_A7ITPXAg5r8_DoUkt7lakLrpATzqOKSkMlHjQqCC_3d87JCMzRc8PcrFSbkJy8aPM1k1EBOHzb0rTGW4vp9FLyY2JTRM_nr9l7ONVJkXJlrmo5j3Kjz9Z-c2swB_9G1-NY1_QvX235THXzQwDyQktcFYJDY2mm2IF4mzHxtoSAWZyHca2AMlG6b9597YAZRRAFEA&skey=e5dfd0c3910c7ec9&v=v20",
+    "sha256": "40077c83e2377788e1e21124c8e6a4cd70e5297a111f154684b25c9b31ce2553"
+  },
+  {
+    "family": "Inter",
+    "weight": 700,
+    "italic": true,
+    "file": "Inter-700-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=UcCM3FwrK3iLTcvneQg7Ca725JhhKnNqk4j1ebLhAm8SrXTcPtxhjYcxn8_1WxKpPKFtB08VmwUDVtoJMBMzQN32h_NAsiseoTjIAZtANBrr9BnNO2Ok7xENazrNEL9yE0N_0mn2jYvvQkmV6SNKdESEhN9ZilkyBj0FZEG2uNuBqWtra9Qwie6yiUMceu3o1nh9FNGvnhdbjq5FlvHy9KhZbZGM1P5ac9nuAJMsYPJWUXSG7dtIv3hYtRzA4VOXrD5cHvMHXWZotcGTqVARgVBBAU2wxPGKfwUh_D1QkZMDplR7qXgVs4h0LWyUcHbecWoJQFwOb-Eq15vNF4U0L78KyraxLjpEGWmZ-tNR7XjSGv_5YVaTCEUDwg0nZo7b-YQKnft9csb95mHRt5Q02AgR97uJNIZhJcv_hUVEu9RV6zi7B0ubhc_3cEa4PhRUw8oi75fySezxD2PUcHeEP2UEMwhx3pEuhR5YxmninZ_Kue8yioS7ocFuej4Gg1tJnjubMknYB3RnOt1hraF6Ae9u6UAKj8uwd6EuesTi2RvHHe8X--KaWt0Uuz6PDD8_KAJwTeDj5vhEa2DZ8PWkiDZAjURNkXrL2_A7ITPXAg5r8_DoUkt7lakLrpATzqOKSkMlHjQqCC_3d87JCMzRc8PcrFSbkJy8aPM1k1EBOHzb0rTGW4vp9FLyY2JTRM_nr9l7ONVJkXJlrmo5j3Kjz9Z-c2swB_9G1-NY1_QvX235THXzQwDyQktcFYJDY2mm2IF4mzHxtoSAWZyHca2AMlG6b9597YAZRRAFEA&skey=e5dfd0c3910c7ec9&v=v20",
+    "sha256": "a19ddbffcf043a6f9ca0e2158111d1896cc33c1aa3d9f2137948d0f08b308d25"
+  },
+  {
+    "family": "Roboto",
+    "weight": 400,
+    "italic": false,
+    "file": "Roboto-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=KFOMCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWubEbWmTmr7atn0E_EsT9VxfxO3rad3EbBAKAviw4qEqqjm8N0-vkEFQokdaRiGt2Nel_5cWZ7R_OHGKUsWdoxjl8c2cgL9GPIyEoXkfsC6YeUbaUD2M8FE1oga4_J2FLuqUjbjTLUeo8VHh98fO3fo82SZzZWQjP6y8sjhXvGNiz6qOBgC0F9JiAx-i1jIRjLm6szM67zeGHXxmaasdH7yEG3cebFwyPkxOwFj0CbDh41KtSBQjwMc_ccAfu2GbtAavtXtDdi5v9H6aZfyjQe4mtz8Rbvj6OMLUnQwtQQyOQxXmjuMqV2Hb0h1gM5XQtjcHFz-Se_PyaRCL7uRPPNMXLcmULSKfsVim39GiNnhqY2obj9rIMlk9fXucZfYV9DuS6tfwm51KaD_Pc7Bzezy2pzM_V842KLkUHryvQLBsS87S3tdAal_tRlN85zeNngrREnyog_jsUBlza-HusIpEqgImt2XNn41gjZ34gSrgPcQKSIOjUD3uMrm39a_k2sX_LabNE4acOFofQqhvJmEaFSpB1eNwca2B1seKmSrDxCYIFHLejOlSdmnz1GAp_hlnzBxnVXJcYgZWk2Rg70jPMkX_QRgKPtzVwPh2fQURl6JYXQqezopEubfrpA2L9c9Fw6LZY5zhnyUko1kKanZW46cnfLWi--qe-umr4x8gTb-N7Jyt6coTCpvjSM0ipYQZr-fpnEtcKRl1AEflIktEyEQVWAuEZFNfOA190HRioWIMsFLqBtbE&skey=a0a0114a1dcab3ac&v=v51",
+    "sha256": "e6780c344d19dc2245eb469aae93cbd05ce3c67fa4e87a782cd74d7eb08eae26"
+  },
+  {
+    "family": "Roboto",
+    "weight": 700,
+    "italic": false,
+    "file": "Roboto-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=KFOMCnqEu92Fr1ME7kSn66aGLdTylUAMQXC89YmC2DPNWuYjammTmr7atn0E_EsT9VxfxO3rad3EbBAKAviw4qEqqjm8N0-vkEFQokdaRiGt2Nel_5cWZ7R_OHGKUsWdoxjl8c2cgL9GPIyEoXkfsC6YeUbaUD2M8FE1oga4_J2FLuqUjbjTLUeo8VHh98fO3fo82SZzZWQjP6y8sjhXvGNiz6qOBgC0F9JiAx-i1jIRjLm6szM67zeGHXxmaasdH7yEG3cebFwyPkxOwFj0CbDh41KtSBQjwMc_ccAfu2GbtAavtXtDdi5v9H6aZfyjQe4mtz8Rbvj6OMLUnQwtQQyOQxXmjuMqV2Hb0h1gM5XQtjcHFz-Se_PyaRCL7uRPPNMXLcmULSKfsVim39GiNnhqY2obj9rIMlk9fXucZfYV9DuS6tfwm51KaD_Pc7Bzezy2pzM_V842KLkUHryvQLBsS87S3tdAal_tRlN85zeNngrREnyog_jsUBlza-HusIpEqgImt2XNn41gjZ34gSrgPcQKSIOjUD3uMrm39a_k2sX_LabNE4acOFofQqhvJmEaFSpB1eNwca2B1seKmSrDxCYIFHLejOlSdmnz1GAp_hlnzBxnVXJcYgZWk2Rg70jPMkX_QRgKPtzVwPh2fQURl6JYXQqezopEubfrpA2L9c9Fw6LZY5zhnyUko1kKanZW46cnfLWi--qe-umr4x8gTb-N7Jyt6coTCpvjSM0ipYQZr-fpnEtcKRl1AEflIktEyEQVWAuEZFNfOA190HRioWIMsFLqBtbE&skey=a0a0114a1dcab3ac&v=v51",
+    "sha256": "5c4134e3287780236be11aa74cbaf0fbb66a33c732ac2be37a7ca5b44b909b03"
+  },
+  {
+    "family": "Roboto",
+    "weight": 400,
+    "italic": true,
+    "file": "Roboto-400-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=KFOKCnqEu92Fr1Mu53ZEC9_Vu3r1gIhOszmOClHrs6ljXfMMLoHQiA_sJ1gG_k0V915Ryu_pb9vGbg4UAPq25KMopDe-NUmpkkMu3EVYQCev2tmr_ZUQYbZ9Jm-IUMOboRrr_8-ehrlEPrK6o3sZtiyad0jYUjuK8lMrvAS6-puHLOSaj7rVK0UXL1Hg98TO3Po72SdzZmQiP6O8szhUvGJiyKqPBgO0FtJ9Ax6i1TIQjL66sjM57zaGEnxnaagdHryDG3Yeb1wzP3NOwVj3CbHh5FKsSBcjwccwccEfuGGatAGvtHtAdi9v636bZf-jQO4htz4Rbfj7OM3UnAwuQQ2ORBXnjuAqVmHk0hxgMJXRtjAHFj-Re_LyZhCK7udPPdMQLciULiKesUem3tGhNnlqZGoaj9nIM1kyfXqcZvYU9DyS69fzm5xNVz_Oc7NzejyxpzI_VM43KLYUH7ysQLFsTM7T3tRAa1_yRlJ85DeMng3RE3yrg_nsXxlya-LusYpDqgMmtGXMn7JgjJ37gSvgOsQLSICjUT3hMri39q_l2sL_LKbOE4ecJ1oeQqtvJ2EdFStB1uNxcaKB18eJmSvDwyYJFHHejehtdmjz12Ao_h5nzRxkVXNcbQZXk2dg7kjIMkT_QhgLPsPVwfh1fQQRkKJZXQmez4pLubbrpw2K9chFwqLaY53hoCUlo1oKa3ZR46Ynf7Wj--We--mo4x4gSr-M7J-t6MoMCprjS80jpYMZrufqnEpcJhl0AETlI0tDyEUVWwuFQ2wuWh4LsmAiw0BI0nakZvK0TxE&skey=c608c610063635f9&v=v51",
+    "sha256": "6df0dc1f141059e999e133b9399798081f59981382b5e0d97bad61b497073f8d"
+  },
+  {
+    "family": "Roboto",
+    "weight": 700,
+    "italic": true,
+    "file": "Roboto-700-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=KFOKCnqEu92Fr1Mu53ZEC9_Vu3r1gIhOszmOClHrs6ljXfMMLmbXiA_sJ1gG_k0V915Ryu_pb9vGbg4UAPq25KMopDe-NUmpkkMu3EVYQCev2tmr_ZUQYbZ9Jm-IUMOboRrr_8-ehrlEPrK6o3sZtiyad0jYUjuK8lMrvAS6-puHLOSaj7rVK0UXL1Hg98TO3Po72SdzZmQiP6O8szhUvGJiyKqPBgO0FtJ9Ax6i1TIQjL66sjM57zaGEnxnaagdHryDG3Yeb1wzP3NOwVj3CbHh5FKsSBcjwccwccEfuGGatAGvtHtAdi9v636bZf-jQO4htz4Rbfj7OM3UnAwuQQ2ORBXnjuAqVmHk0hxgMJXRtjAHFj-Re_LyZhCK7udPPdMQLciULiKesUem3tGhNnlqZGoaj9nIM1kyfXqcZvYU9DyS69fzm5xNVz_Oc7NzejyxpzI_VM43KLYUH7ysQLFsTM7T3tRAa1_yRlJ85DeMng3RE3yrg_nsXxlya-LusYpDqgMmtGXMn7JgjJ37gSvgOsQLSICjUT3hMri39q_l2sL_LKbOE4ecJ1oeQqtvJ2EdFStB1uNxcaKB18eJmSvDwyYJFHHejehtdmjz12Ao_h5nzRxkVXNcbQZXk2dg7kjIMkT_QhgLPsPVwfh1fQQRkKJZXQmez4pLubbrpw2K9chFwqLaY53hoCUlo1oKa3ZR46Ynf7Wj--We--mo4x4gSr-M7J-t6MoMCprjS80jpYMZrufqnEpcJhl0AETlI0tDyEUVWwuFQ2wuWh4LsmAiw0BI0nakZvK0TxE&skey=c608c610063635f9&v=v51",
+    "sha256": "b5dffd4446751e907827324b4ab0351b6e0c6d593efea5841c13964bf52202f2"
+  },
+  {
+    "family": "Open Sans",
+    "weight": 400,
+    "italic": false,
+    "file": "OpenSans-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=memSYaGs126MiZpBA-UvWbX2vVnXBbObj2OVZyOOSr4dVJWUgsjZ0C4ne-Y65YgyXRVivjoWN6LAL54HdOeQkkKIW8TO77X_zHHl3MZiheDcN3K8zGGRXw19Mj7kTi97Ui8vqTzms4CO0popuu0trvCikCO-rTD-VxMzpdtRzLEkgO3XMvVrqkEndYXirrEnHaibLVDlB5_LhS-J_WVSqAf2-Jcljy1Nsvwox31Yqp-4mpujeBj_7rGWzSUVTrBOdMAoeEvrSESoxvTvaHb4hIkVjZW7Hc5c7FeCfV36Mp15ImWKdJKoxl86tfKq-vtKXFprCaCw27Yhl3IYn9ccv7XbSBGuHpjxclfwfsovWlNj0ro8QOJUn64Pi-vFHQeTua0gv-Y22KRo3VREXVdkVTH4PVWgoMDF2hqURo0OS0I-NtygY5yO0Pdn_A3I5b5k684AZTFeQ46r7UnmoVLG55n3bgwCk9VydP4AmVGrp83UaAJQmdpBIr3NwZbijiV2H6r9NkSZCQdR2_TZvSyEIVZhFdw3yNw30cOXRprQB651ax-J_avVJfwTRPkClXHvnrFKDZ1V-GDhwlGEytUDkDDG_ZjJCdgz8phXk6-0qwSrupIhTA11sFZkAHbHlwE9YQ09evFJCEDyF5LwnrLfYABf64-mfgxNILtLtHAiDQy8dirMbO0D_xDyW5iUZN-S2QFSazC4KF4YdK8QiVVJc1CYDEQVBPm7h-JZZzCuD72ckyrkO75W7jNmES2sjWj-bw9qffyGLzwuv5qKxsNyFlmH-htbNCftsO8pjHXO&skey=62c1cbfccc78b4b2&v=v44",
+    "sha256": "5c3a9ab037e66e7d9a092be438a48e6732206101e48b5009fd976d7c9b9b4101"
+  },
+  {
+    "family": "Open Sans",
+    "weight": 700,
+    "italic": false,
+    "file": "OpenSans-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=memSYaGs126MiZpBA-UvWbX2vVnXBbObj2OVZyOOSr4dVJWUgsg-1y4ne-Y65YgyXRVivjoWN6LAL54HdOeQkkKIW8TO77X_zHHl3MZiheDcN3K8zGGRXw19Mj7kTi97Ui8vqTzms4CO0popuu0trvCikCO-rTD-VxMzpdtRzLEkgO3XMvVrqkEndYXirrEnHaibLVDlB5_LhS-J_WVSqAf2-Jcljy1Nsvwox31Yqp-4mpujeBj_7rGWzSUVTrBOdMAoeEvrSESoxvTvaHb4hIkVjZW7Hc5c7FeCfV36Mp15ImWKdJKoxl86tfKq-vtKXFprCaCw27Yhl3IYn9ccv7XbSBGuHpjxclfwfsovWlNj0ro8QOJUn64Pi-vFHQeTua0gv-Y22KRo3VREXVdkVTH4PVWgoMDF2hqURo0OS0I-NtygY5yO0Pdn_A3I5b5k684AZTFeQ46r7UnmoVLG55n3bgwCk9VydP4AmVGrp83UaAJQmdpBIr3NwZbijiV2H6r9NkSZCQdR2_TZvSyEIVZhFdw3yNw30cOXRprQB651ax-J_avVJfwTRPkClXHvnrFKDZ1V-GDhwlGEytUDkDDG_ZjJCdgz8phXk6-0qwSrupIhTA11sFZkAHbHlwE9YQ09evFJCEDyF5LwnrLfYABf64-mfgxNILtLtHAiDQy8dirMbO0D_xDyW5iUZN-S2QFSazC4KF4YdK8QiVVJc1CYDEQVBPm7h-JZZzCuD72ckyrkO75W7jNmES2sjWj-bw9qffyGLzwuv5qKxsNyFlmH-htbNCftsO8pjHXO&skey=62c1cbfccc78b4b2&v=v44",
+    "sha256": "714df6af6243f450790dd1d8e871a1d7101ca26a19eeea34c386e7819245b013"
+  },
+  {
+    "family": "Open Sans",
+    "weight": 400,
+    "italic": true,
+    "file": "OpenSans-400-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=memQYaGs126MiZpBA-UFUIcVXSCEkx2cmqvXlWq8tWZ0Pw86hd0Rk8ZkaVcMdK0wXxNkvDgYOaDCKZgFdvmOkECOXcbM4bv9znfj3sQc--LeMXS-zm-fXQ97NDzmUDF5UCkpqz7ovYKM1JwruNMTrPKkliG8oz78VRU1p9lP0rMmhuvVMPtlqEMhc4ddcLEmHaubLFDiB57Lhi-I_WpSqQf1-JYliC1Msv8oxn1Hqp64mZuieB__77GVzSQVQbBPdMMoeUvsSEWoxfTuaUn4hYkWjZS7Gs5d7FSCfF31Mpx5IWWLdJWox185tfOq5ftLXFlrCKC327chlHIZn9gcvrXYSBCuGZjwclTwf8oQWlJj0bo9QOVUnq4Mi-rFEgeSua4gvuYx2KVo3lRFXUhkVDH7PVSgp8DE2hmUR40BS0M-NdyhY5uO0fdk_AzP2r5l680AZDFZQ4-r7knnoV3G5pn0bg0ClNVzdP0AmFG0p8zUawJRmd1BI73OwZfigSV3H6n9N0SeCQZR2PTYvROEIFZiFd03z9w20cCXR5rfB691aB-I_azVJPwQRPgCinHunrJKDJ1S-GHhwVGFytoDkTDF_ZnJDtgy8ptXkq6LqwWruZIgTAp1sVZnAHfHmAE8YQ49e_FOCEHyFJLxnq3fYQBc646meQxMILhLtXAtDQ28dSrNbOoD_hDxW5mUW9-T2QJSajC_KF8Yd68RiVpJclCbDEUVA_m6h-FZZjCxD7yckCrlO7lW7zNlESysgmj_bwxqfPyBLz0uvJqL4fwDdErxmA8bVgWp0stn7FG-OZU&skey=743457fe2cc29280&v=v44",
+    "sha256": "47f2127718d954f1d4929f6486addbbe57a2580f76349b5866662e2637bcc44f"
+  },
+  {
+    "family": "Open Sans",
+    "weight": 700,
+    "italic": true,
+    "file": "OpenSans-700-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=memQYaGs126MiZpBA-UFUIcVXSCEkx2cmqvXlWq8tWZ0Pw86hd0RkyFjaVcMdK0wXxNkvDgYOaDCKZgFdvmOkECOXcbM4bv9znfj3sQc--LeMXS-zm-fXQ97NDzmUDF5UCkpqz7ovYKM1JwruNMTrPKkliG8oz78VRU1p9lP0rMmhuvVMPtlqEMhc4ddcLEmHaubLFDiB57Lhi-I_WpSqQf1-JYliC1Msv8oxn1Hqp64mZuieB__77GVzSQVQbBPdMMoeUvsSEWoxfTuaUn4hYkWjZS7Gs5d7FSCfF31Mpx5IWWLdJWox185tfOq5ftLXFlrCKC327chlHIZn9gcvrXYSBCuGZjwclTwf8oQWlJj0bo9QOVUnq4Mi-rFEgeSua4gvuYx2KVo3lRFXUhkVDH7PVSgp8DE2hmUR40BS0M-NdyhY5uO0fdk_AzP2r5l680AZDFZQ4-r7knnoV3G5pn0bg0ClNVzdP0AmFG0p8zUawJRmd1BI73OwZfigSV3H6n9N0SeCQZR2PTYvROEIFZiFd03z9w20cCXR5rfB691aB-I_azVJPwQRPgCinHunrJKDJ1S-GHhwVGFytoDkTDF_ZnJDtgy8ptXkq6LqwWruZIgTAp1sVZnAHfHmAE8YQ49e_FOCEHyFJLxnq3fYQBc646meQxMILhLtXAtDQ28dSrNbOoD_hDxW5mUW9-T2QJSajC_KF8Yd68RiVpJclCbDEUVA_m6h-FZZjCxD7yckCrlO7lW7zNlESysgmj_bwxqfPyBLz0uvJqL4fwDdErxmA8bVgWp0stn7FG-OZU&skey=743457fe2cc29280&v=v44",
+    "sha256": "3ee646e185e01abdac4ad5a3034989e30c00832aa4b921688900a340d7e2c62d"
+  },
+  {
+    "family": "Lato",
+    "weight": 400,
+    "italic": false,
+    "file": "Lato-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/lato/Lato-Regular.ttf",
+    "sha256": "d636e4683231f931eda222d588e944d082bfd3bdba02f928bee461c0f185b251"
+  },
+  {
+    "family": "Lato",
+    "weight": 700,
+    "italic": false,
+    "file": "Lato-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/lato/Lato-Bold.ttf",
+    "sha256": "8a0aace75d33794eece4b28187bfc1df0bbd2888b5d8a56e01788c8d65d16be1"
+  },
+  {
+    "family": "Lato",
+    "weight": 400,
+    "italic": true,
+    "file": "Lato-400-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/lato/Lato-Italic.ttf",
+    "sha256": "e399c44efe1387100531d26c7e4800c5d12251b890d6654a3098c7c679cb1786"
+  },
+  {
+    "family": "Lato",
+    "weight": 700,
+    "italic": true,
+    "file": "Lato-700-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/lato/Lato-BoldItalic.ttf",
+    "sha256": "62c1b7f0d2e74b45960154c3520efc337b553db0961bfdc950d5618334596cc8"
+  },
+  {
+    "family": "Montserrat",
+    "weight": 400,
+    "italic": true,
+    "file": "Montserrat-400-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=JTUFjIg1_i6t8kCHKm459Wx7xQYXK0vOoz6jq6R9aX9mEr6YGZvok6htUDme_piuHOcHzOnJK1kB0WS238uaEGop2snjV8GwnKhKSxbysD--zsf5o5cWVjOeRM8714D1rdGwA01QnzmUgnT3AJXzeWou6R6GY4aecaHfu5WGMmptHRu6fGnOj4ceWcqBxNuqLkkdyiUR5MCHxDP1Vjltf250YWQHLYyJpnOSpkSfW5ZciS_54xGU5cRfcroLtNcl3XC9p9rFvpJywc9TcC_awttNweIlMeB9A4GJjw4TMZY5GVhB5pDmQU8o-dohc1bG2fyTg21GMTPttou861kjt-3c6pET-E5ijGbbRTnk9uXhgy8iRAUYPLwzykmuDIDJ1qVmrQKtbD3nAl3D7UU7rK-5-D_QPUYi2EfH0zimtkAH6UnG_fOrdOhnUDPc4Hg0pgX0st6__Xh3ZOTUUWxZJpxbq5OmUzaVls3Y8Dn-dnsgpr69Rj-tbTCZqH8-Y8s1JU5kmjkRFXcL909_ZhJ1V9XbJ_x7XPUqqvV6PxRRjvNXhwuf5Qm0YqQigM_E8CkrUMPuHWvy6TqjMsBmt3DyWd0bsXlRsEkc1m6naabqNqPU8gzW03prTo392dcYoYKpZJXRb137O-1Trq2mCiae1Hj8Dh0GyVPC7zVCGcUHSU87ZtwKsUZtug0VOZvvdeEeI7B_97ze45b2T-Xuw4PmiAgcPx6ijMK1JKiYArWSBIAtXotDwViVoEUsrRFrf010VTE9dLESI5NylxriK4H99k6sG20&skey=2d3c1187d5eede0f&v=v31",
+    "sha256": "76327368eb1ed89ca4243e2816bffb32656e694d66c4fffe33e65cd0f64bdfdb"
+  },
+  {
+    "family": "Montserrat",
+    "weight": 700,
+    "italic": true,
+    "file": "Montserrat-700-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=JTUFjIg1_i6t8kCHKm459Wx7xQYXK0vOoz6jq0N6aX9mEr6YGZvok6htUDme_piuHOcHzOnJK1kB0WS238uaEGop2snjV8GwnKhKSxbysD--zsf5o5cWVjOeRM8714D1rdGwA01QnzmUgnT3AJXzeWou6R6GY4aecaHfu5WGMmptHRu6fGnOj4ceWcqBxNuqLkkdyiUR5MCHxDP1Vjltf250YWQHLYyJpnOSpkSfW5ZciS_54xGU5cRfcroLtNcl3XC9p9rFvpJywc9TcC_awttNweIlMeB9A4GJjw4TMZY5GVhB5pDmQU8o-dohc1bG2fyTg21GMTPttou861kjt-3c6pET-E5ijGbbRTnk9uXhgy8iRAUYPLwzykmuDIDJ1qVmrQKtbD3nAl3D7UU7rK-5-D_QPUYi2EfH0zimtkAH6UnG_fOrdOhnUDPc4Hg0pgX0st6__Xh3ZOTUUWxZJpxbq5OmUzaVls3Y8Dn-dnsgpr69Rj-tbTCZqH8-Y8s1JU5kmjkRFXcL909_ZhJ1V9XbJ_x7XPUqqvV6PxRRjvNXhwuf5Qm0YqQigM_E8CkrUMPuHWvy6TqjMsBmt3DyWd0bsXlRsEkc1m6naabqNqPU8gzW03prTo392dcYoYKpZJXRb137O-1Trq2mCiae1Hj8Dh0GyVPC7zVCGcUHSU87ZtwKsUZtug0VOZvvdeEeI7B_97ze45b2T-Xuw4PmiAgcPx6ijMK1JKiYArWSBIAtXotDwViVoEUsrRFrf010VTE9dLESI5NylxriK4H99k6sG20&skey=2d3c1187d5eede0f&v=v31",
+    "sha256": "5fda2724a8bc6a156810d98e61ccfa70f84f9831390ed0fb17474f18976dad0f"
+  },
+  {
+    "family": "Poppins",
+    "weight": 400,
+    "italic": false,
+    "file": "Poppins-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=pxiEyp8kv8JHgFVrFJDMxl9lMdWobGxijUaBjNljpF-G8RBM44WhtU9KnB42hhrLjGlmnKWdDkJkfZlcca-l3K9B9OrW9zbJR3KkaOXnRBKXzWI3xzPalU_TW4bU4VnpOELtLgYx4EOBEdZkZd5vaplnNcQZsAVStv2EInjPHfpiqmP-7H2PjQ4BGG5cCWzRELeFkuMIXp7jOC0bnM-Xkq5cV0_sPoMy8ewOYHSEzSnbPh7NitPramNBK_PI-1IB4bgPdNN0sS-c0tLRTtvC-HTMkR2SVWFYCCrHElzeKnAjIJsSmvyVI6CbgkGui7eUyC_j5oTzjXyCuXTsWVNIhlBH4LSUwEPh1nTcGtPmgM88qAHuBaaO1zDD32ro_VVzDapq50OO61F7XEgJxgNxZcAYSzykm1xB6Q2hLRU-rZBX1gFXjiPAZbOuJqbfRd3eLesPt6EoHlqfPQ-tT6aA-6bAlA29Pb-7AusSV4pvo6rUCZZGQPQfYUxDi_VQO_fYcQsmPdYtJW5DQLASvCEtLaqsdfZHdgO59kWMZFesHXklNqvJF4jab5WrBw0AaHxxm1ACl5mcwAKG7-WlWPhG6ceMdXebFr7Gvpt7QyhK0Fc6gOvc-9Bdei61fUhKk8RiMCKPJnh6LF903eYuP6PUFg_7SaLpJhwL5sCWZiPBsZuUA_vdVd2BWAjnfOsV1CIzDWbDWLaBLT0JMpzaVdLC_3LnOUZ1cKk5VDqjHYWdL_VZJRVzYtE3-i4mXY3Hlvnuaq4&skey=87759fb096548f6d&v=v24",
+    "sha256": "c80a3b8430b1ea46f7a36e1a523162072d673d55fa8b80b67a90fd421fec77de"
+  },
+  {
+    "family": "Poppins",
+    "weight": 700,
+    "italic": false,
+    "file": "Poppins-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=pxiByp8kv8JHgFVrLCz7V1t3ofOraWtnjkuOgdpmo1qF7A9R4ICmsExHkxM1gx3OjxQZ4aaYCUdncJZRcqqi2axc6_fV8jHMRH-rZebiQxeU8F0KxDbdkEzeVIvX5F7sO1_yMwU050aCHNlpZttobye6iad70GYz1pvlRR6rep8GwAaVhhXk5GZvcQEyZQO8fMXo4ZF4Le-TTlxs6rvg59omIjSWRvhLiZJ3Hwr4slSmfGKPyZKpKiIGa7WPvhRFpPNLPpg9-2fVnZqfAZaMtDmf3U_BBDMIWX2XRAuLfCR2e89IwaXPe_nE2h_x1unIlUy_hOeS7xzj3hSKPjYu4jUshN7_qSmJvxu0dLyL7qNR222cdtf8p0G0rxyfiCMHeNEenTj3kSkCIzB3uX4PGbpbMHng3RkGr03mbFV87NMVmkIawm2NKv3mae-XD5SVZ79E4vV-Sw3JbVj8H_TRqPScx1DhY-LkXLNNDtI1-vGObc0jJJJ6Bioj7JQwWZa7E2dFULpDSAEtKN971EtERsDYHoMzAHbOgDX7FSfebApXSti0a_anEOvTeHR4EgUK4BR409zbhETBrqPlGbsGq4TBNzvWWfKI8dI1C2EBmB1x1aGIrocJLHnkKxgbwJQwY3_deiUlcAErhLh2ZviMTFSeE8aMQXhtgaHwBkKi0fn3bpmxOLLtNmeOEoN8v0pZZhOpLMP2WUt-Q-qqJKGyjQGaSzoID9VHK0PdZfzmV48FYDlzYtY3-hgmXYnHlPPuYJAT5lI&skey=cea76fe63715a67a&v=v24",
+    "sha256": "70575012e97b88041911ebdc3b78cb22ab85a26d960851eb6e6c5e5767281b01"
+  },
+  {
+    "family": "Poppins",
+    "weight": 400,
+    "italic": true,
+    "file": "Poppins-400-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=pxiGyp8kv8JHgFVrJJLed2n0FNeqampgj0iPjttlol2E7w5O4YOnt01Ekhw0gBzJjhcYnqebCEBmc5dec6mj3q1f6ujU8TDLRXyqaufhQhCV81w1xTXcl03dVYTW51_rOlzzLAQ35kGDH9hmZ9hpaCa5NcUZswVTtvqEI3jMHftipWP_7H6PjA4GGG9cCmzQEKiFk-MLXp_jPy0anMyXk65TV07sPYMz8esOYXSHzSjaAR7MitDra2NGK_LI-FIA4bcPddN3sS6c1dLQTtjC-XTTkRySVmFZCC3HE1zdKnEjL5sTmv-VIqCcgkCuiLeVyBDj54TwjX2CvnTtWVBIh1BI4LWUw0Pg1nPcG9PlgM48twHvBaWO1jDE32vo_lVyDaVq5kON61B7W0gIxgBxZMcnSz2kmFxA6QqhLBU9rZFX2QFWjiDAZLOpJqffRt3fLfQPtqErHlufOg-sT6WA-qbPlAy9Pr-6AuwSVopso6vUNpZHQPcfYExEi_RQOPfZcQQmPNYuJW9DR7ATvCItLKqzdfdHdQO49kKMZVevHXglOavIF4vabpWsBwwAa3xwmm8ClpmfwAOG6OWkWPtG6MeDdXabFb7Hvpx7QihJ0FY6n-vd-9Ndey6yfUlKkMRjMC2PJ3h5LF502uYvP6DUFw_ESaPpJRwK5seWZyPCsZqUDPvcVd6BWQjgfOoV1yIyDXnDWbaCLTwJNZzbVdHC_nLoOUd1c6k4VD2jHIWeL_R-GmQRcadV7m5Ef8mlsreOTt55_A&skey=f21d6e783fa43c88&v=v24",
+    "sha256": "c26aacf3a5656cc27a20ccc5b325bfdeb9237d38a1678ac679bf3a5d34f20e52"
+  },
+  {
+    "family": "Poppins",
+    "weight": 700,
+    "italic": true,
+    "file": "Poppins-700-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=pxiDyp8kv8JHgFVrJJLmy15lEMU6TGlliE2Mg9RooViD6g1T_p6kskpBkRE7jR_MiRIb49jmC0VhdpRTfKSg26pa6fXL7DPOQnmpZ-jsQRWS9l8I-gjfkkrYVonZ6lzuPVnwMRsq5USEGttraNVqbSG8ixil0Gcz1ZvkRRmre58FwAeViRXl5GVvcAE1ZQK8f8Xp4Y54LO-QTl1s7bvh59kmIzSZRvlLipJ2Hw34s1SlfGOO9pKoKiEGarWIvhVFp_NKPpc9-mfWnZufBpaNtDqf3E_eBDIIWn2WRAyLfSR1e85IzqXOe_rE2x_21ujIlky-hNiS7hzg3hWKOTYv4jYshd7wqSiJvBu1dLuL76NS22ycadf9p0K0rhyYiCIHe9EfnTf3kCkBIzF3vn4OGblbMX7f3RgGrE3nbFJ87dMWmkMazW2MKv7maO-QD5WVZL9F4up-Sg3KbVn8GPTQqPecxlDuY-PkX7NMDtU1-_GNbcwjG5J7Bikj7ZQ3WZe7EGdEULVDSQEuKN5700tFRsPYH4MsAHfOgzX6FSDebQpUStm0ZPamEOjTeXR_EgQK4xR50uPbhUTCrqLlHrsHq4fBNjvZWfOI8tI0C2YBmR1y1aCIsYcILHrkKhgcwJUwYH_ceiolcQEohLl2YfiNTFeeEsazQXltgqHxBkWi0Pn0bpixN7LsNmSOE4N7v0tZZROoLNz2WEt9Q-uqI6GzjQKaSjoHD9RHKEPcZfvmVo8GYDhUXadV6W5EScmltreMRN5zwiJ1jw&skey=29c3bd833a54ba8c&v=v24",
+    "sha256": "dec35fa518cffa8ab30d01afbe9ab2551e86d280198573f7519f0f111904f030"
+  },
+  {
+    "family": "Nunito",
+    "weight": 400,
+    "italic": false,
+    "file": "Nunito-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=XRXI3I6Li01BKofiOc5wtlZ2di8HDLshRTMlO4L_dErTX-neLnQC-Fqo_w3nPtJoe9-nRe_cfk5scrylgapGCnYQtHThatPeV753Xh6941ExIZ8eZET90xdQPxNDsuYP2ez8HhBevBZyGrxWwTFjgO21sLY5dfKxYuoz18JSg4M8e2kwX_Rfm-r7Te7wXYr8SU7p5JVKOK4w4vr1c4H6PEmGZuGIT_HDp0JY8ArspO1chTwE0cKrhntj8gRnC3Hev9zd1ciUy3WfhLBMXQkf74CHIzsXXIEtWalo20aSN7u7bgJaZNjtyCwzvP8pZtxQ0UpcQEaRdTpsrtWmo-_RIGDHcMQMBrakI5VADPx4zvP389s-sLuRrShND6-BR2JL_7_CVjIVOpWZKTiFxFBFZyjGVDxDbnjAwdyq9NAMZZ_ZNaBtQMyrW98av9N4ToObuFaZalcoYqo9nLwYelv_jTfGuyd8n2Q0n2EgIUpKN-VnU6b9wiahODF3iI6UkpU22b0d3XVescJPSgpRSEyz7atZk3sNCxCgRNKBQehcPBUZchYPYrY7X3J71BP0jeyQjebQkd892gLZveKhZAaPGHkyWNT-9l_ysINHCv5cBYqTePZtUewIwt9JEZCJAvwszJen6xfWg3MLLx0LuqS_MyudKiiFcyvyhSHS_EdELdtEf2juAPM6BDbmDu5YqJOhvQgmXjNjvzfbugN3V7yPY68wCIGfHAm70C01eIu-sgMLputi4hX55wNTqTevSW-GAmeXOBWgtJiTvnyjsL0&skey=27bb6aa8eea8a5e7&v=v32",
+    "sha256": "747e8194b24e27dd27697ed55edd4011ff7297af792bdb822a0b882bc8917333"
+  },
+  {
+    "family": "Nunito",
+    "weight": 700,
+    "italic": false,
+    "file": "Nunito-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=XRXI3I6Li01BKofiOc5wtlZ2di8HDFwmRTMlO4L_dErTX-neLnQC-Fqo_w3nPtJoe9-nRe_cfk5scrylgapGCnYQtHThatPeV753Xh6941ExIZ8eZET90xdQPxNDsuYP2ez8HhBevBZyGrxWwTFjgO21sLY5dfKxYuoz18JSg4M8e2kwX_Rfm-r7Te7wXYr8SU7p5JVKOK4w4vr1c4H6PEmGZuGIT_HDp0JY8ArspO1chTwE0cKrhntj8gRnC3Hev9zd1ciUy3WfhLBMXQkf74CHIzsXXIEtWalo20aSN7u7bgJaZNjtyCwzvP8pZtxQ0UpcQEaRdTpsrtWmo-_RIGDHcMQMBrakI5VADPx4zvP389s-sLuRrShND6-BR2JL_7_CVjIVOpWZKTiFxFBFZyjGVDxDbnjAwdyq9NAMZZ_ZNaBtQMyrW98av9N4ToObuFaZalcoYqo9nLwYelv_jTfGuyd8n2Q0n2EgIUpKN-VnU6b9wiahODF3iI6UkpU22b0d3XVescJPSgpRSEyz7atZk3sNCxCgRNKBQehcPBUZchYPYrY7X3J71BP0jeyQjebQkd892gLZveKhZAaPGHkyWNT-9l_ysINHCv5cBYqTePZtUewIwt9JEZCJAvwszJen6xfWg3MLLx0LuqS_MyudKiiFcyvyhSHS_EdELdtEf2juAPM6BDbmDu5YqJOhvQgmXjNjvzfbugN3V7yPY68wCIGfHAm70C01eIu-sgMLputi4hX55wNTqTevSW-GAmeXOBWgtJiTvnyjsL0&skey=27bb6aa8eea8a5e7&v=v32",
+    "sha256": "9e2c8a27c2ac6f2a3ed5eee77c817fd9713a9b42f46bb130e743d73dabc55930"
+  },
+  {
+    "family": "Nunito",
+    "weight": 400,
+    "italic": true,
+    "file": "Nunito-400-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=XRXK3I6Li01BKofIMPyPbj8d7IEAGXNirXA3irRuUUjRWe_cLHoM-liu-Q_lIMxqedmhR-3ScExudLqng9Q4CHQWsnbjZN3cVbhxXByj_VMzJ5kcZkrz0RVWORFBjNgN2-r6HBJQshRwHLpUwy99gu-ztrQ7e_yzYOw11X2Mg4I8eGkxX_Nfmur4Te_wUor9SU3p5ZVNOK8w4fr0c576PUmFZuCISPHCp0FY8QrjpOxchjwF0cWrh3tg8gVmNHHfv9_d1MiTy3Sfh7BNXQYf7oCEIzoXW4EsWapo2kaNN7q7bQJbZN_tySwwvP4padxR0UlcQUaWdTtsrdWno9DRIWDEcMUMAbalI5ZADfx3zvL38Ns_sLyRrChOD66BWGJK_7zCVzISOpSZKjiExF9FZijFVD1DaXjBwd-q9dczZZ7ZNqBsQMurWt8Zv9J4QYOauFWZa1cvYqs9n7wZekT_jDfFuyZ8mGQ1n2IgIEpFN-RnUKb8wiGhOTF0iI-UrZU32b4d3HVZscNPSQpQSEOz7Ktak3oNDBChRNGBQOhDPBQZcRYOYrE7XnJ41BL0guyRjeXQkN862gPZvuKgZTmPGXkxWNX-8V_zsIBHC_5TBYuTe_ZsUesIw99KEZGJHfwtzJSn6hfRg3ILLB0Kuqu_MiueKimFdCvzhSLS_Ud7LdpEfGjvAPQ6BTblDu9Yp5OgvQsmXzNkvzbbuQN2V6OPYq8zCICfGwm60C41eYuxsgILpetj4hL55gNQqTaIdh7kERH1LFXCltzxmjLDlM03Sw&skey=75768d03a8bfc23a&v=v32",
+    "sha256": "b2d57ba1cc0b026f688e05b0aaef71521b98485d0975b90438f5cb4169eda9b5"
+  },
+  {
+    "family": "Nunito",
+    "weight": 700,
+    "italic": true,
+    "file": "Nunito-700-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=XRXK3I6Li01BKofIMPyPbj8d7IEAGXNiSnc3irRuUUjRWe_cLHoM-liu-Q_lIMxqedmhR-3ScExudLqng9Q4CHQWsnbjZN3cVbhxXByj_VMzJ5kcZkrz0RVWORFBjNgN2-r6HBJQshRwHLpUwy99gu-ztrQ7e_yzYOw11X2Mg4I8eGkxX_Nfmur4Te_wUor9SU3p5ZVNOK8w4fr0c576PUmFZuCISPHCp0FY8QrjpOxchjwF0cWrh3tg8gVmNHHfv9_d1MiTy3Sfh7BNXQYf7oCEIzoXW4EsWapo2kaNN7q7bQJbZN_tySwwvP4padxR0UlcQUaWdTtsrdWno9DRIWDEcMUMAbalI5ZADfx3zvL38Ns_sLyRrChOD66BWGJK_7zCVzISOpSZKjiExF9FZijFVD1DaXjBwd-q9dczZZ7ZNqBsQMurWt8Zv9J4QYOauFWZa1cvYqs9n7wZekT_jDfFuyZ8mGQ1n2IgIEpFN-RnUKb8wiGhOTF0iI-UrZU32b4d3HVZscNPSQpQSEOz7Ktak3oNDBChRNGBQOhDPBQZcRYOYrE7XnJ41BL0guyRjeXQkN862gPZvuKgZTmPGXkxWNX-8V_zsIBHC_5TBYuTe_ZsUesIw99KEZGJHfwtzJSn6hfRg3ILLB0Kuqu_MiueKimFdCvzhSLS_Ud7LdpEfGjvAPQ6BTblDu9Yp5OgvQsmXzNkvzbbuQN2V6OPYq8zCICfGwm60C41eYuxsgILpetj4hL55gNQqTaIdh7kERH1LFXCltzxmjLDlM03Sw&skey=75768d03a8bfc23a&v=v32",
+    "sha256": "973badc1681d0f4da5a198ab914650089e7e10f742beccc0b14aa1e4e6d50ca3"
+  },
+  {
+    "family": "Raleway",
+    "weight": 400,
+    "italic": false,
+    "file": "Raleway-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=1Ptxg8zYS_SKggPN4iEgvnHyvveLxVvaooCPLAU7BRZ_4uqARwZvqSsj8KW4W0S9rSg0Jl7UIrPRGNLZMAt4lXtSwCC0tzcmvKQr8Tuh-MbwfZOdcVfie1IBEwLSiEibuCIqKxB4akanmENNahyapGzXswQPvWyR-hbfu3Z6wt7YJg9FUEz_h0yAL19FVcLzpXR-lsrrcJFSmosaNpnYG2oZWFE9gX3G7yNC8h858pPajcRxCGf20Hwgd9b24gk41xAXMV1TaeRJcb2ALeax1IQh7T-Of2AH82HVEieJh5vZ2KnR_0i5xbs4tUnWS77Jsw_N5UA6mTYc7Wnn442SczdPI1TGTpaeeF-lOOki-fN04eZVHvUjbSptzc3Vbz0ZxlWli0IjZQ_Q6LfHx3FWL5Zr1iQzMgd6OSUKVhtQ8EOmpLYIAlN5Svw8HG3ML-CNbNNEczSXo4BbY3725-fTt55DdHYmx3WcLrMo2lTu6PSP5ChTxrKAfCvGhfK3Ii4o-soC5oyv4rN3ICSGH-T1qXSw-V2fNwM_TJoZnpeY2CR9gguBP6hkHlqSXct-x1ODI_osogwgSffHiOcKeNllSlLmoY7LqR9giYm_RDs93lz1Inz1CUI2VpeTBJuKGOk4papksfAio4esIcRFOyqLNGsrXw_3iPp2VcpwnypaE5sCo9fXEGsbQeVXbPLPL4H7eTdVK4vfhGgXGe_EkMtXxMh1cM5mEbyp5cUr8kjcXhI5Waoq2z0IKWTBJuIxaRgvuFHBSYv5wwxUhhy7sANa&skey=30a27f2564731c64&v=v37",
+    "sha256": "e852e2afb4e0cf559d1b0eb727ebbfe3c56c0211d15d848527bea6563154d11a"
+  },
+  {
+    "family": "Raleway",
+    "weight": 700,
+    "italic": false,
+    "file": "Raleway-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=1Ptxg8zYS_SKggPN4iEgvnHyvveLxVs9pYCPLAU7BRZ_4uqARwZvqSsj8KW4W0S9rSg0Jl7UIrPRGNLZMAt4lXtSwCC0tzcmvKQr8Tuh-MbwfZOdcVfie1IBEwLSiEibuCIqKxB4akanmENNahyapGzXswQPvWyR-hbfu3Z6wt7YJg9FUEz_h0yAL19FVcLzpXR-lsrrcJFSmosaNpnYG2oZWFE9gX3G7yNC8h858pPajcRxCGf20Hwgd9b24gk41xAXMV1TaeRJcb2ALeax1IQh7T-Of2AH82HVEieJh5vZ2KnR_0i5xbs4tUnWS77Jsw_N5UA6mTYc7Wnn442SczdPI1TGTpaeeF-lOOki-fN04eZVHvUjbSptzc3Vbz0ZxlWli0IjZQ_Q6LfHx3FWL5Zr1iQzMgd6OSUKVhtQ8EOmpLYIAlN5Svw8HG3ML-CNbNNEczSXo4BbY3725-fTt55DdHYmx3WcLrMo2lTu6PSP5ChTxrKAfCvGhfK3Ii4o-soC5oyv4rN3ICSGH-T1qXSw-V2fNwM_TJoZnpeY2CR9gguBP6hkHlqSXct-x1ODI_osogwgSffHiOcKeNllSlLmoY7LqR9giYm_RDs93lz1Inz1CUI2VpeTBJuKGOk4papksfAio4esIcRFOyqLNGsrXw_3iPp2VcpwnypaE5sCo9fXEGsbQeVXbPLPL4H7eTdVK4vfhGgXGe_EkMtXxMh1cM5mEbyp5cUr8kjcXhI5Waoq2z0IKWTBJuIxaRgvuFHBSYv5wwxUhhy7sANa&skey=30a27f2564731c64&v=v37",
+    "sha256": "a967c55274fd257d672c06cff7981028a89c9cc632c8ab424680a070c760a4c7"
+  },
+  {
+    "family": "Raleway",
+    "weight": 400,
+    "italic": true,
+    "file": "Raleway-400-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=1Pt_g8zYS_SKggPNyCgSQamb1W0lwk4S4WjMPrQNlDN94OyGRQRhpykh9qO6WVqjryoyIFzWLL3TGtTfMgkG63lQxia2tTkovqYt9zmj5tjyf5Wbc1XsdVADFQTQinaluiAsLRJ6ZEilmkVLaB6Eum7VtQINv2Kf-BTZvXTFHN7ZJgxFUUz4h02ALF9EVc3zpHR9lsvrd5FTmogaN5nHG2sZW1E8gXrG7iNB8h45_ZPbjcdxCWfx0H0gdNb34zY41hAUMVxTbuRIcb6ALOa-1IUh7j-Pf2cH8mHWEiaJmJvY2KrR_ki-xbo4tknXS7HJsg_O5UE6njYd7Wrn4o2tczZPIFTHTpGeeV-mOOgi9vN14eVVH_UkbSttzs3UbyIZx1Wmi0MjYg_R6LTHxnFZL5dr1SQyMgB6OCUJVhpXz0OnpLUIA1N-Sv08H23NL--NbdNHczWXpIBaY3325ufMt59Dd3Ynx3KcL7Mr2lXu5_SO5CtTx7KHfCrGhvK2IhEo-8oB5o2v5bN2ICeGHuT6qXWw-l2eNwQ_TZoanpaYxyR8ggiBPqhjHluSXst_x1yDIvovog0gTvfGiOQKedhaSlPmoo7KqRhgiIm8RDo90Vz0In_1CEIxVpaTB5uLGPY4pKpnsfEipIetIcdFOiqENGorXA_2iP12VMpznytaLJsDo9TXEWscQeRXb_LOL477eDdWK4rfg2gWGezEkctIxMl1c85nEbup5MUo8kncURI4Wakq2j0PKWXBJeIwTide2kK3K5-5oS4Q5Dj10Ccq5Bc&skey=bf44ee29381a37b0&v=v37",
+    "sha256": "5c192bd0d95cebe2f5df00749df13885ee1c7fd9b8f3cb1847910ab469afa0f0"
+  },
+  {
+    "family": "Raleway",
+    "weight": 700,
+    "italic": true,
+    "file": "Raleway-700-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=1Pt_g8zYS_SKggPNyCgSQamb1W0lwk4S4Y_LPrQNlDN94OyGRQRhpykh9qO6WVqjryoyIFzWLL3TGtTfMgkG63lQxia2tTkovqYt9zmj5tjyf5Wbc1XsdVADFQTQinaluiAsLRJ6ZEilmkVLaB6Eum7VtQINv2Kf-BTZvXTFHN7ZJgxFUUz4h02ALF9EVc3zpHR9lsvrd5FTmogaN5nHG2sZW1E8gXrG7iNB8h45_ZPbjcdxCWfx0H0gdNb34zY41hAUMVxTbuRIcb6ALOa-1IUh7j-Pf2cH8mHWEiaJmJvY2KrR_ki-xbo4tknXS7HJsg_O5UE6njYd7Wrn4o2tczZPIFTHTpGeeV-mOOgi9vN14eVVH_UkbSttzs3UbyIZx1Wmi0MjYg_R6LTHxnFZL5dr1SQyMgB6OCUJVhpXz0OnpLUIA1N-Sv08H23NL--NbdNHczWXpIBaY3325ufMt59Dd3Ynx3KcL7Mr2lXu5_SO5CtTx7KHfCrGhvK2IhEo-8oB5o2v5bN2ICeGHuT6qXWw-l2eNwQ_TZoanpaYxyR8ggiBPqhjHluSXst_x1yDIvovog0gTvfGiOQKedhaSlPmoo7KqRhgiIm8RDo90Vz0In_1CEIxVpaTB5uLGPY4pKpnsfEipIetIcdFOiqENGorXA_2iP12VMpznytaLJsDo9TXEWscQeRXb_LOL477eDdWK4rfg2gWGezEkctIxMl1c85nEbup5MUo8kncURI4Wakq2j0PKWXBJeIwTide2kK3K5-5oS4Q5Dj10Ccq5Bc&skey=bf44ee29381a37b0&v=v37",
+    "sha256": "f09153f6a61d5e3d86cc04464b95e7cb96e7f1b200ee23ea44b7ed2f410ed724"
+  },
+  {
+    "family": "DM Sans",
+    "weight": 400,
+    "italic": false,
+    "file": "DMSans-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAopxhTn9CaEIghfEc0huOR27FJDeCEAVWjB1ujObiAI8s19JTseRoYORst3A7Mo5NR1NKJZuTMolYRiPs465CwAMKEXKvj23KsMgtQ1cZiabYjJ2WduEqe8YxVdk1akS6_L3YeNVphq9BJPrnscqSkEPYVUkcX7NopbJh00HR0Ak2svLWw1t6XMm_weug7Yfs628NJ8K1rFBmlNHKBS6NEv_98oEmAqr1jKJTKqYLnzdoxUKSKzkzDNJcfoNy8oezylt_5eaed2K5nvRLkJjM1YppGss4xV8p0ga8l8LilUFew95u3n8-343QuCHPOI7yFhZzAPUA24cCDI05lTfZlWuivbTf5rWHRJnC2j69qRcmoSXGFCeDpW2qKpBYsK8EU0iBKzTPY-J9AGjMHDD1NLVslR3AzPvwn5hwJrfa62MdwTEXsKwm65sUIgvA-oVH_ufLPvbXtU9AAryRGN01jmb6n31BfZhsInBwhBALjYoVvbn1jk1PUMBLGR_xKITi215iMfpicbXxaobsKR5zTholQUbg_Dmuzrtg_9OjzMoewB2Vf7L1Hrw48GFcsseU7ciGE1fIqbv6syfNxo8WBoJgzzNzYs_BFNBM40Ml2fZB54j2J_WlSiQB0WzP60RTsIVvwJJhSwYPIK3Eu-ACtAwfJlr9Ghmp3CxnVYpN7AeNiVB9w1t9TqG_4QFc3FvpNC1BhkO2srvy0XF7Cv75InE6F1kQhpXuTfBj9EqIhzUu8vIsrZcsvQ&skey=cd068b3e1b767e51&v=v17",
+    "sha256": "488dd1a9ec294a6993b1e5242d08b55592b83d2a156032dd3a9076645eabcf48"
+  },
+  {
+    "family": "DM Sans",
+    "weight": 700,
+    "italic": false,
+    "file": "DMSans-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwARZthTn9CaEIghfEc0huOR27FJDeCEAVWjB1ujObiAI8s19JTseRoYORst3A7Mo5NR1NKJZuTMolYRiPs465CwAMKEXKvj23KsMgtQ1cZiabYjJ2WduEqe8YxVdk1akS6_L3YeNVphq9BJPrnscqSkEPYVUkcX7NopbJh00HR0Ak2svLWw1t6XMm_weug7Yfs628NJ8K1rFBmlNHKBS6NEv_98oEmAqr1jKJTKqYLnzdoxUKSKzkzDNJcfoNy8oezylt_5eaed2K5nvRLkJjM1YppGss4xV8p0ga8l8LilUFew95u3n8-343QuCHPOI7yFhZzAPUA24cCDI05lTfZlWuivbTf5rWHRJnC2j69qRcmoSXGFCeDpW2qKpBYsK8EU0iBKzTPY-J9AGjMHDD1NLVslR3AzPvwn5hwJrfa62MdwTEXsKwm65sUIgvA-oVH_ufLPvbXtU9AAryRGN01jmb6n31BfZhsInBwhBALjYoVvbn1jk1PUMBLGR_xKITi215iMfpicbXxaobsKR5zTholQUbg_Dmuzrtg_9OjzMoewB2Vf7L1Hrw48GFcsseU7ciGE1fIqbv6syfNxo8WBoJgzzNzYs_BFNBM40Ml2fZB54j2J_WlSiQB0WzP60RTsIVvwJJhSwYPIK3Eu-ACtAwfJlr9Ghmp3CxnVYpN7AeNiVB9w1t9TqG_4QFc3FvpNC1BhkO2srvy0XF7Cv75InE6F1kQhpXuTfBj9EqIhzUu8vIsrZcsvQ&skey=cd068b3e1b767e51&v=v17",
+    "sha256": "49b45ef09fd780edc5ced69ce74323a3a183f783ce1897af8a8e4f071616c556"
+  },
+  {
+    "family": "DM Sans",
+    "weight": 400,
+    "italic": true,
+    "file": "DMSans-400-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=rP2rp2ywxg089UriCZaSExd86J3t9jz86Mvy4qCRAL19DksVat-JDW3zXtMFh_Ma1BmMSWDHJjGEEgdIkh9siuDgAoEi1dBVt-ZqHpputXY9MIxDSVFII52RMJdGRCHq5axAzg0IE3SpjW_0jsovRVEbi6jWjp-QcOMoZdgzV98zaEa08r_aftNrOXFBJfrkscuSl0PZVUocXrNnpbNh0EHQ0A42s_LVw1p6Q8m-weig7Ifr624NJMK0rF9mldHJBS-NFf_88oImA6vKjKNTKaYKnzBoxEKRKzgzA9JdfoBy84e0ylp_5uafd325n_RIkJnM0opoGsg4xF8m0ge8lMLjlUZewt5t3n4-4I3RuCLPOY71FhdzA_UB24gCDY06lTbZkmujvbff57WYRJjC2T68qRAmoCXFFCaDqm2rKpNYsa8DU0mBKDTOZN19AWjPHDH1M7VtlR7Azfv_n5lwJbfb62QdwDEUsK0m9JsVIgjA-4VA_ubLPfbWtUBAA7ySGNw1iWb7n35BfJhTInFwhxAKjY0VvLn2jkxPX8BKGRzxKYTl219iMvpjcarxa4bvKR9zSRokQUXg_Tmhzrpg_NOizM0ewR2Wf7P0Ibw58GJcs8eT7cmGEFfJqbT6sifOxo4WAYJhzzBzY8_eFNFM4EMk2fFB5oj1J_SlRSQA0W_P6kRUsIRvw5JgSzkPIa3Hu-ECswweJln9Gxmm3C1nVopM7ACNiFB-w1p9UaG-4QJc3VvuNCxBhUO3srTy0HF4Cv_5JXE7F1oQh7LRPJJwgiicx1cMtpAI4_cIzRmx&skey=3320fd60b11c3775&v=v17",
+    "sha256": "657870dbeed45ebb14174ec20ac467e7b6f6317646c841ac6ace848492bcae28"
+  },
+  {
+    "family": "DM Sans",
+    "weight": 700,
+    "italic": true,
+    "file": "DMSans-700-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=rP2rp2ywxg089UriCZaSExd86J3t9jz86Mvy4qCRAL19DksVat9uCm3zXtMFh_Ma1BmMSWDHJjGEEgdIkh9siuDgAoEi1dBVt-ZqHpputXY9MIxDSVFII52RMJdGRCHq5axAzg0IE3SpjW_0jsovRVEbi6jWjp-QcOMoZdgzV98zaEa08r_aftNrOXFBJfrkscuSl0PZVUocXrNnpbNh0EHQ0A42s_LVw1p6Q8m-weig7Ifr624NJMK0rF9mldHJBS-NFf_88oImA6vKjKNTKaYKnzBoxEKRKzgzA9JdfoBy84e0ylp_5uafd325n_RIkJnM0opoGsg4xF8m0ge8lMLjlUZewt5t3n4-4I3RuCLPOY71FhdzA_UB24gCDY06lTbZkmujvbff57WYRJjC2T68qRAmoCXFFCaDqm2rKpNYsa8DU0mBKDTOZN19AWjPHDH1M7VtlR7Azfv_n5lwJbfb62QdwDEUsK0m9JsVIgjA-4VA_ubLPfbWtUBAA7ySGNw1iWb7n35BfJhTInFwhxAKjY0VvLn2jkxPX8BKGRzxKYTl219iMvpjcarxa4bvKR9zSRokQUXg_Tmhzrpg_NOizM0ewR2Wf7P0Ibw58GJcs8eT7cmGEFfJqbT6sifOxo4WAYJhzzBzY8_eFNFM4EMk2fFB5oj1J_SlRSQA0W_P6kRUsIRvw5JgSzkPIa3Hu-ECswweJln9Gxmm3C1nVopM7ACNiFB-w1p9UaG-4QJc3VvuNCxBhUO3srTy0HF4Cv_5JXE7F1oQh7LRPJJwgiicx1cMtpAI4_cIzRmx&skey=3320fd60b11c3775&v=v17",
+    "sha256": "665daef4339f3432a498015dcb88b2bf22873f6dfe608aae4cd7a5e73de55301"
+  },
+  {
+    "family": "Oswald",
+    "weight": 400,
+    "italic": false,
+    "file": "Oswald-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=TK3_WkUHHAIjg75cFRf3bXL8LICs1_FvgUFw0QqwrwKkJQnydVF4F6bKWroKqt6fevcuDIIFpIcyMtZr_Yx70kg2V9dWH6_mfqQuM-UvYXcyiWDAunTBhi-oWYtjY9BjeTIUEaUA-Qa_I9j-8Oi0gFnSOBMDGHFQLdgt1rbnRTfyEw4t0ZQEXY2Mb131iYAqneJG0WnlkAtWo-DYM5QZ0IOmZNLaorosWzwP9uqsVQSO587xXPotH34US1a4pb4Z1mUXZOnu9trKmPFe219qInMjq20-RPRdaL-AMtkC2gbJLWxvoujV-Rqyhl3yzb4AUF0_Wurl-ocKhO9VmwI6vVQmgJ7R2M0u8KLDdmtnsVi8FZu9FxSSRWaoW3Dxz49sPYItRZ7Tnpl8O3NY4qFoofGJy5tAe2SegVU_kKg_I4lEYj7nCIpp-ML-cug0z073A6np-Rri-t1FLxMEIqW1Pq3z5BEpGhQAEgynmTaCUivaDqw246pQQjQVmpOidW8CbXZZetHkbIf8ScrYHO5IAZI1qXqoqBAYhOrVt2ll80E0S1OmEKwLmiL9W7lkd_V938OxOpoY2v_zaeuUmZW_tXmxH9xZyheEPhKJl_rmyAL4FqfA_twKY7IQptb4fjybsQEr-lEUf8wmY-PCHA_gRedVQQza_oWdOI393F5EqjvfW1z3VxKPw3KlVwWuWT4OHnVKCwRbAAObah_RS63DSRguTIsIwrB8LJLPdLt1GDv0afpJLcdegca2wDYA_3YC5tj4Z8nco8OhBGaLgY4&skey=653237e53512d0de&v=v57",
+    "sha256": "57c3da3542e531262561958df066f6c0c0cfdd0f9ef29cd78a80d2b0f5a74868"
+  },
+  {
+    "family": "Oswald",
+    "weight": 700,
+    "italic": false,
+    "file": "Oswald-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=TK3_WkUHHAIjg75cFRf3bXL8LICs1xZogUFw0QqwrwKkJQnydVF4F6bKWroKqt6fevcuDIIFpIcyMtZr_Yx70kg2V9dWH6_mfqQuM-UvYXcyiWDAunTBhi-oWYtjY9BjeTIUEaUA-Qa_I9j-8Oi0gFnSOBMDGHFQLdgt1rbnRTfyEw4t0ZQEXY2Mb131iYAqneJG0WnlkAtWo-DYM5QZ0IOmZNLaorosWzwP9uqsVQSO587xXPotH34US1a4pb4Z1mUXZOnu9trKmPFe219qInMjq20-RPRdaL-AMtkC2gbJLWxvoujV-Rqyhl3yzb4AUF0_Wurl-ocKhO9VmwI6vVQmgJ7R2M0u8KLDdmtnsVi8FZu9FxSSRWaoW3Dxz49sPYItRZ7Tnpl8O3NY4qFoofGJy5tAe2SegVU_kKg_I4lEYj7nCIpp-ML-cug0z073A6np-Rri-t1FLxMEIqW1Pq3z5BEpGhQAEgynmTaCUivaDqw246pQQjQVmpOidW8CbXZZetHkbIf8ScrYHO5IAZI1qXqoqBAYhOrVt2ll80E0S1OmEKwLmiL9W7lkd_V938OxOpoY2v_zaeuUmZW_tXmxH9xZyheEPhKJl_rmyAL4FqfA_twKY7IQptb4fjybsQEr-lEUf8wmY-PCHA_gRedVQQza_oWdOI393F5EqjvfW1z3VxKPw3KlVwWuWT4OHnVKCwRbAAObah_RS63DSRguTIsIwrB8LJLPdLt1GDv0afpJLcdegca2wDYA_3YC5tj4Z8nco8OhBGaLgY4&skey=653237e53512d0de&v=v57",
+    "sha256": "3b9825563380e14390500f24b1f0571c121083a6ad6ab14cfc2522872a172fc0"
+  },
+  {
+    "family": "Roboto Condensed",
+    "weight": 400,
+    "italic": false,
+    "file": "RobotoCondensed-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=ieVo2ZhZI2eCN5jzbjEETS9weq8-_d6T_POl0fRJeyWyovBJ98hNCf2p5J8rxro5q47O0X78qwvLmDfVq1P7DSnLiXTpZOwiFJQvJJnjbwi_4lhUlotpE8uNx_yw10Stt1Lyohp5RmDNfBVQ6ixrjLRDnbQqT77cHJIXPrq06bltOMAp-e9iBJOxQyTxBGFWrkfSTx-JTxacN_SlwbF9iZ2eP2mZSy908SAqDATpbdDCkkI6j3v6pGLDuI9T3e64yqTz2sA6xmQlgWSry9dlWy_-SVEkWy3vaHPzLHWA_nsEXDvhLdg1ZtsFjfGaZj-WpOQzQdBHMgZUFiosBdDbCvMt6-3vJ1JKXjHYR0loFhl1OcGSgYpBBSZXvPVCMluLreRKujn5VSTNwHhlCbxrrj40E8cRQ8SU1oq1v659K23Sc0SICWa-DKV4xQY46TA7ax7mgTgBevkSksvyjyOMNa7YaO513hqOfBCTlWddcrVBcI0RMJdePJMqHLlhrLJJ7YGQmQX5cCuo9nNpZv5PskIcKk4nEv3iqaCDAeNbmXvQ9S-nVVPr6gf-d2oOUZAmEJfPmVsIFHvdqcV3kajOBHy-hcbxr_IlQ9k662_y5WnroFGZWfeJBwJui6Axv5UJC3ePjFc2r9P0OFwgeQfdGaMzUBRekzJwETVK68bKHSWxT4cNb48dPvM1pJBJX58LX3Zw54NXWixYyRvfoFgwcCjZseyVzUe8v_vkRp_GX4kzZHpV5BhZY2CL1UR6tdXAUq5yrZ1U6vLdhlH77XCOraxCrlJ-Zv9g&skey=9986ecffddb755ab&v=v31",
+    "sha256": "64e6c21d0eb50e56220ad75cd56bef7389e13b190375c47a270dd5a387fd968b"
+  },
+  {
+    "family": "Roboto Condensed",
+    "weight": 700,
+    "italic": false,
+    "file": "RobotoCondensed-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=ieVo2ZhZI2eCN5jzbjEETS9weq8-_d6T_POl0fRJeyVVpfBJ98hNCf2p5J8rxro5q47O0X78qwvLmDfVq1P7DSnLiXTpZOwiFJQvJJnjbwi_4lhUlotpE8uNx_yw10Stt1Lyohp5RmDNfBVQ6ixrjLRDnbQqT77cHJIXPrq06bltOMAp-e9iBJOxQyTxBGFWrkfSTx-JTxacN_SlwbF9iZ2eP2mZSy908SAqDATpbdDCkkI6j3v6pGLDuI9T3e64yqTz2sA6xmQlgWSry9dlWy_-SVEkWy3vaHPzLHWA_nsEXDvhLdg1ZtsFjfGaZj-WpOQzQdBHMgZUFiosBdDbCvMt6-3vJ1JKXjHYR0loFhl1OcGSgYpBBSZXvPVCMluLreRKujn5VSTNwHhlCbxrrj40E8cRQ8SU1oq1v659K23Sc0SICWa-DKV4xQY46TA7ax7mgTgBevkSksvyjyOMNa7YaO513hqOfBCTlWddcrVBcI0RMJdePJMqHLlhrLJJ7YGQmQX5cCuo9nNpZv5PskIcKk4nEv3iqaCDAeNbmXvQ9S-nVVPr6gf-d2oOUZAmEJfPmVsIFHvdqcV3kajOBHy-hcbxr_IlQ9k662_y5WnroFGZWfeJBwJui6Axv5UJC3ePjFc2r9P0OFwgeQfdGaMzUBRekzJwETVK68bKHSWxT4cNb48dPvM1pJBJX58LX3Zw54NXWixYyRvfoFgwcCjZseyVzUe8v_vkRp_GX4kzZHpV5BhZY2CL1UR6tdXAUq5yrZ1U6vLdhlH77XCOraxCrlJ-Zv9g&skey=9986ecffddb755ab&v=v31",
+    "sha256": "3dd2f09d75f76cbcc0e30eaa96fa4f93663fb33f46e1e19f8b99fc385eda9847"
+  },
+  {
+    "family": "Roboto Condensed",
+    "weight": 400,
+    "italic": true,
+    "file": "RobotoCondensed-400-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=ieVW2ZhZI2eCN5jzbjEETS9weq8-19ehAyvMum7nfDB64RgK5Xl7mNir5pktxLg3pYzM13j-qRXVmjXTrVH5AyfJi3LvZu5capYtIp_hbQax4FpSkIlrDdWPxfq21UajuVDwpBx7RF7zfhdW7C5pgrpBn7IsTbzCApAVOLy267djOsIv_-3d2pOwQyfxBWFRrkbSTB-ITxmcNvSmwbB9jp2fP2qZSi9r8SEqDwTobdfCk0I5j3r6q2LCuIxT3O6_yqXz2cA7x1slgGSoy9ZlXC__SVIkWi3gaHLzL3WB_nwEXTviLdk1edsEjfKaZz-RpOUzQtBGMglUFyovBdHbDfMs6-7vJlJ1XjDYRElpFh51OMGRgYtBCiZWvPZCM1uMreVKuTn4VTvNwXhmCb1rqT41E8QRQsSb1ou1vK58K2rSckSLCWe5M6V5xQU46DA8ax_mgjgAevYSk8vxjyKMMq7ZaO113xqRfBGTlmdccrJBcY0SMJZeM5MrHLphrbJO7YCQmgX4cBSo93NqZv9PtUIdKk0nE_3tqaGDAuNamXzQ9C-kVVLr9Qf_d2kOUJAhEJbPmlsJFHTdqMV0kanOA3y_hcXxrvMaQ9g66G_z5W7roVGaWfaJCAJvi6MxvpUOC3aPj1c3r8z0OVwjeQbdHqMyUBdekjJ_ETRK6MbLHSKxTocOb44dAfM0pJNJXp8MX3dw5INWWiNYyBvcoFkwdyjYse-VzEejv_rkRZ_HX44zZXpW5BlZbGCK1Ud6tNXHUq9yrp1Vzc2s5EKNj2TOz44GzHYwBtsQRAA&skey=7b4bef3e83279e13&v=v31",
+    "sha256": "a6e6579d7c6e0918c8841f9b391dfdcb0a2a8225cd5a906614fd14c0cabfdf3b"
+  },
+  {
+    "family": "Roboto Condensed",
+    "weight": 700,
+    "italic": true,
+    "file": "RobotoCondensed-700-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=ieVW2ZhZI2eCN5jzbjEETS9weq8-19ehAyvMum7nfDB64f8N5Xl7mNir5pktxLg3pYzM13j-qRXVmjXTrVH5AyfJi3LvZu5capYtIp_hbQax4FpSkIlrDdWPxfq21UajuVDwpBx7RF7zfhdW7C5pgrpBn7IsTbzCApAVOLy267djOsIv_-3d2pOwQyfxBWFRrkbSTB-ITxmcNvSmwbB9jp2fP2qZSi9r8SEqDwTobdfCk0I5j3r6q2LCuIxT3O6_yqXz2cA7x1slgGSoy9ZlXC__SVIkWi3gaHLzL3WB_nwEXTviLdk1edsEjfKaZz-RpOUzQtBGMglUFyovBdHbDfMs6-7vJlJ1XjDYRElpFh51OMGRgYtBCiZWvPZCM1uMreVKuTn4VTvNwXhmCb1rqT41E8QRQsSb1ou1vK58K2rSckSLCWe5M6V5xQU46DA8ax_mgjgAevYSk8vxjyKMMq7ZaO113xqRfBGTlmdccrJBcY0SMJZeM5MrHLphrbJO7YCQmgX4cBSo93NqZv9PtUIdKk0nE_3tqaGDAuNamXzQ9C-kVVLr9Qf_d2kOUJAhEJbPmlsJFHTdqMV0kanOA3y_hcXxrvMaQ9g66G_z5W7roVGaWfaJCAJvi6MxvpUOC3aPj1c3r8z0OVwjeQbdHqMyUBdekjJ_ETRK6MbLHSKxTocOb44dAfM0pJNJXp8MX3dw5INWWiNYyBvcoFkwdyjYse-VzEejv_rkRZ_HX44zZXpW5BlZbGCK1Ud6tNXHUq9yrp1Vzc2s5EKNj2TOz44GzHYwBtsQRAA&skey=7b4bef3e83279e13&v=v31",
+    "sha256": "6b3da80e127cdd79493764f1613cd25ba6f0c3fb72ec7bfba241486f0686e8cf"
+  },
+  {
+    "family": "Playfair Display",
+    "weight": 400,
+    "italic": false,
+    "file": "PlayfairDisplay-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvUDQfGfk3HSIOG6xNI_BXrHPS2A2hIyXDIRRJi-vgGeaDFlFty04vrc0WxKjO0t5i5LiEkDlEGadHsDaVEMfmbVD3JZrx757NG0RQllNdW5-bWOEGZ7t9cA8iLKyy-3rkGxFCWIdO0E2TXHqRW_ptbhTRIlQjOjiLTKXDj6UqHq4IOyx0CSPJHl_8EoMQPp71hjiIS_-rZjanAsCq6lqAn2-EoRUDZGPUErI1nD-U46ehr4WdGO6_WmMrojdgQHs0uPflolrVLmgFjqZqiQPNpHVot34ZlB9YciAjjsQlTMsOF3rqmaZ0_SfFpMemLcagXWoP4AllzXLz2ABqqu2Ly0f8GljdwE3j2CZLxpCibrqm4HJuu8Tts_1O1wk4Fmhb_Sv0NvtPz8Zmj9Czz_YnFKi_QzmTcM44byxds3BgWzmymPC165gyjv4_7XGHJYirVKSNsG4QHyvbLXwtpcxUSgqR5CwMV2QaPjNuoRiXc65YKBYHJKtZ_myOE6YbqKClGj-vYpyGJvIhxBD8wvqlVR4OvqGps9BHkBNap_1OMtH0lxXzha03hTtL-bCIwWpchCoUC8NUeBW41sF_Lv8AXAb_n8ZR2YBP505uSs0RCXoAm8LU-YRj9KdIU_RJjKalYRyDwLnJjy9O9DJ98F_56nYC9yzhPDu6YmUQxL924OjL-oziVJ6CS027thuxgTalA6TxFGuDHdScJ8ohbrSaQ0ezCRU3EMSXk0iKNjbLw7omGD9lxwX&skey=f3b68f0152604ed9&v=v40",
+    "sha256": "0474760872b7c1102dfca900e1f0c44016d2d6069980b651c8ca55a3856c0519"
+  },
+  {
+    "family": "Playfair Display",
+    "weight": 700,
+    "italic": false,
+    "file": "PlayfairDisplay-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKeiukDQfGfk3HSIOG6xNI_BXrHPS2A2hIyXDIRRJi-vgGeaDFlFty04vrc0WxKjO0t5i5LiEkDlEGadHsDaVEMfmbVD3JZrx757NG0RQllNdW5-bWOEGZ7t9cA8iLKyy-3rkGxFCWIdO0E2TXHqRW_ptbhTRIlQjOjiLTKXDj6UqHq4IOyx0CSPJHl_8EoMQPp71hjiIS_-rZjanAsCq6lqAn2-EoRUDZGPUErI1nD-U46ehr4WdGO6_WmMrojdgQHs0uPflolrVLmgFjqZqiQPNpHVot34ZlB9YciAjjsQlTMsOF3rqmaZ0_SfFpMemLcagXWoP4AllzXLz2ABqqu2Ly0f8GljdwE3j2CZLxpCibrqm4HJuu8Tts_1O1wk4Fmhb_Sv0NvtPz8Zmj9Czz_YnFKi_QzmTcM44byxds3BgWzmymPC165gyjv4_7XGHJYirVKSNsG4QHyvbLXwtpcxUSgqR5CwMV2QaPjNuoRiXc65YKBYHJKtZ_myOE6YbqKClGj-vYpyGJvIhxBD8wvqlVR4OvqGps9BHkBNap_1OMtH0lxXzha03hTtL-bCIwWpchCoUC8NUeBW41sF_Lv8AXAb_n8ZR2YBP505uSs0RCXoAm8LU-YRj9KdIU_RJjKalYRyDwLnJjy9O9DJ98F_56nYC9yzhPDu6YmUQxL924OjL-oziVJ6CS027thuxgTalA6TxFGuDHdScJ8ohbrSaQ0ezCRU3EMSXk0iKNjbLw7omGD9lxwX&skey=f3b68f0152604ed9&v=v40",
+    "sha256": "0482c2a4b296a1b8c6172a4937d2d9a2bd3435cd9ffe7b04c2deb176bc01e1b2"
+  },
+  {
+    "family": "Playfair Display",
+    "weight": 400,
+    "italic": true,
+    "file": "PlayfairDisplay-400-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=nuFRD-vYSZviVYUb_rj3ij__anPXDTnCjmHKM4nYO7KN_qiTbtbSTVGKOmi3No3PULPNTWY0hpKJDoZXIC2tjmmYDl9DtS9GwLU2XRShOUV3iZDkFELnDnifHMbcVkERl7dB2pBpxYBFNm8XRFtPe2B8b2WCG5zz68I-jrSwyePlkm5DD2Ci5UE3TXLqRG_utblTR4lRjOfiLDKUDj-Ur3q5IO-x0SSQJHh_80oNQP171xjhIS7-opjbnAgCqqltAny-EYRVDK6PUUrL1nH-VI6fhr0WdWO1_WiMrYjcgQbs0-PclohrS7mhFjmZqyQINpDVod35Zl99YMiDjjoQkjMtOF7rq2am0_WfFZMfmLAagHWrP4ElmDXKz2MBq6uxLywf82lidx43jmCaLxtCjrrrm4LJu-8cts71OFwl4F6hbvSs0NrqAD8YmjxCzj_fnFOi_gznTcw44LyydszBhmznymDC1q5_yjr4_LXHHJEirFKRNsC4T3yubLbwt5c2USkqRJCxMWKQafjOuoViWs64YKNYHZKiZ_iyO06ZbqWClWj9vYtyB5vJhxND8gvtlVV4OfqHpsBBH0BOap71P8tG0l9XzxeL3hXtLObDIwKpcxCrUC4NXuBX41gF_bv7AXEb_X8YR3kBPp06uSo0QyXpAmwLUuYej9OdIk_QJjWalIRxDwPnGTy8O9PJ9sF456jYCNyyhP_u6ImXQxP93IOiL-kziFJlCSw27dhvxgPalQ6QxFCuA3dTcJwohLrVaQwezyRV-3xjPF5USsybTSys-kSz9zhnNgw&skey=f57a6d1e6bccdd9c&v=v40",
+    "sha256": "dcfb633e9c4790dfbdda3d989f66182487c30eec52dbaa1f8ca4aed25c298f31"
+  },
+  {
+    "family": "Playfair Display",
+    "weight": 700,
+    "italic": true,
+    "file": "PlayfairDisplay-700-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=nuFRD-vYSZviVYUb_rj3ij__anPXDTnCjmHKM4nYO7KN_k-UbtbSTVGKOmi3No3PULPNTWY0hpKJDoZXIC2tjmmYDl9DtS9GwLU2XRShOUV3iZDkFELnDnifHMbcVkERl7dB2pBpxYBFNm8XRFtPe2B8b2WCG5zz68I-jrSwyePlkm5DD2Ci5UE3TXLqRG_utblTR4lRjOfiLDKUDj-Ur3q5IO-x0SSQJHh_80oNQP171xjhIS7-opjbnAgCqqltAny-EYRVDK6PUUrL1nH-VI6fhr0WdWO1_WiMrYjcgQbs0-PclohrS7mhFjmZqyQINpDVod35Zl99YMiDjjoQkjMtOF7rq2am0_WfFZMfmLAagHWrP4ElmDXKz2MBq6uxLywf82lidx43jmCaLxtCjrrrm4LJu-8cts71OFwl4F6hbvSs0NrqAD8YmjxCzj_fnFOi_gznTcw44LyydszBhmznymDC1q5_yjr4_LXHHJEirFKRNsC4T3yubLbwt5c2USkqRJCxMWKQafjOuoViWs64YKNYHZKiZ_iyO06ZbqWClWj9vYtyB5vJhxND8gvtlVV4OfqHpsBBH0BOap71P8tG0l9XzxeL3hXtLObDIwKpcxCrUC4NXuBX41gF_bv7AXEb_X8YR3kBPp06uSo0QyXpAmwLUuYej9OdIk_QJjWalIRxDwPnGTy8O9PJ9sF456jYCNyyhP_u6ImXQxP93IOiL-kziFJlCSw27dhvxgPalQ6QxFCuA3dTcJwohLrVaQwezyRV-3xjPF5USsybTSys-kSz9zhnNgw&skey=f57a6d1e6bccdd9c&v=v40",
+    "sha256": "6d5a4ebc25637d388afe543c063928c13080c8b4e88a69dde64486ac516fa982"
+  },
+  {
+    "family": "Merriweather",
+    "weight": 400,
+    "italic": false,
+    "file": "Merriweather-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=u-4D0qyriQwlOrhSvowK_l5UcA6zuSYEqOzpPe3HOZJ5eX1WtLaQwmYiScCmDxhtNOKl8yDr3icqE09BJtTzQpTgX1qcZQpz8HTsMj3n1bIrzUsRmFUxr42P7WpJQJM76uZeS1opCnSZS45NCiNVSsdUEpwB1k30CZ5xTD8tChInWnPsH2IG76O3lTvJQZV91C0PnVfAXoiwQbxFUiSmAe8jeVWDrBV98ol9kC73PsD26JvziXqYCcUbnHYY3lVLgfiD926Olj9s09gTRbWkFkl0RluEtUq_vjtjsrWvKofrEtReL-4uJOVDLRBsC0RInu7TU6d564LKsVxl3j1ZtCW-5GW5_pV-TISI26kSkU8L3j_cbeRAxv2H3QltpucB9NY8fx7J_0Wpzh52qXat-rYiEtXNChzm_S_MAFd7JE1DHifhiquBiqnKwJzwDJnZf6n1RjzVPRhc6dbsQwg4Zm6ISMcVw_YzCC3MhS4i5lKxMtBoCv86WFpY0HKbPEL_FTJ0UFbDmlXgRbiy7Jbb4tkXw7DSqIH8sJELlIkwkiu89tUNL7PhRD6IsxKqUkRJZqF9cI8EQTNaaFI80RD7pRpziToRqHqjP5Lx8KgQCle9N44_0Fq8HcfWrBqeQ3akib24vbcy9BryG-XcYJd4vLnBq1qDMFBLtxS4nP8bcXj93yKqDLrsyuTqJGTQTLacm_Be6Qqwjh_llY3VG2mRUitYjbSD4zDA_1T62LVbCijW0jJmnVLhIOQMLB6zDN-gyUoQ_OE3491bGm-wF7XA7gsct0A4-IKE0d5KmzKNtNhsBjae43CHK8ZCg3z4aw&skey=379c1eccf863c625&v=v33",
+    "sha256": "9310e0e6bae23bfb71411227b5c699a760a1e325a7b5d1926e73fdf3a005977d"
+  },
+  {
+    "family": "Merriweather",
+    "weight": 700,
+    "italic": false,
+    "file": "Merriweather-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=u-4D0qyriQwlOrhSvowK_l5UcA6zuSYEqOzpPe3HOZJ5eX1WtLaQwmYiScCmDxhtNOKl8yDrOSAqE09BJtTzQpTgX1qcZQpz8HTsMj3n1bIrzUsRmFUxr42P7WpJQJM76uZeS1opCnSZS45NCiNVSsdUEpwB1k30CZ5xTD8tChInWnPsH2IG76O3lTvJQZV91C0PnVfAXoiwQbxFUiSmAe8jeVWDrBV98ol9kC73PsD26JvziXqYCcUbnHYY3lVLgfiD926Olj9s09gTRbWkFkl0RluEtUq_vjtjsrWvKofrEtReL-4uJOVDLRBsC0RInu7TU6d564LKsVxl3j1ZtCW-5GW5_pV-TISI26kSkU8L3j_cbeRAxv2H3QltpucB9NY8fx7J_0Wpzh52qXat-rYiEtXNChzm_S_MAFd7JE1DHifhiquBiqnKwJzwDJnZf6n1RjzVPRhc6dbsQwg4Zm6ISMcVw_YzCC3MhS4i5lKxMtBoCv86WFpY0HKbPEL_FTJ0UFbDmlXgRbiy7Jbb4tkXw7DSqIH8sJELlIkwkiu89tUNL7PhRD6IsxKqUkRJZqF9cI8EQTNaaFI80RD7pRpziToRqHqjP5Lx8KgQCle9N44_0Fq8HcfWrBqeQ3akib24vbcy9BryG-XcYJd4vLnBq1qDMFBLtxS4nP8bcXj93yKqDLrsyuTqJGTQTLacm_Be6Qqwjh_llY3VG2mRUitYjbSD4zDA_1T62LVbCijW0jJmnVLhIOQMLB6zDN-gyUoQ_OE3491bGm-wF7XA7gsct0A4-IKE0d5KmzKNtNhsBjae43CHK8ZCg3z4aw&skey=379c1eccf863c625&v=v33",
+    "sha256": "498699fc2a647f7f8f5a8ef317a91ff017fa63596f5d25a73215c6f5fd8bb96c"
+  },
+  {
+    "family": "Merriweather",
+    "weight": 400,
+    "italic": true,
+    "file": "Merriweather-400-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=u-4B0qyriQwlOrhSvowK_l5-eTxCVx0ZbwLvKH2Gk9hLmp0v5yA-xXPqCzLvPee1XYk_XSf-FmTCUF3wEEXWQJbmWVieawRx8nLqMD_5y7Apy00Tmls_rY-J62hLPu056OBYSVgnBHabTYhPCD1LSMVSFJ4D2EP2C5h3Tj0TNBAlXHXuHWwI7aGxkznLX4t_1isJn1XOUIqyR7pH7fqmAO8geVSDqxV88op9kS74PsH265vyiX2YCMUYnHcYwVVKgfuD9m6Jlj5s0NgSRbqkF0l3RlqEskq-vjhjs7SQKobrEdRfL-kuJeVALRFsBERJnu3TUqd-64PKslxk3iJZtSW95GS5-ZV_TIeI2qkdkU4L3T_dbeNAx_2E3QhtmecA9NU8fh7O_0SpzR53qXmt-7YhEtTNDRzn_SzMAVdkJExDHSfgiqyBi6nJwJ3wA5nYf6r1RzzSPRlc6tbtRDc4Z26LSMYVxPYyCC7MhC4t5lOxMdBpCvg6WVpb0HObI0L-FTF0UVbEmlTgRriz7Jnb49kUw7HSr4H9sJILlYkPkiq89dUML7ThRT6LsxOqXURIZqJ9cY8DQTJaa1I90Q_7pBpwiTsRr3qiP5Hx8agfCla9NI4-0F28HMfVrBuffHalib64vLc19BvyGOXdYJh4vbnCq1uDN1BKtxe4nf8EcXn93CKrDL3sy-TpJGXQQ7adm_Ne6Aq3jh7llo3UG1aRUytbjbWD5DDB_1f62bVUCinW0TJnnVXhIeQPLB-zE9-hyUkQ_eEw49xbGW-xF7rA7wsft0E4_4KF0d1KmhWyxbp_cFSKoxKlb6RmzRzcGysS&skey=899922b35e8afa66&v=v33",
+    "sha256": "90240f6895eaccf9a05b985b6eb1453b10ebbbb0f8677e522fe511a9782de91e"
+  },
+  {
+    "family": "Merriweather",
+    "weight": 700,
+    "italic": true,
+    "file": "Merriweather-700-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=u-4B0qyriQwlOrhSvowK_l5-eTxCVx0ZbwLvKH2Gk9hLmp0v5yA-xXPqCzLvPee1XYk_XSf-FmQlV13wEEXWQJbmWVieawRx8nLqMD_5y7Apy00Tmls_rY-J62hLPu056OBYSVgnBHabTYhPCD1LSMVSFJ4D2EP2C5h3Tj0TNBAlXHXuHWwI7aGxkznLX4t_1isJn1XOUIqyR7pH7fqmAO8geVSDqxV88op9kS74PsH265vyiX2YCMUYnHcYwVVKgfuD9m6Jlj5s0NgSRbqkF0l3RlqEskq-vjhjs7SQKobrEdRfL-kuJeVALRFsBERJnu3TUqd-64PKslxk3iJZtSW95GS5-ZV_TIeI2qkdkU4L3T_dbeNAx_2E3QhtmecA9NU8fh7O_0SpzR53qXmt-7YhEtTNDRzn_SzMAVdkJExDHSfgiqyBi6nJwJ3wA5nYf6r1RzzSPRlc6tbtRDc4Z26LSMYVxPYyCC7MhC4t5lOxMdBpCvg6WVpb0HObI0L-FTF0UVbEmlTgRriz7Jnb49kUw7HSr4H9sJILlYkPkiq89dUML7ThRT6LsxOqXURIZqJ9cY8DQTJaa1I90Q_7pBpwiTsRr3qiP5Hx8agfCla9NI4-0F28HMfVrBuffHalib64vLc19BvyGOXdYJh4vbnCq1uDN1BKtxe4nf8EcXn93CKrDL3sy-TpJGXQQ7adm_Ne6Aq3jh7llo3UG1aRUytbjbWD5DDB_1f62bVUCinW0TJnnVXhIeQPLB-zE9-hyUkQ_eEw49xbGW-xF7rA7wsft0E4_4KF0d1KmhWyxbp_cFSKoxKlb6RmzRzcGysS&skey=899922b35e8afa66&v=v33",
+    "sha256": "67c8d8ca6082e097c57dcdf00239923505353704056561f10fb420e1b7fd83fb"
+  },
+  {
+    "family": "Lora",
+    "weight": 400,
+    "italic": false,
+    "file": "Lora-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=0QI6MX1D_JOuGQbT0gvTJPa787weuyJGgBlSuf669riUaSg8hV9_UZQ1kOh4brcFIpfMVRjdMkmV8UT6P9u9jHHWmZ9zZgskxenCtMFRJbbMyBGSpVsRKXXsLbIGVdoahfbU3UoDHwq9Lqp316zbBWnuk-ZE_y_jvgV13MJl67GK3kBsYVm1s2CT6Pn-2-uJ6iPrC6Wf5tr2rGsNTsi-6RyS3UmhvOAvO-xmi4BDhBzi45zMFscqlbEkIaonO7mJpWK3ShE9YTfyyJpYpsOb8sPhPveonksXvcXIQtRsj_ctd9RHCAGQYY7Nuh09kTslc1hEKKSopAdMmofTAedY2rf9yFh0XPm081TIGcjEXCtK8jtQuFsD-6f-_xog5-5K3oJiUK0pcr39xBF3nxRcdB46cgEI5-0FiosxCaGaEEYiGDXHn2wBmCA22pgXr_56nc3RJ__s_eoDaniVIEfIKjO-qy-D7VbpdsPsBMj7aS9JLcGC57myKyaL6y7EXbnwPaWFwO5XQEHjB03BL0ZnIL0LAqUG0QI4wST5ET2nFhnz5SGQri6vnhJT4IKb0m5gkEOeDNO4Sbn2BRjzk_dZ3FPHuOUxm0lL_NBSgmNma4_XqMG-RG3NUsY6YUPwrpOdOQR0Ol9wvUm1Kwf9UquPwLKOqmzQL0L3QowfczHjlK99LjThjemstKmkYfJMwlwl-euBosqxPnroiXhUIgv37Cu6uW5_rQiXppQN0aqS63hJvA-8dMmVHfCODm4aq8H66sKzxOxsyvYPgq8F&skey=1d294b6d956fb8e&v=v37",
+    "sha256": "2dc46b8b01296b3ef39b5018e7a977e963b785400eb463f8eb5ea27af155e93b"
+  },
+  {
+    "family": "Lora",
+    "weight": 700,
+    "italic": false,
+    "file": "Lora-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=0QI6MX1D_JOuGQbT0gvTJPa787z5vCJGgBlSuf669riUaSg8hV9_UZQ1kOh4brcFIpfMVRjdMkmV8UT6P9u9jHHWmZ9zZgskxenCtMFRJbbMyBGSpVsRKXXsLbIGVdoahfbU3UoDHwq9Lqp316zbBWnuk-ZE_y_jvgV13MJl67GK3kBsYVm1s2CT6Pn-2-uJ6iPrC6Wf5tr2rGsNTsi-6RyS3UmhvOAvO-xmi4BDhBzi45zMFscqlbEkIaonO7mJpWK3ShE9YTfyyJpYpsOb8sPhPveonksXvcXIQtRsj_ctd9RHCAGQYY7Nuh09kTslc1hEKKSopAdMmofTAedY2rf9yFh0XPm081TIGcjEXCtK8jtQuFsD-6f-_xog5-5K3oJiUK0pcr39xBF3nxRcdB46cgEI5-0FiosxCaGaEEYiGDXHn2wBmCA22pgXr_56nc3RJ__s_eoDaniVIEfIKjO-qy-D7VbpdsPsBMj7aS9JLcGC57myKyaL6y7EXbnwPaWFwO5XQEHjB03BL0ZnIL0LAqUG0QI4wST5ET2nFhnz5SGQri6vnhJT4IKb0m5gkEOeDNO4Sbn2BRjzk_dZ3FPHuOUxm0lL_NBSgmNma4_XqMG-RG3NUsY6YUPwrpOdOQR0Ol9wvUm1Kwf9UquPwLKOqmzQL0L3QowfczHjlK99LjThjemstKmkYfJMwlwl-euBosqxPnroiXhUIgv37Cu6uW5_rQiXppQN0aqS63hJvA-8dMmVHfCODm4aq8H66sKzxOxsyvYPgq8F&skey=1d294b6d956fb8e&v=v37",
+    "sha256": "9378bd05e367cf9a498feb22b5e7829468a2c9c66ba8e668f90bc9b37297a1d4"
+  },
+  {
+    "family": "Lora",
+    "weight": 400,
+    "italic": true,
+    "file": "Lora-400-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=0QI8MX1D_JOuMw_hLdO6T2wV9KnW-MoFkqhkKNu49L6Sayoyi119V5I3kvZmbLUDJJXOWxbfME-T80aEQdm_infUm5F9ZAkiw-vAqt9TJ7DKyhOcq1kTL3PuL4w4V9gcg_TW00QBHQy7LKhpya7ZA2_skehK_S3luAfKAsJk67KK30BrYVi1sGCS6Pb-2uuK6iLrDKWe5tn2rWsSTsm-6hyT3U6hveAsO-1mhIBChB_i4pzLFsYqlrElIJUnOrmKpWO3TRE8YTTyyZpXpsKb8cPgPvCon0sUvcTIXdRtj_QtdtRACACQYo7MuhI9kDsmc1lEL6SppARMm4fsAeZY2bf8yF90Xfm381XIFsjFXChK8ztXuFoD-Kf__wUg5u5J3oNiV60ocr79xRF4nxVcdx47cgYI5u0Gioo2NqGbEEUiGTXAn20BmyA32pcXrv55nczRIP_t_ekDa3iKIEbIKTO_qyiD7FbqdsLsC8j6aSxJLMGF57iyKCaK6xHEXLnzPaSFx-5WQELjBk3OL0dnI70KAqIG0AI7wSX5Dj2mFhrz5CGXri-vnRJS4I2b025jkEKeC9O5Sbr2BBnMk_ZZ31PGuOIxmklI_NFSjWNna4zXqcG5RGzNUcY7YVzwr5OeOQV0PV9xvUq1KgfyUqqPw7KPqmvQLkL0Qo0fTDHilKx9LzTmjeist6mlYf1Mw1wm-eqBpcqwPnnoiHhLIgr37yu7uWl_rAiUppUN3qqT63tJvQ-7dMiVHvCPKVFrydKMiNbzps4oqNJB4ot1tfw&skey=92aaeeb853a906d8&v=v37",
+    "sha256": "5d052597fd6f36d21ecf2472fb78b7de5a52af1258cfc3f5c391c09885734c4c"
+  },
+  {
+    "family": "Lora",
+    "weight": 700,
+    "italic": true,
+    "file": "Lora-700-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=0QI8MX1D_JOuMw_hLdO6T2wV9KnW-C0CkqhkKNu49L6Sayoyi119V5I3kvZmbLUDJJXOWxbfME-T80aEQdm_infUm5F9ZAkiw-vAqt9TJ7DKyhOcq1kTL3PuL4w4V9gcg_TW00QBHQy7LKhpya7ZA2_skehK_S3luAfKAsJk67KK30BrYVi1sGCS6Pb-2uuK6iLrDKWe5tn2rWsSTsm-6hyT3U6hveAsO-1mhIBChB_i4pzLFsYqlrElIJUnOrmKpWO3TRE8YTTyyZpXpsKb8cPgPvCon0sUvcTIXdRtj_QtdtRACACQYo7MuhI9kDsmc1lEL6SppARMm4fsAeZY2bf8yF90Xfm381XIFsjFXChK8ztXuFoD-Kf__wUg5u5J3oNiV60ocr79xRF4nxVcdx47cgYI5u0Gioo2NqGbEEUiGTXAn20BmyA32pcXrv55nczRIP_t_ekDa3iKIEbIKTO_qyiD7FbqdsLsC8j6aSxJLMGF57iyKCaK6xHEXLnzPaSFx-5WQELjBk3OL0dnI70KAqIG0AI7wSX5Dj2mFhrz5CGXri-vnRJS4I2b025jkEKeC9O5Sbr2BBnMk_ZZ31PGuOIxmklI_NFSjWNna4zXqcG5RGzNUcY7YVzwr5OeOQV0PV9xvUq1KgfyUqqPw7KPqmvQLkL0Qo0fTDHilKx9LzTmjeist6mlYf1Mw1wm-eqBpcqwPnnoiHhLIgr37yu7uWl_rAiUppUN3qqT63tJvQ-7dMiVHvCPKVFrydKMiNbzps4oqNJB4ot1tfw&skey=92aaeeb853a906d8&v=v37",
+    "sha256": "2f27c33e5eb43352db97193200b5d0a896ca7d568438ec6c3f13f988fdf7e234"
+  },
+  {
+    "family": "EB Garamond",
+    "weight": 400,
+    "italic": false,
+    "file": "EBGaramond-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=SlGDmQSNjdsmc35JDF1K5E55YMjF_7DPuGi-6_RUA53Ld42-okptc9v08CCHamtgX0jdk5p4BquL36UgG5D9kHTP5osmHC6c3ngdIm5yOUB67IgOI89RetKc_GhMx8UqXJlx0n5w2l8ib2QG78TAJtt-5AfeilM44GS0dB16J3deVUHBn7NblKym1OJ9EjwLDRDwVkVGrMhI6Y3k9VsUrKz-oAJTVU-DvWFSc017XUG6v_71pQdBmgd_pT84GntR79OUUxtXTIub2O8IDjYRcAi6lR7keGnooGeudRlsyIvMOtBGzDXao6JJCbHNyILttOV2uNqT8N2EJ5jF9j61P5GYsi25qwnpgQhlCj2mGhUvW2JlbN-YBXZFtsw66IdfV9Og7d1VbHUTp9BVaSw85XFdd9JTxuhl3i59KV0R6pD0K3nHG0df83gPLI7OzfZoWr7WwdBeBA5DFbCl04ZLb0Ua4WjAOaIyNE5lpwwJcfOSUZ1KcuQcdtFwVODT65wgxQMG7osxgd2_i44of9lQtdeIcjseg8N55nGkEunQ6lvc6cwqdMGkhQC207FgT55v8hKDH6FtF84Kg5f74brTFGyzJFZaxi-53CDzNXUXXY0SLxReuOy4JFL4K5i06MXLIZwM4ALJ-FxPadWBNAQQIJFGSlOipnaKwmXH9A8L6PBfyZrIvqiYMIh63Yl6eqvYf9ouwFA-yFBV2jiiKs_j4dtxy6C99OtkaJAjtqgKVQ-7fvIGlSU4pwxPalJJg0EUArstv-MA0yRndqECZsKUbfVGZQ&skey=fde9b303600e495b&v=v33",
+    "sha256": "65ac1582780339a34612bb21f9f303cf38a629e77c3997d8b3b138daf506bd64"
+  },
+  {
+    "family": "EB Garamond",
+    "weight": 700,
+    "italic": false,
+    "file": "EBGaramond-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=SlGDmQSNjdsmc35JDF1K5E55YMjF_7DPuGi-DPNUA53Ld42-okptc9v08CCHamtgX0jdk5p4BquL36UgG5D9kHTP5osmHC6c3ngdIm5yOUB67IgOI89RetKc_GhMx8UqXJlx0n5w2l8ib2QG78TAJtt-5AfeilM44GS0dB16J3deVUHBn7NblKym1OJ9EjwLDRDwVkVGrMhI6Y3k9VsUrKz-oAJTVU-DvWFSc017XUG6v_71pQdBmgd_pT84GntR79OUUxtXTIub2O8IDjYRcAi6lR7keGnooGeudRlsyIvMOtBGzDXao6JJCbHNyILttOV2uNqT8N2EJ5jF9j61P5GYsi25qwnpgQhlCj2mGhUvW2JlbN-YBXZFtsw66IdfV9Og7d1VbHUTp9BVaSw85XFdd9JTxuhl3i59KV0R6pD0K3nHG0df83gPLI7OzfZoWr7WwdBeBA5DFbCl04ZLb0Ua4WjAOaIyNE5lpwwJcfOSUZ1KcuQcdtFwVODT65wgxQMG7osxgd2_i44of9lQtdeIcjseg8N55nGkEunQ6lvc6cwqdMGkhQC207FgT55v8hKDH6FtF84Kg5f74brTFGyzJFZaxi-53CDzNXUXXY0SLxReuOy4JFL4K5i06MXLIZwM4ALJ-FxPadWBNAQQIJFGSlOipnaKwmXH9A8L6PBfyZrIvqiYMIh63Yl6eqvYf9ouwFA-yFBV2jiiKs_j4dtxy6C99OtkaJAjtqgKVQ-7fvIGlSU4pwxPalJJg0EUArstv-MA0yRndqECZsKUbfVGZQ&skey=fde9b303600e495b&v=v33",
+    "sha256": "7f004dd7a141410f4865d2d55f99d8b6c5b881a3337adad32e7ae9c49ee33ac5"
+  },
+  {
+    "family": "EB Garamond",
+    "weight": 400,
+    "italic": true,
+    "file": "EBGaramond-400-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=SlGFmQSNjdsmc35JDF1K5GRwUjcdlttVFm-rI7e8QI96QRyboEhrddn2_i6FaG1mXUrDjZh6AK2J3asuGZL7lnbNmPUkHiia3HoTLGxwP0Z47pYQIc1XfNCe8mZOxcMsXptP7Hxy3FkgbWoI7cbGINl8-hnciFU-4ma6eh94IXFc6p_BnrNYlK2m0-J8Ej8LDBD_VkRGr8hJ6Yrk9FsXrK3-vwJSVUyDvGFVc0x7XkG7v_H1pAdCmgZ_oj85GnhR7tKrUxpXT4ua2OgIDzYScAm6mh7leGrooWepdRhsy4vNOs9GzTXZo6NJDrHMyIHtteV5uNuT892FJ5_F9z62P5CYjS24qwrpgAhiCjymGRUuW21lbd-bBXdFscw76IRfVtO_7dxVb3USp9dVaCw_5XBdeNJSxutl3y56KVwR6ZD1LEbHGkdc83kPK47PzfVoW77ZwdFeBw5CFbel0oZIb0Qa_mjBOaEyNU5ipw0JcvOTUZJKc-QfdtBwU-DS658gxAM57ooxgt2-i4koftlTtdaIfTsfg8B553GjEujQ6Vvd6dMqdcGnhQG21LFhT51v8xKMH6BtFM4Lg5D74LrQFG2yG1Zbxiy53SD0NXQXXo0TLxteuey7JFP4LJi16MbLIJwT4APJ-1xOadKBNQQTIJBGRVOjpnWKw2XA9A4L6_BeyaXIv6ibMIl62ol7eqjYftohwFE-y1BU2j-iK8_g4dpx1KC89OhkaZAktqkKVg-6fv0GlCU7pw1PbVJIg0IUA5wSzoETpUZzNsMgIqCwI5ViFTRC&skey=b76c0cb3db3b0fac&v=v33",
+    "sha256": "aa98a4d2836e737efe46f5711584b98987c0522b22538e60ea5556732573ad27"
+  },
+  {
+    "family": "EB Garamond",
+    "weight": 700,
+    "italic": true,
+    "file": "EBGaramond-700-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=SlGFmQSNjdsmc35JDF1K5GRwUjcdlttVFm-rI7dbR496QRyboEhrddn2_i6FaG1mXUrDjZh6AK2J3asuGZL7lnbNmPUkHiia3HoTLGxwP0Z47pYQIc1XfNCe8mZOxcMsXptP7Hxy3FkgbWoI7cbGINl8-hnciFU-4ma6eh94IXFc6p_BnrNYlK2m0-J8Ej8LDBD_VkRGr8hJ6Yrk9FsXrK3-vwJSVUyDvGFVc0x7XkG7v_H1pAdCmgZ_oj85GnhR7tKrUxpXT4ua2OgIDzYScAm6mh7leGrooWepdRhsy4vNOs9GzTXZo6NJDrHMyIHtteV5uNuT892FJ5_F9z62P5CYjS24qwrpgAhiCjymGRUuW21lbd-bBXdFscw76IRfVtO_7dxVb3USp9dVaCw_5XBdeNJSxutl3y56KVwR6ZD1LEbHGkdc83kPK47PzfVoW77ZwdFeBw5CFbel0oZIb0Qa_mjBOaEyNU5ipw0JcvOTUZJKc-QfdtBwU-DS658gxAM57ooxgt2-i4koftlTtdaIfTsfg8B553GjEujQ6Vvd6dMqdcGnhQG21LFhT51v8xKMH6BtFM4Lg5D74LrQFG2yG1Zbxiy53SD0NXQXXo0TLxteuey7JFP4LJi16MbLIJwT4APJ-1xOadKBNQQTIJBGRVOjpnWKw2XA9A4L6_BeyaXIv6ibMIl62ol7eqjYftohwFE-y1BU2j-iK8_g4dpx1KC89OhkaZAktqkKVg-6fv0GlCU7pw1PbVJIg0IUA5wSzoETpUZzNsMgIqCwI5ViFTRC&skey=b76c0cb3db3b0fac&v=v33",
+    "sha256": "4967ad5e7becd67bd9299cdbe24d66aab2b98652a39ac7f116658e10464d29fd"
+  },
+  {
+    "family": "Cormorant Garamond",
+    "weight": 400,
+    "italic": false,
+    "file": "CormorantGaramond-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=co3umX5slCNuHLi8bLeY9MK7whWMhyjypVO7abI26QOD_v86GnPcPvcZCNiCdJnapSB5NfKOycAZmMTvhZ3dKMnOBDNzKpq_yC2TyB7GS7HM-vFzigUgYQnOVqzQEaMGbzV9asPpEqN4B-9w-KxLH6vJdIhES2wwltGWngG5sWaGcxdq99yKbEQA-SjsQLsX10zPfBn4uR-uRU2y5-9udFPRRbLpfrhl-mQ2PxMHrsw21vWyzWI5EWS3_mNwU52lqyam5n5RTOlwDSx-XNxLq9nyKwy9Hq-ucc_nMJlwD-SgZdc0Xte-MoteTGgOakJuWbOvUZsxghviOImj5szX5liGTp3GXe_WG7rBr3Z9e5POV9DvqCVYYcVL992ax93F2Yp08B_yF_zak9zQ4IGDQ6mOzPmJa-agIhbenxELhFU172U-1uYuiQOqHRBOAfqo0ZXW_RvAFL12blxPeu54eMp-A9j_z01ml9HAkwVpohsbM3j-vRW_w06RYYGBgx1FXOL4bCJFVeI7d9wdMIfULSPKARMcCs6OzjgTLttjGEWo4nzLPSULxqnTBiQJAB0W1AUE6OQjsKQDotyApuHFJN9tVCnkl62l-IBZNLF564nifb0JZA1YndXEb1b1kfRz2nYgggyjQ-0GEGz_ynR6m9bAyVXC0y_7-MYsAnEmhEDgyGXHOT-NTA1eS3rbAemTkV8SGT2F0WIYuq_77oBLiLArkPRYcBjw-Wg2w4yE6XiCntOP9xb4fePksoCuaNAGGxjF6PVq6l4mEHHIA-Zg7vsv66D7cJPmCdU&skey=a863d1376a24bd7a&v=v21",
+    "sha256": "ed8098edc571ee566681c8658ca0a0166aac32dddc3c6aa671cbe434caf53cb0"
+  },
+  {
+    "family": "Cormorant Garamond",
+    "weight": 700,
+    "italic": false,
+    "file": "CormorantGaramond-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=co3umX5slCNuHLi8bLeY9MK7whWMhyjypVO7abI26QOD_hg9GnPcPvcZCNiCdJnapSB5NfKOycAZmMTvhZ3dKMnOBDNzKpq_yC2TyB7GS7HM-vFzigUgYQnOVqzQEaMGbzV9asPpEqN4B-9w-KxLH6vJdIhES2wwltGWngG5sWaGcxdq99yKbEQA-SjsQLsX10zPfBn4uR-uRU2y5-9udFPRRbLpfrhl-mQ2PxMHrsw21vWyzWI5EWS3_mNwU52lqyam5n5RTOlwDSx-XNxLq9nyKwy9Hq-ucc_nMJlwD-SgZdc0Xte-MoteTGgOakJuWbOvUZsxghviOImj5szX5liGTp3GXe_WG7rBr3Z9e5POV9DvqCVYYcVL992ax93F2Yp08B_yF_zak9zQ4IGDQ6mOzPmJa-agIhbenxELhFU172U-1uYuiQOqHRBOAfqo0ZXW_RvAFL12blxPeu54eMp-A9j_z01ml9HAkwVpohsbM3j-vRW_w06RYYGBgx1FXOL4bCJFVeI7d9wdMIfULSPKARMcCs6OzjgTLttjGEWo4nzLPSULxqnTBiQJAB0W1AUE6OQjsKQDotyApuHFJN9tVCnkl62l-IBZNLF564nifb0JZA1YndXEb1b1kfRz2nYgggyjQ-0GEGz_ynR6m9bAyVXC0y_7-MYsAnEmhEDgyGXHOT-NTA1eS3rbAemTkV8SGT2F0WIYuq_77oBLiLArkPRYcBjw-Wg2w4yE6XiCntOP9xb4fePksoCuaNAGGxjF6PVq6l4mEHHIA-Zg7vsv66D7cJPmCdU&skey=a863d1376a24bd7a&v=v21",
+    "sha256": "26e8bb1a2b7edad87eb42abdf4012ddb9e8d2a133f125355ed1f4b725d7f3fe6"
+  },
+  {
+    "family": "Cormorant Garamond",
+    "weight": 400,
+    "italic": true,
+    "file": "CormorantGaramond-400-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=co3smX5slCNuHLi8bLeY9MK7whWMhyjYrGFEsdtdc62E6zd58jDOj8GILdqAcp_Ypy53N_CIz8Ibhtrth5vbKsvACjFxLJy9ylPtyhzATbPO9P9xiAMmYwvQSK7SF6UEbTtzaMHvFKF6OdFy-qpNHanHeopGTWoylM-InAO_t2SEfRlo9dqMbvve-SnsQ7sW10vPfRn7uR6uSk2z5-xudVPWRbPpfbhk-ns2PhMErs020fWzzWE5EGS4_mJwUJ2kqyGm535STOhxMix_XN9Lqtn1Kw29Ha-vccDnMZlzD-WgYtc1XtS-M4tBTGkOaUJvWbSvUJsyghriN4mi5s_X51iBTpzGXu_XG4XBrnZ-e5LOUNDuqCZYYMVE99yaxN3E2Y108R_xF_3ajNzR4IKDQqmJzPiJaOahIhnenhEIhFQ16GU_1uUuiASVHRFOAvqp0ZLW_BvDFLx2YVxOeu14ecp5A9n_zE1nl87AkgVqohobNHj_vRa_wk6eYYCBgB1EXOX4bSJGVeM7SNwcMITULCPNARIcCc6PzjcTL9tgGESo5XzKPSYLx6nMBiUJAx0X1AIE6eQgsKUDrdyBpuLFJd9qVCjklK2k-b9ZNbF664jier0IZA5YnNXLb1f1kvRy2nEggwygQ-wGD2z-ynd6mtbHyVTC0C_6-MksA3ElhEHgz2XGOTyNTQ1hS3vbAumSkVgSGD2G0WMYta_67oNLibAskPVYcxjx-Xc2woyH6XmCmdOO9xX4fOPrsoGua9AHGx_F6fVp6l8BLwCqEJAC-rtNyeSZVN2GLaXXPg&skey=e666f2218a05acfc&v=v21",
+    "sha256": "07146e7a3f73222bb626e684361c9d48b08d9c4d7f0dd2424a950375fa0b01e6"
+  },
+  {
+    "family": "Cormorant Garamond",
+    "weight": 700,
+    "italic": true,
+    "file": "CormorantGaramond-700-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=co3smX5slCNuHLi8bLeY9MK7whWMhyjYrGFEsdtdc62E6zd5FTfOj8GILdqAcp_Ypy53N_CIz8Ibhtrth5vbKsvACjFxLJy9ylPtyhzATbPO9P9xiAMmYwvQSK7SF6UEbTtzaMHvFKF6OdFy-qpNHanHeopGTWoylM-InAO_t2SEfRlo9dqMbvve-SnsQ7sW10vPfRn7uR6uSk2z5-xudVPWRbPpfbhk-ns2PhMErs020fWzzWE5EGS4_mJwUJ2kqyGm535STOhxMix_XN9Lqtn1Kw29Ha-vccDnMZlzD-WgYtc1XtS-M4tBTGkOaUJvWbSvUJsyghriN4mi5s_X51iBTpzGXu_XG4XBrnZ-e5LOUNDuqCZYYMVE99yaxN3E2Y108R_xF_3ajNzR4IKDQqmJzPiJaOahIhnenhEIhFQ16GU_1uUuiASVHRFOAvqp0ZLW_BvDFLx2YVxOeu14ecp5A9n_zE1nl87AkgVqohobNHj_vRa_wk6eYYCBgB1EXOX4bSJGVeM7SNwcMITULCPNARIcCc6PzjcTL9tgGESo5XzKPSYLx6nMBiUJAx0X1AIE6eQgsKUDrdyBpuLFJd9qVCjklK2k-b9ZNbF664jier0IZA5YnNXLb1f1kvRy2nEggwygQ-wGD2z-ynd6mtbHyVTC0C_6-MksA3ElhEHgz2XGOTyNTQ1hS3vbAumSkVgSGD2G0WMYta_67oNLibAskPVYcxjx-Xc2woyH6XmCmdOO9xX4fOPrsoGua9AHGx_F6fVp6l8BLwCqEJAC-rtNyeSZVN2GLaXXPg&skey=e666f2218a05acfc&v=v21",
+    "sha256": "f474459739e618701e90023fc39c00f721e541d7b1abae0c6dd408f81ff43e09"
+  },
+  {
+    "family": "Libre Baskerville",
+    "weight": 400,
+    "italic": false,
+    "file": "LibreBaskerville-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=kmKUZrc3Hgbbcjq75U4uslyuy4kn0olVQ-LglH6T17uj8Q4SCRH7ssL7XoM7naDsZ5m7DXNvjttSaITFzJgP9aAZYOFHs0nE9a2UHL0iGihH-BSGusr4T7FqvpooLKtluEkXsTfZ-7c3zw69Z0Q4oh_Rs0CiJpPHuJeAf8GdT3cEpunoP0pYF_WyC51c_RV-2rxX9CHyV8i_icuWdPM1Vf7WhIr0x9L4PtJDajL9wJsuXWEy67mJdN8KMC7z1oshByqdjyS4UF78UejCSg76JqIx0Ct-96keHBu5Q2P7JtJzGN1cDey5SNjGe-DrFvM--kScqWEJTZqbR0TxuTdF8RhYjuMElexp86St5dwkmf4zQrsXurNwc7xhSfG8xa0rtCX1A0LpJ-JOEKtPQC_2X8EF11xwJzH8egOW1IJLJaQl3Adj8d-Bi3GyJJQOhEs5itymeoBkzqIMOS2nuC09K2rcxLNFTnoX82hagRbdgmF5T3sLg8JgavcV8ss2hB1eKRl3b24PFFNXtYMcsWQNzmUPF3S5RvbKE4kCSdkIzgeBLXQLYpIPQgeauEx4puRkT2-02ZFe4amKWcgeKhD_zWS8w3su6kzonNKdKt87Mivo18J1hK7Mc77UGKzeAtIyaaeUvo1_o2_1PLk6sNFoWrgL__5LOF1FaB3JaYcAZTAlF3Ximp55ZGIcPK_-W5kMJxYL-TYKQRWR28cpB4iW9UgdrYSfgtE322Mxgj0bCV2lQMFojBuQtCFJBLBZjmM8S3W-0yHeMNYw7tksNn1x3r5FrtwvzbHY7g&skey=1ccff9706b4dcbb3&v=v24",
+    "sha256": "6c036763c80c3e08cff0bd2f1838eb7de63bf63dea59e8a2132e4a05c7a885e7"
+  },
+  {
+    "family": "Libre Baskerville",
+    "weight": 700,
+    "italic": false,
+    "file": "LibreBaskerville-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=kmKUZrc3Hgbbcjq75U4uslyuy4kn0olVQ-LglH6T17ujFgkSCRH7ssL7XoM7naDsZ5m7DXNvjttSaITFzJgP9aAZYOFHs0nE9a2UHL0iGihH-BSGusr4T7FqvpooLKtluEkXsTfZ-7c3zw69Z0Q4oh_Rs0CiJpPHuJeAf8GdT3cEpunoP0pYF_WyC51c_RV-2rxX9CHyV8i_icuWdPM1Vf7WhIr0x9L4PtJDajL9wJsuXWEy67mJdN8KMC7z1oshByqdjyS4UF78UejCSg76JqIx0Ct-96keHBu5Q2P7JtJzGN1cDey5SNjGe-DrFvM--kScqWEJTZqbR0TxuTdF8RhYjuMElexp86St5dwkmf4zQrsXurNwc7xhSfG8xa0rtCX1A0LpJ-JOEKtPQC_2X8EF11xwJzH8egOW1IJLJaQl3Adj8d-Bi3GyJJQOhEs5itymeoBkzqIMOS2nuC09K2rcxLNFTnoX82hagRbdgmF5T3sLg8JgavcV8ss2hB1eKRl3b24PFFNXtYMcsWQNzmUPF3S5RvbKE4kCSdkIzgeBLXQLYpIPQgeauEx4puRkT2-02ZFe4amKWcgeKhD_zWS8w3su6kzonNKdKt87Mivo18J1hK7Mc77UGKzeAtIyaaeUvo1_o2_1PLk6sNFoWrgL__5LOF1FaB3JaYcAZTAlF3Ximp55ZGIcPK_-W5kMJxYL-TYKQRWR28cpB4iW9UgdrYSfgtE322Mxgj0bCV2lQMFojBuQtCFJBLBZjmM8S3W-0yHeMNYw7tksNn1x3r5FrtwvzbHY7g&skey=1ccff9706b4dcbb3&v=v24",
+    "sha256": "4d8d6b4bd593d27e701b2b6f493e5e68489f00d12ff4d5a2a8f2fc46192efd50"
+  },
+  {
+    "family": "Libre Baskerville",
+    "weight": 400,
+    "italic": true,
+    "file": "LibreBaskerville-400-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=kmKWZrc3Hgbbcjq75U4uslyuy4kn0qNccR04_RUJeby2OU36SgNKhFPeXIE9m6LuaZe5D3VpjNlMdobHyp4N964XYuNBtUvGi9OWHrskGCpJ9haEvMz6Ta90vJguKqlntkcVszHf-bUJ8Qy_YUI6oBHfsUKkIJHFpomCfcebTXUKqOvqOUxaqCuyCp1f_RR-3bxW9CLyVsiwicqWd_M0VfnWhYr3x9P4IdJCajH9wZspXWAy6LmIdNAKMS7w1oohACqcjye4UV_DUenCSQ77JqUx0St996geExu4Q2D7J9J0GNxcDuy4SMfGeuDoFvI-_USdqWIJTJqUR0XxujdE8R9Yj-MHle1pzKSs5d8kmP40QroXubNxc7NhSPG_xawrsyX0A0HpJuJREKpPQy_3X8YF1lxzJzD8dQOX1IFLJKQi3AZj8t-AjE6yJZQNhEo5jdyneoNkz6IDOSynuy08K23cxbNGTnsX7GhbgRXdg2F-T3oLgMJhavgV88s1hBxeLhl2b20PFVNotYIcsmQMzmIPFnS6RvfKHIkDSdoIzweGLXULYZIOQhiauUx7puVkSG-12ZJe4KmFWckeKRD-zWO8wnst6k3po9KcKtw7Myvv18N1h67Nc7HUGazdAtMybqeVvo5_om_qPLg6s9FpWr8L_v5IOFxFZx3IaYQAZDAiF3TimZ54ZF0cPa_9W5gMIBYK-TUKQBWe28YpBIiX9U8drIScgtA3xGMwgj4bCF2iQMBojxuRtC5JBbBajmI8THW_0yLeMfEPn7s_QB9lntxn6r4Lg9H8nv5Z&skey=44cd15477bf5bb2d&v=v24",
+    "sha256": "dc0ba2188c97eb3e2bb36e8d2adc886e6d0d0479209d237062a329b486609a04"
+  },
+  {
+    "family": "Libre Baskerville",
+    "weight": 700,
+    "italic": true,
+    "file": "LibreBaskerville-700-italic.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=kmKWZrc3Hgbbcjq75U4uslyuy4kn0qNccR04_RUJeby2OU0dTQNKhFPeXIE9m6LuaZe5D3VpjNlMdobHyp4N964XYuNBtUvGi9OWHrskGCpJ9haEvMz6Ta90vJguKqlntkcVszHf-bUJ8Qy_YUI6oBHfsUKkIJHFpomCfcebTXUKqOvqOUxaqCuyCp1f_RR-3bxW9CLyVsiwicqWd_M0VfnWhYr3x9P4IdJCajH9wZspXWAy6LmIdNAKMS7w1oohACqcjye4UV_DUenCSQ77JqUx0St996geExu4Q2D7J9J0GNxcDuy4SMfGeuDoFvI-_USdqWIJTJqUR0XxujdE8R9Yj-MHle1pzKSs5d8kmP40QroXubNxc7NhSPG_xawrsyX0A0HpJuJREKpPQy_3X8YF1lxzJzD8dQOX1IFLJKQi3AZj8t-AjE6yJZQNhEo5jdyneoNkz6IDOSynuy08K23cxbNGTnsX7GhbgRXdg2F-T3oLgMJhavgV88s1hBxeLhl2b20PFVNotYIcsmQMzmIPFnS6RvfKHIkDSdoIzweGLXULYZIOQhiauUx7puVkSG-12ZJe4KmFWckeKRD-zWO8wnst6k3po9KcKtw7Myvv18N1h67Nc7HUGazdAtMybqeVvo5_om_qPLg6s9FpWr8L_v5IOFxFZx3IaYQAZDAiF3TimZ54ZF0cPa_9W5gMIBYK-TUKQBWe28YpBIiX9U8drIScgtA3xGMwgj4bCF2iQMBojxuRtC5JBbBajmI8THW_0yLeMfEPn7s_QB9lntxn6r4Lg9H8nv5Z&skey=44cd15477bf5bb2d&v=v24",
+    "sha256": "2b7b0d3251553a61a060792be49165a66908dfa87e550948f20b44468dfd1076"
+  },
+  {
+    "family": "Caveat",
+    "weight": 400,
+    "italic": false,
+    "file": "Caveat-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9SIK71RBusyiEltMKSMAAtR8P2PA7tXyvTmCVc5XHDOiTlVN8d60P30avzg-3P850pjMZCVMPOrmIPIPZjg4vCAJ3CNdoqxJpUbYuN4WbLw4F4nW8PVy7fxrSWelZpa3YF9s_S9XnfgEwdD-6gxgJz5s0TLhR2YJGRaqQucaiXXuePRuOclLJN_Y4WhdytU2oAUTtSaj74qI3s06HgfWKZHmJozvEBkjWykaQAhw4E4AHjcBaEwH7afsRebRv5u-2UmvOmzq2bgDPYcucTljafZY26-q7WCX7uijjnuf_WUHv9epcfMJDJ3dPPKj2lVo4_4JETjY0gwAeQmQba22_Vhm9qbSaz9dkveRLMRGURBMN8yBNaVZitkh8dHvNCuIq0yuP1U53AfZh44LQxJmF-Sca-LDtN-pnvwwEfpDbDhqSwazChqhvm8V97O79ejk_4gDTBTQc_GELnZhInO4zsFDAxwK8xhw5Db5Ck5jRSN2Q9lkXs8BO6fPN-ihyNUFVDWL-7Zg8MnCdBLVL6s38-cUdm_haESEaQ3zQwaTZBCmAxIVRyYYHc6ko6ydT5asb-epq4KYhE62KA2CRByZ3aAf5idFx_yUS7kkgcUdY-sR97YKzGJAFZaDP2HmSDpvKU2O5HLqxTtuby-Qj7MxUsSW9LHk1D7RYnJuAod5fwqyld19QYz3B3u_ZvH9adBZfZBnjZAArIjt0OQizdd7AmaZaNKMqLylhX_9nLuRiQ45jsSov7bA&skey=7833cd5b856b60c9&v=v23",
+    "sha256": "bd8fd08b64ed2c7673b9b769cefa88dcc3599a94cc90e09b4bf044a1b59ea123"
+  },
+  {
+    "family": "Caveat",
+    "weight": 700,
+    "italic": false,
+    "file": "Caveat-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=WnznHAc5bAfYB2QRah7pcpNvOx-pjRV6SIK71RBusyiEltMKSMAAtR8P2PA7tXyvTmCVc5XHDOiTlVN8d60P30avzg-3P850pjMZCVMPOrmIPIPZjg4vCAJ3CNdoqxJpUbYuN4WbLw4F4nW8PVy7fxrSWelZpa3YF9s_S9XnfgEwdD-6gxgJz5s0TLhR2YJGRaqQucaiXXuePRuOclLJN_Y4WhdytU2oAUTtSaj74qI3s06HgfWKZHmJozvEBkjWykaQAhw4E4AHjcBaEwH7afsRebRv5u-2UmvOmzq2bgDPYcucTljafZY26-q7WCX7uijjnuf_WUHv9epcfMJDJ3dPPKj2lVo4_4JETjY0gwAeQmQba22_Vhm9qbSaz9dkveRLMRGURBMN8yBNaVZitkh8dHvNCuIq0yuP1U53AfZh44LQxJmF-Sca-LDtN-pnvwwEfpDbDhqSwazChqhvm8V97O79ejk_4gDTBTQc_GELnZhInO4zsFDAxwK8xhw5Db5Ck5jRSN2Q9lkXs8BO6fPN-ihyNUFVDWL-7Zg8MnCdBLVL6s38-cUdm_haESEaQ3zQwaTZBCmAxIVRyYYHc6ko6ydT5asb-epq4KYhE62KA2CRByZ3aAf5idFx_yUS7kkgcUdY-sR97YKzGJAFZaDP2HmSDpvKU2O5HLqxTtuby-Qj7MxUsSW9LHk1D7RYnJuAod5fwqyld19QYz3B3u_ZvH9adBZfZBnjZAArIjt0OQizdd7AmaZaNKMqLylhX_9nLuRiQ45jsSov7bA&skey=7833cd5b856b60c9&v=v23",
+    "sha256": "5d1518dbb4317be90ad6672e3a49e66507358d7734426237324012d145eb7cfc"
+  },
+  {
+    "family": "Dancing Script",
+    "weight": 400,
+    "italic": false,
+    "file": "DancingScript-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=If2cXTr6YS-zF4S-kcSWSVi_sxjsohD9F50Ruu7BMSoHTfjIqvHThGdqkZ11c9NVas9TtV6pu2hMl3VAA7r4Wlt-ZIyQBtDat2oDyCDtoIgj16-2CDWbWxu9JQmKoyNs27aZnBeYo6V-RCaHdN-SAKxKeOFfHMrgx-OC_hbLBXOt7UpCZH7kyxjKtTlYsj7CLIiuPf2Pb2JW7wnHcsVTEtfGfrw6Rp8qlcbuRCGxhp1a7R5wMDw2iicln52KFRcLHShOfTYwiWT65IaTvEf9pv-May4oD00E7qqgJ3Fm5XlMRhK5-q5bX3g-7JNBXLfNlglMt6Bu4kvHulpJUW01W-jv5TQCCv2oGQjW2eKRd5VEsGHvg1ZJdElRMCE8WfZpQAvMhnckfMUbu8prtRq7GVcim9K-Dq3nmlFGY8WpIUiFmFdrzkuYdqqin3zz7Z9-0XRTqoyBqT83RAbksXefMcwHexJ9ClThe98DmJBeB6K4puHscDNelzuVC9aOAZ-vXw8of-MzooTDIQhqJCl5S3GiadfO5bfbBVD1pWeeaf7mVdB3B4CmAhcXBYPs8bgFi37RYbesWVd15L0u1ME43fNolX0faapj-I7Bh7_IrUGXOVz35KAf9tk_xlNS4-LOt-__KDIphwfaepOYLnubDJ6JZ12IrcO5aPa4Te4shBgXuDLXjWE6wzpCBrRGD9DcbSZwGOgJG0-Q7szitSf8G0Cn8qoOsWdi-cwCfq_T0gqAt3K2Kz7XS1aeVisc-cFX4P1ota7krShMFB8UTD_5_po6xxC5fw&skey=c89f400061e5d0a8&v=v29",
+    "sha256": "24f97ea91d7ba86edff17d6b4301362a879c0b15820f74d91ee86e47c96f224e"
+  },
+  {
+    "family": "Dancing Script",
+    "weight": 700,
+    "italic": false,
+    "file": "DancingScript-700.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=If2cXTr6YS-zF4S-kcSWSVi_sxjsohD9F50Ruu7B1i0HTfjIqvHThGdqkZ11c9NVas9TtV6pu2hMl3VAA7r4Wlt-ZIyQBtDat2oDyCDtoIgj16-2CDWbWxu9JQmKoyNs27aZnBeYo6V-RCaHdN-SAKxKeOFfHMrgx-OC_hbLBXOt7UpCZH7kyxjKtTlYsj7CLIiuPf2Pb2JW7wnHcsVTEtfGfrw6Rp8qlcbuRCGxhp1a7R5wMDw2iicln52KFRcLHShOfTYwiWT65IaTvEf9pv-May4oD00E7qqgJ3Fm5XlMRhK5-q5bX3g-7JNBXLfNlglMt6Bu4kvHulpJUW01W-jv5TQCCv2oGQjW2eKRd5VEsGHvg1ZJdElRMCE8WfZpQAvMhnckfMUbu8prtRq7GVcim9K-Dq3nmlFGY8WpIUiFmFdrzkuYdqqin3zz7Z9-0XRTqoyBqT83RAbksXefMcwHexJ9ClThe98DmJBeB6K4puHscDNelzuVC9aOAZ-vXw8of-MzooTDIQhqJCl5S3GiadfO5bfbBVD1pWeeaf7mVdB3B4CmAhcXBYPs8bgFi37RYbesWVd15L0u1ME43fNolX0faapj-I7Bh7_IrUGXOVz35KAf9tk_xlNS4-LOt-__KDIphwfaepOYLnubDJ6JZ12IrcO5aPa4Te4shBgXuDLXjWE6wzpCBrRGD9DcbSZwGOgJG0-Q7szitSf8G0Cn8qoOsWdi-cwCfq_T0gqAt3K2Kz7XS1aeVisc-cFX4P1ota7krShMFB8UTD_5_po6xxC5fw&skey=c89f400061e5d0a8&v=v29",
+    "sha256": "b01e6b0c2c49101e757c3b3e4b16f4dc7127bc67806da41bc5e47e41a755cef7"
+  },
+  {
+    "family": "Abril Fatface",
+    "weight": 400,
+    "italic": false,
+    "file": "AbrilFatface-400.ttf",
+    "hungarianGlyphsVerified": true,
+    "source": "https://fonts.gstatic.com/l/font?kit=zOL64pLDlL1D99S8g8PtiKchm-B0Oe7AXTWIwwV5rzwKdJeTDfdtgaLmEltosg_WuAPRAKABE68WMHjijzqSoF70fQVNitOJFlctIJn2le-kPMHLoC5piMSxk0JXeJHvLwbXx3DNl5akBgKSMcnfSpIK0X3V_nDOVJYXHVqASMHj1rkgDpdJC-s7oGukEm84E7ZDCeRkIZQuaTa1pfhGrFM3PxSNcH7iDfYshDo1wa8tguD1XUvCpMhpnGc0s9IHYsj9yne4gHSlLPEXHH_i9fOPxEgGQX43RTxb8qt24nPcl4CFAY4IpiiStdZsvs38gfqRZ1Zj3N3Q20mWaExz-I1BKg9zz7JSeS8nX7CBRUsCWvWmiksNIdgu25QT5m6ZMaz4XBJqscIAUNJSZaOwhXhlS5TNAWL5FP6OxO_2YCtrJxOaxrMPHKVsciLiJJoVpagJcOnx-zO0D3M04BdK_VSZpxKvuDtsjsLRcAbqv7iP1IErQwysHP4adKjQQv3VknszTtSRyr2g0c-pt3Gnb3wd0RJKTYSFmqwGyyz2ccDSOwnTG3OLe-_k4uWj_Ll72qhQwTMqvP23BPcZRGTQFik6Y3ut4HspwD3SVarQDPMa6jxgdya2BZzGaiLy2NY2-gjPu5e6T2Dt69HcLBPO-Fa7piWEwWyMV4Lfk4TkyD3kEHwmGxjg2o94oqp0KN05fz0rQRj_l8ZXTDeg5uRAeW2oI6WUmRC2G6Gl43PSVSZXvByX3HWoQiCV58M78CqzvG930cdwnow&skey=3aaa84d7e0b4f9c7&v=v25",
+    "sha256": "9bbdc3bdc3abf0456f2a266932b3b880c383c971222c584de18523cbd914b8af"
+  },
+  {
+    "file": "Montserrat-400.ttf",
+    "sha256": "c1e718a79756dfd19fed16934472f244ca45219e58024e37e9d45524d431d465",
+    "source": "https://github.com/google/fonts/tree/main/ofl/montserrat",
+    "processing": "fontTools variable instance; wght=400"
+  },
+  {
+    "file": "Montserrat-700.ttf",
+    "sha256": "43d5f41c7224f1a4340181af3716b21585c8d2d1795d08bcc38e021c2be50d12",
+    "source": "https://github.com/google/fonts/tree/main/ofl/montserrat",
+    "processing": "fontTools variable instance; wght=700"
   }
 ]

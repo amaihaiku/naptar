@@ -133,12 +133,14 @@ describe("Portable project and template model", () => {
         .success,
     ).toBe(false);
   });
-  it("inherits individual style properties after a month override", () => {
+  it("uses the same base style for all twelve months, ignoring legacy month overrides", () => {
     const p = defaultProject();
     p.monthOverrides = { "3": { typography: { month: { size: 25 } } } };
     p.style.typography.date.color = "#112233";
     p.style.typography.month.color = "#445566";
-    expect(effectiveStyle(p).typography.month.size).toBe(25);
+    expect(effectiveStyle(p).typography.month.size).toBe(
+      p.style.typography.month.size,
+    );
     expect(effectiveStyle(p).typography.month.color).toBe("#445566");
     expect(effectiveStyle(p).typography.date.color).toBe("#112233");
     expect(effectiveStyle(p, 4).typography.month.size).toBe(

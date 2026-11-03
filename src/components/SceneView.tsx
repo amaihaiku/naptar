@@ -34,6 +34,7 @@ export function SceneView({
           fontFamily={n.type.family}
           fontSize={n.type.size * mmPerPt}
           fontWeight={n.type.weight}
+          fontStyle={n.type.italic ? "italic" : "normal"}
           fill={n.type.color}
           style={{ fontKerning: "none" }}
         >
