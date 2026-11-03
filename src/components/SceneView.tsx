@@ -1,4 +1,4 @@
-import type { Project } from "../model";
+import { pagePhotos, type Project } from "../model";
 import type { Scene, SceneNode } from "../engines/layout";
 import { advance, mmPerPt } from "../engines/fonts";
 import { cropGeometry } from "../engines/images";
@@ -66,7 +66,7 @@ export function SceneView({
           </g>
         );
     if (n.kind === "image") {
-      const p = project.photos.find((i) => i.id === n.photoId);
+      const p = pagePhotos(project, scene.page).find((i) => i.id === n.photoId);
       if (p) {
         const c = cropGeometry(p);
         const shape =

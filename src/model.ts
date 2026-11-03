@@ -32,6 +32,7 @@ export const categories = [
   "year",
   "month",
   "weekday",
+  "week",
   "date",
   "nameday",
   "birthday",
@@ -75,6 +76,11 @@ export const styleSchema = z
     weekdayStyle: z.enum(["full", "short", "single"]),
     highlight: z.boolean(),
     showNamedays: z.boolean(),
+    namedayLayout: z.enum(["row", "stack"]).optional(),
+    namedayX: num(-30, 30).optional(),
+    namedayY: num(-30, 30).optional(),
+    weekX: num(-20, 20).optional(),
+    weekY: num(-20, 20).optional(),
     showYear: z.boolean(),
     pattern: z.enum(["none", "dots", "lines"]),
     watermark: z.string().max(80),
@@ -95,6 +101,7 @@ export const styleSchema = z
         year: typeSchema,
         month: typeSchema,
         weekday: typeSchema,
+        week: typeSchema.optional(),
         date: typeSchema,
         nameday: typeSchema,
         birthday: typeSchema,
@@ -131,9 +138,8 @@ export const eventSchema = z
     "Érvénytelen eseménydátum.",
   );
 export type PersonalEvent = z.infer<typeof eventSchema>;
-export const imageSchema = z
+const photoAssetSchema = z
   .object({
-    id: z.string().min(1).max(80),
     name: z.string().max(120),
     data: z
       .string()
@@ -141,6 +147,13 @@ export const imageSchema = z
       .regex(/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/),
     pixelWidth: z.number().int().min(1).max(30000),
     pixelHeight: z.number().int().min(1).max(30000),
+  })
+  .strict();
+export type PhotoAsset = z.infer<typeof photoAssetSchema>;
+export const imageSchema = z
+  .object({
+    id: z.string().min(1).max(80),
+    ...photoAssetSchema.shape,
     box: boxSchema,
     role: z.enum(["photo", "background", "logo"]),
     z: num(-20, 20),
@@ -156,6 +169,12 @@ export const imageSchema = z
     visible: z.boolean(),
     aspectLock: z.boolean(),
     page: z.number().int().min(0).max(12).optional(),
+    monthlyImages: z
+      .record(
+        z.string().regex(/^(?:[1-9]|1[0-2])$/),
+        photoAssetSchema.nullable(),
+      )
+      .optional(),
   })
   .strict();
 export type Photo = z.infer<typeof imageSchema>;
@@ -169,6 +188,7 @@ const styleOverrideSchema = styleSchema
         year: typeSchema.partial(),
         month: typeSchema.partial(),
         weekday: typeSchema.partial(),
+        week: typeSchema.partial(),
         date: typeSchema.partial(),
         nameday: typeSchema.partial(),
         birthday: typeSchema.partial(),
@@ -208,6 +228,7 @@ export const projectSchema = z
     firstDay: z.union([z.literal(1), z.literal(7)]),
     isoWeeks: z.boolean(),
     adjacent: z.boolean(),
+    sharedPhotoPlacement: z.boolean().optional(),
     leapPolicy: z.enum(["feb28", "mar1"]),
     style: styleSchema,
     monthOverrides: z.record(
@@ -230,6 +251,7 @@ export const projectSchema = z
     for (const st of [p.style, p.cover?.style]) {
       if (!st) continue;
       for (const ty of Object.values(st.typography)) {
+        if (!ty) continue;
         if (
           !fontManifest.some(
             (f) =>
@@ -256,7 +278,9 @@ export const projectSchema = z
             "A szabványos papírméret adatai nem egyeznek a választott mérettel.",
         });
     }
-    if (p.photos.reduce((n, i) => n + i.data.length, 0) > 75_000_000)
+    if (
+      photoAssets(p.photos).reduce((n, i) => n + i.data.length, 0) > 75_000_000
+    )
       ctx.addIssue({
         code: "custom",
         message: "A projekt összes képadatának mérete legfeljebb 75 MB lehet.",
@@ -411,7 +435,18 @@ export function viewProject(p: Project): Project {
   const cover = p.cover ?? defaultCover(p);
   return {
     ...p,
-    style: cover.style,
+    style: {
+      ...p.style,
+      gapX: cover.style.gapX,
+      gapY: cover.style.gapY,
+      titleGap: cover.style.titleGap,
+      showYear: cover.style.showYear,
+      typography: {
+        ...p.style.typography,
+        title: cover.style.typography.title,
+        year: cover.style.typography.year,
+      },
+    },
     grid: cover.grid,
     titleBox: cover.titleBox,
     yearBox: cover.yearBox,
@@ -422,18 +457,80 @@ export function updateView(
   patch: Partial<Pick<Project, "grid" | "titleBox" | "yearBox" | "style">>,
 ): Project {
   if (p.mode !== "annual") return { ...p, ...patch, monthOverrides: {} };
+  const cover = p.cover ?? defaultCover(p);
+  const { style, ...geometry } = patch;
+  if (!style) return { ...p, cover: { ...cover, ...geometry } };
+  const { gapX, gapY, titleGap, showYear, typography, ...sharedStyle } = style;
+  const { title, year, ...sharedTypography } = typography;
   return {
     ...p,
-    cover: { ...(p.cover ?? defaultCover(p)), ...patch } as NonNullable<
-      Project["cover"]
-    >,
+    style: {
+      ...p.style,
+      ...sharedStyle,
+      typography: { ...p.style.typography, ...sharedTypography },
+    },
+    cover: {
+      ...cover,
+      ...geometry,
+      style: {
+        ...cover.style,
+        gapX,
+        gapY,
+        titleGap,
+        showYear,
+        typography: { ...cover.style.typography, title, year },
+      },
+    },
   };
 }
-export function pagePhotos(p: Project): Photo[] {
-  const page = p.mode === "annual" ? 0 : p.month;
-  return p.photos.filter(
-    (photo) => photo.page === undefined || photo.page === page,
-  );
+export function photoAssets(photos: Photo[]): PhotoAsset[] {
+  return photos.flatMap((photo) => [
+    photo,
+    ...Object.values(photo.monthlyImages ?? {}).filter(
+      (asset) => asset !== null,
+    ),
+  ]);
+}
+export function pagePhotos(
+  p: Project,
+  page = p.mode === "annual" ? 0 : p.month,
+): Photo[] {
+  return p.photos.flatMap((photo) => {
+    if (photo.monthlyImages) {
+      if (page === 0) return [];
+      const asset = photo.monthlyImages[page];
+      return asset === null ? [] : [{ ...photo, ...asset }];
+    }
+    return photo.page === undefined || photo.page === page ? [photo] : [];
+  });
+}
+export function applyMargin(p: Project, margin: number): Project {
+  const old = p.page.margin;
+  const sx = (p.page.width - 2 * margin) / Math.max(10, p.page.width - 2 * old);
+  const sy =
+    (p.page.height - 2 * margin) / Math.max(10, p.page.height - 2 * old);
+  const inset = (b: Box): Box => ({
+    ...b,
+    x: margin + (b.x - old) * sx,
+    y: margin + (b.y - old) * sy,
+    w: Math.max(10, b.w * sx),
+    h: Math.max(10, b.h * sy),
+  });
+  const textInset = (b: Box): Box => ({ ...inset(b), h: b.h });
+  const cover = p.cover ?? defaultCover(p);
+  return {
+    ...p,
+    page: { ...p.page, margin },
+    grid: inset(p.grid),
+    titleBox: textInset(p.titleBox),
+    yearBox: textInset(yearBoxFor({ ...p, mode: "monthly" })),
+    cover: {
+      ...cover,
+      grid: inset(cover.grid),
+      titleBox: textInset(cover.titleBox),
+      yearBox: textInset(cover.yearBox),
+    },
+  };
 }
 export function yearBoxFor(p: Project): Box {
   return (
@@ -494,7 +591,7 @@ export function applyPaper(
       orientation,
       width,
       height,
-      margin: Math.min(40, p.page.margin * ratio),
+      margin: Math.min(size === "A4" ? 20 : 40, p.page.margin * ratio),
     },
   };
   if (p.mode === "monthly" && !(p.page.size === "A4" && size === "A4")) {
@@ -506,10 +603,13 @@ export function applyPaper(
         categories.map((k) => [
           k,
           {
-            ...p.style.typography[k],
+            ...(p.style.typography[k] ?? {
+              ...p.style.typography.weekday,
+              size: 5,
+            }),
             size: Math.max(
               k === "month" ? 10 : k === "year" ? 6 : 4.5,
-              Math.min(100, p.style.typography[k].size * ratio),
+              Math.min(100, (p.style.typography[k]?.size ?? 5) * ratio),
             ),
           },
         ]),
@@ -604,8 +704,10 @@ export function editorProject(p: Project): Project {
   const next =
     p.page.size === "A4" ? p : applyPaper(p, "A4", p.page.orientation);
   return {
-    ...next,
+    ...(next.page.margin > 20 ? applyMargin(next, 20) : next),
     monthOverrides: {},
-    cover: next.cover ?? defaultCover(next),
+    ...(!next.cover && next.page.margin <= 20
+      ? { cover: defaultCover(next) }
+      : {}),
   };
 }

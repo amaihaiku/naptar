@@ -99,7 +99,7 @@ export function Workspace({
     if (!d) return;
     const dx = (e.clientX - d.x) / d.scale,
       dy = (e.clientY - d.y) / d.scale;
-    const photo = d.p.photos.find((p) => p.id === d.id);
+    const photo = pagePhotos(d.p).find((p) => p.id === d.id);
     let next: Project;
     if (d.kind === "crop" && photo) {
       const c = cropGeometry(photo),

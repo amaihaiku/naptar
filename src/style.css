@@ -1390,3 +1390,19 @@ summary:focus-visible {
 .right-panel .field input[readonly] {
   color: #8a9981;
 }
+
+.no-number-arrows input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.no-number-arrows input::-webkit-inner-spin-button,
+.no-number-arrows input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.photo-layer {
+  margin-bottom: 10px;
+}
+.photo-layer .button-row {
+  margin-top: 4px;
+}

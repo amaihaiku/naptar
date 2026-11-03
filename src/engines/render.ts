@@ -1,4 +1,4 @@
-import type { Project, Photo } from "../model";
+import { pagePhotos, type Project, type Photo } from "../model";
 import type { Scene, Clip } from "./layout";
 import { advance, mmPerPt } from "./fonts";
 import { paintPhoto } from "./images";
@@ -94,7 +94,7 @@ export function renderCanvas(
       }
     }
     if (n.kind === "image") {
-      const photo = p.photos.find((i) => i.id === n.photoId);
+      const photo = pagePhotos(p, scene.page).find((i) => i.id === n.photoId);
       if (photo) paintPhoto(ctx, photo);
     }
     if (n.kind === "icon") {

@@ -2,7 +2,6 @@ import {
   type Box,
   type Project,
   type Typography,
-  effectiveStyle,
   viewProject,
   yearBoxFor,
   pagePhotos,
@@ -75,6 +74,7 @@ export interface Scene {
   cells: CellHit[];
   issues: Issue[];
   month: number;
+  page?: number;
 }
 const box = (x: number, y: number, w: number, h: number): Box => ({
   x,
@@ -87,7 +87,7 @@ export function buildScene(root: Project, month = root.month): Scene {
   const p = viewProject({ ...root, month });
   const photos = pagePhotos(p);
   const showCalendar = p.mode !== "annual" || (p.cover?.showCalendar ?? true);
-  const s = effectiveStyle(p, month),
+  const s = p.style,
     nodes: SceneNode[] = [],
     cells: CellHit[] = [],
     issues: Issue[] = [];
@@ -209,7 +209,12 @@ export function buildScene(root: Project, month = root.month): Scene {
     });
   const holidayMap = holidays(p.year);
   function calendar(m: number, region: Box, annual: boolean) {
-    const raw = monthCells(p.year, m, p.firstDay),
+    const raw = monthCells(
+        p.year,
+        m,
+        p.firstDay,
+        !annual && p.adjacent ? 5 : 0,
+      ),
       rows = raw.length / 7;
     let g = { ...region };
     let factor = 1;
@@ -223,11 +228,14 @@ export function buildScene(root: Project, month = root.month): Scene {
       g.y += 8 * factor;
       g.h -= 8 * factor;
     }
-    const weekW = p.isoWeeks ? Math.min(6, g.w / 14) : 0;
+    const weekW = !annual && p.isoWeeks ? Math.min(6, g.w / 14) : 0;
     const col = (g.w - weekW) / 7;
     const header = s.showWeekdays ? (annual ? 5 * factor : s.headerHeight) : 0;
     const rowH = (g.h - header) / rows;
-    const clip: Clip = { ...g, r: Math.min(s.radius, g.w / 2, g.h / 2) };
+    const clip: Clip = {
+      ...g,
+      r: Math.min(s.radius * factor, g.w / 2, g.h / 2),
+    };
     rect(g, s.cellBackground, "none", 0, clip.r);
     if (s.showWeekdays) {
       const order = Array.from(
@@ -269,13 +277,16 @@ export function buildScene(root: Project, month = root.month): Scene {
       if (inMonth) cells.push({ ...b, date: d, inMonth: true });
       const holiday = inMonth ? holidayMap.get(dateKey(d)) : undefined;
       const highlight =
-        s.highlight && inMonth && (holiday || (!annual && weekday(d) >= 6));
+        !annual && s.highlight && inMonth && (holiday || weekday(d) >= 6);
       if (highlight) rect(b, s.holidayBackground, "none", 0, 0, 0, clip);
       const pad = annual ? 0.4 * factor : s.padding;
       const dt = {
         ...s.typography.date,
         ...(annual
-          ? { size: Math.max(2, ((s.typography.date.size * 4) / 7) * factor) }
+          ? {
+              size: Math.max(2, ((s.typography.date.size * 4) / 7) * factor),
+              align: "center" as const,
+            }
           : {}),
       };
       if (highlight) dt.color = s.holidayColor;
@@ -294,7 +305,7 @@ export function buildScene(root: Project, month = root.month): Scene {
               : fallback;
       const dateHeight = dt.size * mmPerPt * dt.lineHeight;
       const dateY = annual
-        ? b.y + pad
+        ? b.y + (b.h - dateHeight) / 2
         : positionY(dt.vertical, dateHeight, b.y + pad);
       const numberBox = box(b.x + pad, dateY, b.w - 2 * pad, b.h - pad);
       text(String(d.day), numberBox, dt, 2, clip);
@@ -303,20 +314,46 @@ export function buildScene(root: Project, month = root.month): Scene {
         let cursor = contentBottom + 0.7;
         if (s.showNamedays) {
           const nt = s.typography.nameday;
-          const names = namedays(
-            d.month,
-            d.day,
-            p.namedayOverrides,
-            p.year,
-          ).join(", ");
-          const nameLines = wrap(names, nt, b.w - 2 * pad);
-          const nameHeight =
-            nameLines.length * nt.size * mmPerPt * nt.lineHeight;
-          let nameY = positionY(nt.vertical, nameHeight, cursor);
+          const names = namedays(d.month, d.day, p.namedayOverrides, d.year);
+          const availableWidth = b.w - 2 * pad;
+          const nameLines = !names.length
+            ? []
+            : s.namedayLayout === "stack"
+              ? names
+              : s.namedayLayout === "row"
+                ? [names.join(", ")]
+                : wrap(names.join(", "), nt, availableWidth);
+          const lineHeight = nt.size * mmPerPt * nt.lineHeight;
+          const nameHeight = nameLines.length * lineHeight;
+          const nameWidth = Math.max(
+            0,
+            ...nameLines.map((line) =>
+              textWidth(nt.uppercase ? line.toLocaleUpperCase("hu") : line, nt),
+            ),
+          );
+          const alignment =
+            nt.align === "right" ? 1 : nt.align === "center" ? 0.5 : 0;
+          const nameX =
+            b.x +
+            pad +
+            (availableWidth - nameWidth) * alignment +
+            (s.namedayX ?? 0);
+          let nameY =
+            positionY(nt.vertical, nameHeight, cursor) + (s.namedayY ?? 0);
+          if (
+            names.length &&
+            (nameX < b.x || nameX + nameWidth > b.x + b.w || nameY < b.y)
+          )
+            issues.push({
+              severity: "error",
+              code: "nameday-outside",
+              message: `${months[m - 1]} ${d.day}.: a névnapok kilógnak a cellából.`,
+            });
           for (const line of nameLines) {
-            text(line, box(b.x + pad, nameY, b.w - 2 * pad, b.h), nt, 2, clip);
-            nameY += nt.size * mmPerPt * nt.lineHeight;
+            text(line, box(nameX, nameY, nameWidth, lineHeight), nt, 2, clip);
+            nameY += lineHeight;
           }
+          if (!names.length) nameY = contentBottom;
           contentBottom = Math.max(contentBottom, nameY);
           cursor = contentBottom + 0.6;
         }
@@ -374,21 +411,27 @@ export function buildScene(root: Project, month = root.month): Scene {
           });
       }
     });
-    if (p.isoWeeks) {
+    if (weekW) {
       for (let r = 0; r < rows; r++) {
         const d =
           raw.slice(r * 7, r * 7 + 7).find((d) => d && weekday(d) === 1) ??
           raw.slice(r * 7, r * 7 + 7).find(Boolean);
         if (d) {
           const t = {
-            ...s.typography.weekday,
-            size: annual ? Math.max(2, 4 * factor) : 5,
+            ...(s.typography.week ?? { ...s.typography.weekday, size: 5 }),
           };
+          const lineHeight = t.size * mmPerPt * t.lineHeight;
+          const offsetY =
+            t.vertical === "middle"
+              ? (rowH - lineHeight) / 2
+              : t.vertical === "bottom"
+                ? rowH - s.padding - lineHeight
+                : s.padding;
           text(
             String(isoWeek(d).week),
             box(
-              g.x,
-              g.y + header + r * rowH + (annual ? 0.4 * factor : s.padding),
+              g.x + (s.weekX ?? 0),
+              g.y + header + r * rowH + offsetY + (s.weekY ?? 0),
               weekW,
               rowH,
             ),
@@ -400,10 +443,11 @@ export function buildScene(root: Project, month = root.month): Scene {
       }
     }
     // Every shared inner edge is drawn once. All grid primitives share the rounded clip.
-    if (!annual) {
+    const gridLine = s.gridLine * factor;
+    if (gridLine > 0) {
       for (let c = 1; c < 7; c++)
         rect(
-          box(g.x + weekW + c * col - s.gridLine / 2, g.y, s.gridLine, g.h),
+          box(g.x + weekW + c * col - gridLine / 2, g.y, gridLine, g.h),
           s.gridColor,
           "none",
           0,
@@ -413,7 +457,7 @@ export function buildScene(root: Project, month = root.month): Scene {
         );
       if (weekW)
         rect(
-          box(g.x + weekW - s.gridLine / 2, g.y, s.gridLine, g.h),
+          box(g.x + weekW - gridLine / 2, g.y, gridLine, g.h),
           s.gridColor,
           "none",
           0,
@@ -424,7 +468,7 @@ export function buildScene(root: Project, month = root.month): Scene {
       for (let r = 0; r < rows; r++) {
         if (r === 0 && !header) continue;
         rect(
-          box(g.x, g.y + header + r * rowH - s.gridLine / 2, g.w, s.gridLine),
+          box(g.x, g.y + header + r * rowH - gridLine / 2, g.w, gridLine),
           s.gridColor,
           "none",
           0,
@@ -434,7 +478,8 @@ export function buildScene(root: Project, month = root.month): Scene {
         );
       }
     }
-    if (s.border > 0) rect(g, "none", s.gridColor, s.border, clip.r, 11);
+    if (s.border > 0)
+      rect(g, "none", s.gridColor, s.border * factor, clip.r, 11);
   }
   const grid = { ...p.grid, y: p.grid.y + (s.titleGap - 10) };
   for (const photo of photos.filter((i) => i.visible && i.z >= 0)) {
@@ -552,5 +597,6 @@ export function buildScene(root: Project, month = root.month): Scene {
     cells,
     issues: [...new Map(issues.map((i) => [i.message, i])).values()],
     month,
+    page: p.mode === "annual" ? 0 : month,
   };
 }

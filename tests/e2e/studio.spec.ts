@@ -4,7 +4,11 @@ test("A4 JPG has actual print pixels and 300 DPI density", async ({ page }) => {
   await page.getByRole("button", { name: "Exportálás", exact: true }).click();
   await page.getByRole("button", { name: /JPG Fotóbarát/ }).click();
   const pending = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Letöltés", exact: true }).click();
+  await page
+    .getByRole("button", {
+      name: /^(Letöltés|Figyelmeztetések figyelmen kívül hagyása és letöltés)$/i,
+    })
+    .click();
   const fs = await import("node:fs/promises");
   const data = await fs.readFile((await (await pending).path())!);
   const jfif = data.indexOf(Buffer.from("JFIF\0"));
@@ -94,10 +98,12 @@ test("annual A4 landscape layout and PDF download", async ({ page }) => {
   await expect(paper.getByText("Január", { exact: true })).toBeVisible();
   await expect(paper.getByText("December", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Exportálás", exact: true }).click();
-  const warnings = page.getByLabel("Átnéztem a figyelmeztetéseket");
-  if (await warnings.count()) await warnings.check();
   const pending = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Letöltés", exact: true }).click();
+  await page
+    .getByRole("button", {
+      name: /^(Letöltés|Figyelmeztetések figyelmen kívül hagyása és letöltés)$/i,
+    })
+    .click();
   expect((await pending).suggestedFilename()).toBe("naptar-2027.pdf");
 });
 test("recovery is offered after reload", async ({ page }) => {
@@ -120,10 +126,12 @@ test("monthly full-year PNG export contains 12 files", async ({ page }) => {
   await page.getByRole("button", { name: "Exportálás", exact: true }).click();
   await page.getByRole("button", { name: /PNG Veszteségmentes/ }).click();
   await page.getByLabel("Exportált oldalak").selectOption("all");
-  const accept = page.getByLabel("Átnéztem a figyelmeztetéseket");
-  if (await accept.count()) await accept.check();
   const pending = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Letöltés", exact: true }).click();
+  await page
+    .getByRole("button", {
+      name: /^(Letöltés|Figyelmeztetések figyelmen kívül hagyása és letöltés)$/i,
+    })
+    .click();
   const download = await pending;
   expect(download.suggestedFilename()).toBe("naptar-2027.zip");
   const JSZip = (await import("jszip")).default;
@@ -191,7 +199,11 @@ test("preview zoom does not change exported PNG dimensions", async ({
   await page.getByRole("button", { name: "Exportálás", exact: true }).click();
   await page.getByRole("button", { name: /PNG Veszteségmentes/ }).click();
   const pending = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Letöltés", exact: true }).click();
+  await page
+    .getByRole("button", {
+      name: /^(Letöltés|Figyelmeztetések figyelmen kívül hagyása és letöltés)$/i,
+    })
+    .click();
   const fs = await import("node:fs/promises");
   const data = await fs.readFile((await (await pending).path())!);
   expect(data.readUInt32BE(16)).toBe(2480);
