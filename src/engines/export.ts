@@ -14,7 +14,7 @@ import {
 } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 import JSZip from "jszip";
-import type { Project } from "../model";
+import { pagePhotos, photoAssets, type Project } from "../model";
 import { buildScene, type Scene, type Clip } from "./layout";
 import { advance, fontKey, getFont, mmPerPt } from "./fonts";
 import { validatePhotos } from "./images";
@@ -33,19 +33,31 @@ const color = (hex: string) =>
     parseInt(hex.slice(3, 5), 16) / 255,
     parseInt(hex.slice(5, 7), 16) / 255,
   );
-export function exportScenes(p: Project, all: boolean): Scene[] {
-  return (
-    all && p.mode === "monthly"
-      ? Array.from({ length: 12 }, (_, i) => i + 1)
-      : [p.month]
-  ).map((m) => buildScene(p, m));
+export type ExportPages = "cover" | "one" | "all" | "cover-all";
+export function exportScenes(
+  p: Project,
+  pages: ExportPages | boolean,
+): Scene[] {
+  if (typeof pages === "boolean")
+    pages = p.mode === "annual" ? "cover" : pages ? "all" : "one";
+  const scenes: Scene[] = [];
+  if (pages === "cover" || pages === "cover-all")
+    scenes.push(buildScene({ ...p, mode: "annual" }));
+  if (pages === "one") scenes.push(buildScene({ ...p, mode: "monthly" }));
+  if (pages === "all" || pages === "cover-all")
+    for (let month = 1; month <= 12; month++)
+      scenes.push(buildScene({ ...p, mode: "monthly" }, month));
+  return scenes;
+}
+export function isExportBlocker(issue: Scene["issues"][number]) {
+  return issue.code === "memory" || issue.code === "image-memory";
 }
 export function validateExport(
   p: Project,
-  all: boolean,
+  pages: ExportPages | boolean,
   format: "pdf" | "png" | "jpg" = "png",
 ) {
-  const scenes = exportScenes(p, all);
+  const scenes = exportScenes(p, pages);
   const issues = scenes.flatMap((s) => s.issues);
   const { width, height } = rasterDimensions(p.page.width, p.page.height);
   if (
@@ -67,7 +79,7 @@ export function validateExport(
         message: `${photo.name}: a fénykép 300 DPI-s feldolgozása meghaladja a biztonságos képméretet. Csökkentsd a kép keretét.`,
       });
   }
-  const decoded = p.photos.reduce(
+  const decoded = photoAssets(p.photos).reduce(
     (bytes, photo) => bytes + photo.pixelWidth * photo.pixelHeight * 4,
     0,
   );
@@ -186,7 +198,7 @@ export async function createPdf(
         }
       }
       if (n.kind === "image") {
-        const photo = p.photos.find((i) => i.id === n.photoId);
+        const photo = pagePhotos(p, scene.page).find((i) => i.id === n.photoId);
         if (photo) {
           const canvas = rasterPhoto(photo);
           const data = await canvasBlob(canvas, "png");
@@ -307,13 +319,16 @@ export async function createRaster(
 export async function exportCalendar(
   p: Project,
   format: "pdf" | "png" | "jpg",
-  all: boolean,
+  pages: ExportPages | boolean,
   onProgress: (v: string) => void,
+  ignoreWarnings = false,
 ): Promise<void> {
   await document.fonts.ready;
   await validatePhotos(p.photos);
-  const { scenes, issues } = validateExport(p, all, format);
-  const errors = issues.filter((i) => i.severity === "error");
+  const { scenes, issues } = validateExport(p, pages, format);
+  const errors = issues.filter(
+    (i) => isExportBlocker(i) || (!ignoreWarnings && i.severity === "error"),
+  );
   if (errors.length) throw new Error(errors.map((i) => i.message).join("\n"));
   const base = `naptar-${p.year}`;
   if (format === "pdf") {
@@ -325,16 +340,16 @@ export async function exportCalendar(
     onProgress("Képexport • 300 DPI");
     download(
       await createRaster(p, scenes[0], format),
-      `${base}-${String(scenes[0].month).padStart(2, "0")}.${format}`,
+      `${base}-${scenes[0].page === 0 ? "borito" : String(scenes[0].month).padStart(2, "0")}.${format}`,
       format === "png" ? "image/png" : "image/jpeg",
     );
     return;
   }
   const zip = new JSZip();
   for (const [i, s] of scenes.entries()) {
-    onProgress(`Képexport: ${i + 1}/12. hónap • 300 DPI`);
+    onProgress(`Képexport: ${i + 1}/${scenes.length}. oldal • 300 DPI`);
     zip.file(
-      `${base}-${String(s.month).padStart(2, "0")}.${format}`,
+      `${base}-${s.page === 0 ? "borito" : String(s.month).padStart(2, "0")}.${format}`,
       await createRaster(p, s, format),
     );
     await yieldUI();

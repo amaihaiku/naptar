@@ -84,10 +84,13 @@ export function monthCells(
   year: number,
   month: number,
   first: 1 | 7,
+  minimumRows = 0,
 ): Array<CivilDate | null> {
   const start = { year, month, day: 1 };
   const offset = (weekday(start) - first + 7) % 7;
-  const count = Math.ceil((offset + daysInMonth(year, month)) / 7) * 7;
+  const count =
+    Math.max(minimumRows, Math.ceil((offset + daysInMonth(year, month)) / 7)) *
+    7;
   return Array.from({ length: count }, (_, i) => addDays(start, i - offset));
 }
 export function easter(year: number): CivilDate {

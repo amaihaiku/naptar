@@ -25,6 +25,28 @@ beforeAll(() => {
     );
 });
 describe("Requested cover/month and typography behavior", () => {
+  it("adds the following month's first week only when adjacent days are enabled", () => {
+    const p = { ...defaultProject(), year: 2027, month: 2 };
+    const regular = buildScene(p);
+    const extended = buildScene({ ...p, adjacent: true });
+    const dates = (scene: ReturnType<typeof buildScene>) =>
+      scene.nodes.flatMap((node) =>
+        node.kind === "text" && node.z === 2 && /^\d+$/.test(node.text)
+          ? [node.text]
+          : [],
+      );
+    expect(dates(regular)).toHaveLength(28);
+    expect(dates(extended)).toHaveLength(35);
+    expect(dates(extended).slice(28)).toEqual([
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+    ]);
+  });
   it("defaults to the current Budapest year", () =>
     expect(defaultProject().year).toBe(
       Number(

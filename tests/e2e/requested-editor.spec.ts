@@ -57,7 +57,7 @@ test("current year, year arrows, A4 orientation and margin slider", async ({
   await page.getByRole("slider", { name: "Margó", exact: true }).press("End");
   await expect(
     page.getByRole("slider", { name: "Margó", exact: true }),
-  ).toHaveValue("50");
+  ).toHaveValue("20");
   await page.getByRole("button", { name: "Fekvő", exact: true }).click();
   const p = await savedProject(page);
   expect(p.page.size).toBe("A4");
@@ -120,14 +120,14 @@ test("day and nameday cell positions are independently shared across months", as
 test("font style variants are real, local and independently selectable", async ({
   page,
 }) => {
-  await page.getByLabel("Betűcsalád", { exact: true }).selectOption("Lora");
+  await page.getByLabel("Betűtípus", { exact: true }).selectOption("Lora");
   await page.getByLabel("Típus", { exact: true }).selectOption("700-italic");
   await page.getByLabel("Elem", { exact: true }).selectOption("year");
   await expect(page.getByLabel("Típus", { exact: true })).toHaveValue(
     "700-normal",
   );
   await page
-    .getByLabel("Betűcsalád", { exact: true })
+    .getByLabel("Betűtípus", { exact: true })
     .selectOption("Abril Fatface");
   await expect(
     page.getByLabel("Típus", { exact: true }).getByRole("option"),
@@ -215,4 +215,69 @@ test("title and year can be dragged independently by their own text areas", asyn
   const year = await savedProject(page);
   expect(year.cover.yearBox.y).not.toBe(title.cover.yearBox.y);
   expect(year.cover.titleBox).toEqual(title.cover.titleBox);
+});
+
+test("shared photo slots retain their geometry and allow monthly replacement and deletion", async ({
+  page,
+}) => {
+  await page.getByRole("button", { name: "Képek", exact: true }).click();
+  const shared = page.getByLabel("Képek ugyanott minden hónapnál");
+  await shared.check();
+  const input = page.locator("input[type=file]").nth(2);
+  await input.setInputFiles("tests/fixtures/foto.png");
+  await expect(
+    page.getByRole("button", { name: "Képcsere", exact: true }),
+  ).toHaveCount(1);
+  await shared.uncheck();
+  await page.getByRole("button", { name: "Április", exact: true }).click();
+  await expect(page.getByText("Közös képhely", { exact: true })).toBeVisible();
+  const file = await readFile("tests/fixtures/foto.png");
+  const chooser = page.waitForEvent("filechooser");
+  await page.getByRole("button", { name: "Képcsere", exact: true }).click();
+  await (
+    await chooser
+  ).setFiles({ name: "aprilis.png", mimeType: "image/png", buffer: file });
+  await expect(
+    page.getByRole("button", {
+      name: "aprilis.png Közös képhely",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Kép törlése", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: /Kép betöltése az üres maszkba/ }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Május", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "foto.png Közös képhely", exact: true }),
+  ).toBeVisible();
+  const project = await savedProject(page);
+  expect(project.photos).toHaveLength(1);
+  expect(project.photos[0].monthlyImages["4"]).toBeNull();
+  expect(project.sharedPhotoPlacement).toBe(false);
+});
+
+test("an out-of-page title can be exported with the cover and all months", async ({
+  page,
+}) => {
+  await page.getByRole("button", { name: "Borító", exact: true }).click();
+  await page.getByLabel("X pozíció", { exact: true }).fill("-150");
+  await page.getByRole("button", { name: "Exportálás", exact: true }).click();
+  await page.getByLabel("Exportált oldalak").selectOption("cover-all");
+  await expect(
+    page
+      .getByRole("dialog")
+      .getByText("Cím: az elem kilóg a lapból.", { exact: true }),
+  ).toBeVisible();
+  const pending = page.waitForEvent("download");
+  await page
+    .getByRole("button", {
+      name: /Figyelmeztetések figyelmen kívül hagyása és letöltés/,
+    })
+    .click();
+  const file = await (await pending).path();
+  const { PDFDocument } = await import("pdf-lib");
+  expect((await PDFDocument.load(await readFile(file!))).getPageCount()).toBe(
+    13,
+  );
 });

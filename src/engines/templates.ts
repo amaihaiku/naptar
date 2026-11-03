@@ -4,8 +4,6 @@ import {
   projectSchema,
   type Style,
   type Project,
-  viewProject,
-  updateView,
   defaultCover,
 } from "../model";
 export const presets = [
@@ -124,7 +122,31 @@ export function presetStyle(name: string): Style {
 }
 
 export function applyPreset(p: Project, name: string): Project {
-  return updateView(p, { style: presetStyle(name) });
+  const style = presetStyle(name);
+  const cover = p.cover ?? defaultCover(p);
+  return {
+    ...p,
+    style: { ...style, showYear: p.style.showYear },
+    cover: {
+      ...cover,
+      style: {
+        ...cover.style,
+        typography: {
+          ...cover.style.typography,
+          title: {
+            ...style.typography.title,
+            size: cover.style.typography.title.size,
+            align: cover.style.typography.title.align,
+          },
+          year: {
+            ...style.typography.year,
+            size: cover.style.typography.year.size,
+            align: cover.style.typography.year.align,
+          },
+        },
+      },
+    },
+  };
 }
 export function templateOf(p: Project) {
   const {

@@ -34,6 +34,7 @@ const names: Record<Category, string> = {
   year: "Évszám",
   month: "Borító hónapfeliratai",
   weekday: "Hétköznapok",
+  week: "Hétszámok",
   date: "Nap száma",
   nameday: "Névnapok",
   birthday: "Születésnapok",
@@ -57,8 +58,7 @@ export function Properties({
     cover = p.mode === "annual";
   const photos = pagePhotos(p),
     photo = photos.find((i) => i.id === selection);
-  const [category, setCategory] = useState<Category>("title"),
-    [search, setSearch] = useState("");
+  const [category, setCategory] = useState<Category>("title");
   useEffect(() => {
     if (selection === "title") setCategory("title");
     else if (selection === "year") setCategory("year");
@@ -66,11 +66,12 @@ export function Properties({
   }, [selection, cover]);
   const showGrid = !cover || p.cover?.showCalendar !== false;
   const cat =
+    (category === "week" && (cover || !p.isoWeeks)) ||
     (cover && ["nameday", "birthday", "personalNameday"].includes(category)) ||
     (!showGrid && ["month", "weekday", "date"].includes(category))
       ? "title"
       : category;
-  const t = s.typography[cat];
+  const t = s.typography[cat] ?? { ...s.typography.weekday, size: 5 };
   const b =
     selection === "grid"
       ? v.grid
@@ -99,7 +100,13 @@ export function Properties({
           ...old,
           typography: {
             ...old.typography,
-            [cat]: validTypography({ ...old.typography[cat], ...patch }),
+            [cat]: validTypography({
+              ...(old.typography[cat] ?? {
+                ...old.typography.weekday,
+                size: 5,
+              }),
+              ...patch,
+            }),
           },
         },
       });
@@ -164,9 +171,9 @@ export function Properties({
   const variants = fontVariants(t.family);
   const visibleCategories = categories.filter((c) =>
     cover
-      ? !["nameday", "birthday", "personalNameday"].includes(c) &&
+      ? !["nameday", "birthday", "personalNameday", "week"].includes(c) &&
         (showGrid || !["month", "weekday", "date"].includes(c))
-      : c !== "month",
+      : c !== "month" && (c !== "week" || p.isoWeeks),
   );
   return (
     <>
@@ -220,49 +227,51 @@ export function Properties({
             <>
               {(selection === "title" || selection === "year") && (
                 <>
-                  <Field
-                    label={
-                      selection === "year" ? "Évszám szövege" : "Cím szövege"
-                    }
-                  >
-                    {selection === "year" ? (
-                      <input
-                        type="number"
-                        min={1}
-                        max={9999}
-                        value={p.year}
-                        onChange={(e) => {
-                          const year = e.target.valueAsNumber;
-                          if (
-                            Number.isInteger(year) &&
-                            year >= 1 &&
-                            year <= 9999
-                          )
-                            commit((root) => ({ ...root, year }));
-                        }}
-                      />
-                    ) : (
-                      <input
-                        value={
-                          cover
-                            ? (p.cover?.title ?? "Naptár")
-                            : months[p.month - 1]
-                        }
-                        readOnly={!cover}
-                        maxLength={100}
-                        onChange={(e) => {
-                          const title = e.target.value;
-                          commit((root) => ({
-                            ...root,
-                            cover: {
-                              ...(root.cover ?? defaultCover(root)),
-                              title,
-                            },
-                          }));
-                        }}
-                      />
-                    )}
-                  </Field>
+                  {(!cover || selection !== "year") && (
+                    <Field
+                      label={
+                        selection === "year" ? "Évszám szövege" : "Cím szövege"
+                      }
+                    >
+                      {selection === "year" ? (
+                        <input
+                          type="number"
+                          min={1}
+                          max={9999}
+                          value={p.year}
+                          onChange={(e) => {
+                            const year = e.target.valueAsNumber;
+                            if (
+                              Number.isInteger(year) &&
+                              year >= 1 &&
+                              year <= 9999
+                            )
+                              commit((root) => ({ ...root, year }));
+                          }}
+                        />
+                      ) : (
+                        <input
+                          value={
+                            cover
+                              ? (p.cover?.title ?? "Naptár")
+                              : months[p.month - 1]
+                          }
+                          readOnly={!cover}
+                          maxLength={100}
+                          onChange={(e) => {
+                            const title = e.target.value;
+                            commit((root) => ({
+                              ...root,
+                              cover: {
+                                ...(root.cover ?? defaultCover(root)),
+                                title,
+                              },
+                            }));
+                          }}
+                        />
+                      )}
+                    </Field>
+                  )}
                   <div
                     className="segmented text-placement"
                     aria-label="Szöveg vízszintes elhelyezése"
@@ -467,7 +476,21 @@ export function Properties({
             onClick={() => {
               commit((root) => ({
                 ...root,
-                photos: root.photos.filter((i) => i.id !== selection),
+                photos: root.photos.flatMap((i) =>
+                  i.id !== selection
+                    ? [i]
+                    : i.monthlyImages
+                      ? [
+                          {
+                            ...i,
+                            monthlyImages: {
+                              ...i.monthlyImages,
+                              [root.month]: null,
+                            },
+                          },
+                        ]
+                      : [],
+                ),
               }));
               onSelect("title");
             }}
@@ -485,21 +508,10 @@ export function Properties({
               options={visibleCategories.map((c) => [c, names[c]] as const)}
               onChange={(c) => setCategory(c as Category)}
             />
-            <Field label="Betűcsalád keresése">
-              <input
-                placeholder="Google Fonts…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </Field>
             <Select
-              label="Betűcsalád"
+              label="Betűtípus"
               value={t.family}
-              options={families.filter(
-                (f) =>
-                  f === t.family ||
-                  f.toLowerCase().includes(search.toLowerCase()),
-              )}
+              options={families}
               onChange={(family) =>
                 typography({ family: family as Typography["family"] })
               }
@@ -568,24 +580,84 @@ export function Properties({
                 typography({ align: align as Typography["align"] })
               }
             />
-            {!cover && (cat === "date" || cat === "nameday") && (
-              <Select
-                label={
-                  cat === "date"
-                    ? "Nap függőleges elhelyezése"
-                    : "Névnapok függőleges elhelyezése"
-                }
-                value={t.vertical}
-                options={[
-                  ["auto", cat === "nameday" ? "Nap száma alatt" : "Felül"],
-                  ...(cat === "nameday" ? [["top", "Felül"] as const] : []),
-                  ["middle", "Középen"],
-                  ["bottom", "Alul"],
-                ]}
-                onChange={(vertical) =>
-                  typography({ vertical: vertical as Typography["vertical"] })
-                }
-              />
+            {!cover &&
+              (cat === "date" || cat === "nameday" || cat === "week") && (
+                <Select
+                  label={
+                    cat === "date"
+                      ? "Nap függőleges elhelyezése"
+                      : cat === "week"
+                        ? "Hétszámok függőleges elhelyezése"
+                        : "Névnapok függőleges elhelyezése"
+                  }
+                  value={t.vertical}
+                  options={[
+                    ["auto", cat === "nameday" ? "Nap száma alatt" : "Felül"],
+                    ...(cat === "nameday" ? [["top", "Felül"] as const] : []),
+                    ["middle", "Középen"],
+                    ["bottom", "Alul"],
+                  ]}
+                  onChange={(vertical) =>
+                    typography({ vertical: vertical as Typography["vertical"] })
+                  }
+                />
+              )}
+            {cat === "nameday" && (
+              <>
+                <Select
+                  label="Névnapok elrendezése"
+                  value={s.namedayLayout ?? "auto"}
+                  options={[
+                    ["auto", "Automatikus"],
+                    ["row", "Egy sorba"],
+                    ["stack", "Egymás alá"],
+                  ]}
+                  onChange={(value) =>
+                    style(
+                      "namedayLayout",
+                      value === "auto"
+                        ? undefined
+                        : (value as Style["namedayLayout"]),
+                    )
+                  }
+                />
+                <Slider
+                  label="Névnapok vízszintes eltolása"
+                  value={s.namedayX ?? 0}
+                  min={-30}
+                  max={30}
+                  step={0.1}
+                  onChange={(value) => style("namedayX", value)}
+                />
+                <Slider
+                  label="Névnapok függőleges eltolása"
+                  value={s.namedayY ?? 0}
+                  min={-30}
+                  max={30}
+                  step={0.1}
+                  onChange={(value) => style("namedayY", value)}
+                />
+              </>
+            )}
+            {cat === "week" && (
+              <>
+                <Slider
+                  label="Hétszámok vízszintes eltolása"
+                  value={s.weekX ?? 0}
+                  min={-20}
+                  max={20}
+                  step={0.1}
+                  onChange={(value) => style("weekX", value)}
+                />
+                <Slider
+                  label="Hétszámok függőleges eltolása"
+                  value={s.weekY ?? 0}
+                  min={-20}
+                  max={20}
+                  step={0.1}
+                  onChange={(value) => style("weekY", value)}
+                />
+              </>
             )}
             <Num
               label="Betűköz"
@@ -714,61 +786,66 @@ export function Properties({
                   }
                 />
               </Section>
-              <Section title={cover ? "Ünnepnapok" : "Hétvégék és ünnepnapok"}>
-                <Color
-                  label="Kiemelt számok színe"
-                  value={s.holidayColor}
-                  onChange={(n) => style("holidayColor", n)}
-                />
-                <Color
-                  label="Kiemelt napok háttere"
-                  value={s.holidayBackground}
-                  onChange={(n) => style("holidayBackground", n)}
-                />
-                {!cover && (
-                  <>
-                    <Color
-                      label="Személyes születésnapok színe"
-                      value={s.typography.birthday.color}
-                      onChange={(color) =>
-                        commit((root) => {
-                          const old = viewProject(root).style;
-                          return updateView(root, {
-                            style: {
-                              ...old,
-                              typography: {
-                                ...old.typography,
-                                birthday: { ...old.typography.birthday, color },
-                              },
-                            },
-                          });
-                        })
-                      }
-                    />
-                    <Color
-                      label="Személyes névnapok színe"
-                      value={s.typography.personalNameday.color}
-                      onChange={(color) =>
-                        commit((root) => {
-                          const old = viewProject(root).style;
-                          return updateView(root, {
-                            style: {
-                              ...old,
-                              typography: {
-                                ...old.typography,
-                                personalNameday: {
-                                  ...old.typography.personalNameday,
-                                  color,
+              {!cover && (
+                <Section title="Hétvégék és ünnepnapok">
+                  <Color
+                    label="Kiemelt számok színe"
+                    value={s.holidayColor}
+                    onChange={(n) => style("holidayColor", n)}
+                  />
+                  <Color
+                    label="Kiemelt napok háttere"
+                    value={s.holidayBackground}
+                    onChange={(n) => style("holidayBackground", n)}
+                  />
+                  {!cover && (
+                    <>
+                      <Color
+                        label="Személyes születésnapok színe"
+                        value={s.typography.birthday.color}
+                        onChange={(color) =>
+                          commit((root) => {
+                            const old = viewProject(root).style;
+                            return updateView(root, {
+                              style: {
+                                ...old,
+                                typography: {
+                                  ...old.typography,
+                                  birthday: {
+                                    ...old.typography.birthday,
+                                    color,
+                                  },
                                 },
                               },
-                            },
-                          });
-                        })
-                      }
-                    />
-                  </>
-                )}
-              </Section>
+                            });
+                          })
+                        }
+                      />
+                      <Color
+                        label="Személyes névnapok színe"
+                        value={s.typography.personalNameday.color}
+                        onChange={(color) =>
+                          commit((root) => {
+                            const old = viewProject(root).style;
+                            return updateView(root, {
+                              style: {
+                                ...old,
+                                typography: {
+                                  ...old.typography,
+                                  personalNameday: {
+                                    ...old.typography.personalNameday,
+                                    color,
+                                  },
+                                },
+                              },
+                            });
+                          })
+                        }
+                      />
+                    </>
+                  )}
+                </Section>
+              )}
             </>
           )}
         </>

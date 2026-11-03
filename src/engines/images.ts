@@ -1,4 +1,4 @@
-import type { Photo } from "../model";
+import { photoAssets, type Photo } from "../model";
 export const imageCache = new Map<string, HTMLImageElement>();
 export function cropGeometry(p: Photo) {
   const scale =
@@ -24,7 +24,7 @@ export async function decodeImage(data: string): Promise<HTMLImageElement> {
   return image;
 }
 export async function validatePhotos(photos: Photo[]): Promise<void> {
-  for (const p of photos) {
+  for (const p of photoAssets(photos)) {
     const img = await decodeImage(p.data);
     if (
       img.naturalWidth !== p.pixelWidth ||
@@ -34,7 +34,7 @@ export async function validatePhotos(photos: Photo[]): Promise<void> {
   }
 }
 export function pruneImages(photos: Photo[]) {
-  const active = new Set(photos.map((p) => p.data));
+  const active = new Set(photoAssets(photos).map((p) => p.data));
   for (const key of imageCache.keys())
     if (!active.has(key)) imageCache.delete(key);
 }

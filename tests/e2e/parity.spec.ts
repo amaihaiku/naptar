@@ -16,7 +16,11 @@ test("SVG preview and 300 DPI PNG preserve the same visible geometry", async ({
   await page.getByRole("button", { name: "Exportálás", exact: true }).click();
   await page.getByRole("button", { name: /PNG Veszteségmentes/ }).click();
   const pending = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Letöltés", exact: true }).click();
+  await page
+    .getByRole("button", {
+      name: /^(Letöltés|Figyelmeztetések figyelmen kívül hagyása és letöltés)$/i,
+    })
+    .click();
   const path = await (await pending).path();
   const exported = await readFile(path!);
   await writeFile(
