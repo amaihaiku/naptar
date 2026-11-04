@@ -161,6 +161,10 @@ const photoAssetSchema = z
       .regex(/^(?:data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+)?$/),
     pixelWidth: z.number().int().min(1).max(30000),
     pixelHeight: z.number().int().min(1).max(30000),
+    crop: z
+      .object({ zoom: num(1, 8), panX: num(-1, 1), panY: num(-1, 1) })
+      .strict()
+      .optional(),
     edits: z
       .object({
         flipX: z.boolean().optional(),
@@ -210,6 +214,10 @@ export const imageSchema = z
         opacity: num(0, 1),
         color,
       })
+      .strict()
+      .optional(),
+    edgeFeather: z
+      .object({ color, distance: num(0, 30), spread: num(0, 30) })
       .strict()
       .optional(),
     reflection: z
@@ -264,6 +272,7 @@ const coverSchema = z
   .object({
     title: z.string().max(100),
     showCalendar: z.boolean(),
+    highlightDays: z.boolean().optional(),
     grid: boxSchema,
     titleBox: boxSchema,
     yearBox: boxSchema,
@@ -590,9 +599,17 @@ export function pagePhotos(
   return p.photos.flatMap((photo) => {
     if (photo.slotNumber !== undefined) {
       if (!slotOnPage(photo, page)) return [];
-      if (page === 0) return [photo];
-      const asset = photo.monthlyImages?.[page];
-      return [{ ...photo, ...emptyPhoto, edits: undefined, ...asset }];
+      const asset = page === 0 ? photo : photo.monthlyImages?.[page];
+      return [
+        {
+          ...photo,
+          ...emptyPhoto,
+          edits: undefined,
+          crop: undefined,
+          ...asset,
+          ...asset?.crop,
+        },
+      ];
     }
     if (photo.monthlyImages) {
       if (page === 0) return [];
@@ -614,7 +631,7 @@ export function setSlotAsset(
       slot.id !== id
         ? slot
         : page === 0
-          ? { ...slot, ...asset, edits: asset.edits }
+          ? { ...slot, ...asset, edits: asset.edits, crop: asset.crop }
           : {
               ...slot,
               monthlyImages: {
@@ -624,6 +641,23 @@ export function setSlotAsset(
             },
     ),
   };
+}
+export function updateSlotCrop(
+  p: Project,
+  photo: Photo,
+  patch: Partial<NonNullable<PhotoAsset["crop"]>>,
+) {
+  const { id, name, data, pixelWidth, pixelHeight, edits, zoom, panX, panY } =
+    photo;
+  if (!data) return p;
+  return setSlotAsset(p, id, currentPage(p), {
+    name,
+    data,
+    pixelWidth,
+    pixelHeight,
+    edits,
+    crop: { zoom, panX, panY, ...patch },
+  });
 }
 export function slotLabel(photo: Photo) {
   return photo.slotNumber === undefined

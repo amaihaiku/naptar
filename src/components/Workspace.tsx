@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Lock, Move, Maximize2 } from "lucide-react";
 import {
   elementBox,
+  updateSlotCrop,
   updateElementBox,
   pageText,
   viewProject,
@@ -65,16 +66,18 @@ export function Workspace({
   onPreview,
   onDate,
   previewMode,
+  keyboardDisabled,
   guides,
 }: {
   project: Project;
   scene: Scene;
   selection: Selection;
   onSelect: (id: Selection) => void;
-  onCommit: (p: Project) => void;
+  onCommit: (p: Project | ((root: Project) => Project)) => void;
   onPreview: (p: Project | null) => void;
   onDate: (d: CivilDate) => void;
   previewMode: boolean;
+  keyboardDisabled: boolean;
   guides: boolean;
 }) {
   const v = viewProject(project),
@@ -82,6 +85,9 @@ export function Workspace({
     container = useRef<HTMLDivElement>(null);
   const [available, setAvailable] = useState({ w: 720, h: 820 }),
     [zoom, setZoom] = useState(1);
+  const [showGuides, setShowGuides] = useState(true);
+  const [magnet, setMagnet] = useState(false);
+  const [alignment, setAlignment] = useState<{ x?: number; y?: number }>({});
   const drag = useRef<{
     p: Project;
     id: string;
@@ -108,6 +114,111 @@ export function Workspace({
     scale = Math.max(0.4, fit) * zoom;
   const actualBox = (id: string) => elementBox(project, id);
   const texts = pageText(project);
+  function visualBox(id: string) {
+    const b = actualBox(id);
+    if (!b) return;
+    const text = scene.textBounds?.[id];
+    if (text) return { ...b, ...text };
+    if (photos.find((photo) => photo.id === id)?.shape === "circle") {
+      const size = Math.min(b.w, b.h);
+      return {
+        ...b,
+        x: b.x + (b.w - size) / 2,
+        y: b.y + (b.h - size) / 2,
+        w: size,
+        h: size,
+      };
+    }
+    return b;
+  }
+  useEffect(() => {
+    if (previewMode || keyboardDisabled) return;
+    const step = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey || drag.current) return;
+      if (
+        e.target instanceof HTMLElement &&
+        e.target.closest("input,textarea,select,[contenteditable]")
+      )
+        return;
+      const direction = {
+        ArrowLeft: [-1, 0],
+        ArrowRight: [1, 0],
+        ArrowUp: [0, -1],
+        ArrowDown: [0, 1],
+      }[e.key];
+      if (!direction) return;
+      const b = elementBox(project, selection);
+      if (!b || b.locked) return;
+      e.preventDefault();
+      const distance = e.shiftKey ? 10 : 1;
+      onCommit((root) => {
+        const current = elementBox(root, selection);
+        if (!current || current.locked) return root;
+        return updateElementBox(root, selection, {
+          x: Math.max(
+            -600,
+            Math.min(1200, current.x + direction[0] * distance),
+          ),
+          y: Math.max(
+            -600,
+            Math.min(1200, current.y + direction[1] * distance),
+          ),
+        });
+      });
+    };
+    window.addEventListener("keydown", step);
+    return () => window.removeEventListener("keydown", step);
+  }, [project, selection, previewMode, keyboardDisabled, onCommit]);
+  function alignMove(id: string, before: Box, after: Box) {
+    const anchors = (b: Pick<Box, "x" | "y" | "w" | "h">, axis: "x" | "y") => {
+      const size = axis === "x" ? b.w : b.h;
+      return [b[axis], b[axis] + size / 2, b[axis] + size];
+    };
+    const peers = [
+      { x: 0, y: 0, w: project.page.width, h: project.page.height },
+      ...[
+        "grid",
+        "title",
+        "year",
+        ...photos.filter((photo) => photo.visible).map((photo) => photo.id),
+        ...texts.map((text) => text.id),
+      ]
+        .filter((key) => key !== id)
+        .flatMap((key) => {
+          const b = visualBox(key);
+          return b ? [b] : [];
+        }),
+    ];
+    const visual = visualBox(id);
+    // Keep the drag's original ink offset when deriving the guides from a preview.
+    const current = actualBox(id) ?? before;
+    const shifted = visual
+      ? {
+          ...visual,
+          x: visual.x + after.x - current.x,
+          y: visual.y + after.y - current.y,
+        }
+      : after;
+    const lines: { x?: number; y?: number } = {};
+    for (const axis of ["x", "y"] as const) {
+      const points = anchors(shifted, axis);
+      let best = 6 / scale;
+      let delta = 0;
+      for (const target of peers.flatMap((peer) => anchors(peer, axis))) {
+        for (const point of points) {
+          const distance = target - point;
+          if (Math.abs(distance) < best) {
+            best = Math.abs(distance);
+            delta = distance;
+            lines[axis] = target;
+          }
+        }
+      }
+      if (magnet)
+        after[axis] = Math.max(-600, Math.min(1200, after[axis] + delta));
+    }
+    setAlignment(showGuides ? lines : {});
+  }
   function start(
     e: React.PointerEvent,
     id: string,
@@ -141,32 +252,18 @@ export function Workspace({
       const c = cropGeometry(photo),
         extraX = c.extraX,
         extraY = c.extraY;
-      next = {
-        ...d.p,
-        photos: d.p.photos.map((p) =>
-          p.id === d.id
-            ? {
-                ...p,
-                panX: Math.max(
-                  -1,
-                  Math.min(
-                    1,
-                    p.panX + (extraX > 0.001 ? (2 * dx) / extraX : 0),
-                  ),
-                ),
-                panY: Math.max(
-                  -1,
-                  Math.min(
-                    1,
-                    p.panY + (extraY > 0.001 ? (2 * dy) / extraY : 0),
-                  ),
-                ),
-              }
-            : p,
+      next = updateSlotCrop(d.p, photo, {
+        panX: Math.max(
+          -1,
+          Math.min(1, photo.panX + (extraX > 0.001 ? (2 * dx) / extraX : 0)),
         ),
-      };
+        panY: Math.max(
+          -1,
+          Math.min(1, photo.panY + (extraY > 0.001 ? (2 * dy) / extraY : 0)),
+        ),
+      });
     } else {
-      const snap = (n: number) => (e.altKey ? n : Math.round(n));
+      const snap = (n: number) => (e.altKey ? n : Math.round(n * 10) / 10);
       let b = { ...d.box };
       if (d.kind === "resize") {
         b.w = Math.max(10, Math.min(600, snap(d.box.w + dx)));
@@ -174,8 +271,8 @@ export function Workspace({
       } else {
         b.x = Math.max(-600, Math.min(1200, snap(d.box.x + dx)));
         b.y = Math.max(-600, Math.min(1200, snap(d.box.y + dy)));
-        if (Math.abs(b.x + b.w / 2 - project.page.width / 2) < 1.5)
-          b.x = (project.page.width - b.w) / 2;
+        if ((showGuides || magnet) && !e.altKey) alignMove(d.id, d.box, b);
+        else setAlignment({});
       }
       next = updateElementBox(d.p, d.id, b);
     }
@@ -186,10 +283,12 @@ export function Workspace({
     const d = drag.current;
     if (!d) return;
     drag.current = null;
+    setAlignment({});
     onPreview(null);
     onCommit(d.next);
   }
   const selected = actualBox(selection),
+    outline = visualBox(selection),
     styleBox = (b: Box) => ({
       left: b.x * scale,
       top: b.y * scale,
@@ -266,6 +365,18 @@ export function Workspace({
                     <div className="center-guide" />
                   </>
                 )}
+                {showGuides && alignment.x !== undefined && (
+                  <div
+                    className="alignment-guide vertical"
+                    style={{ left: alignment.x * scale }}
+                  />
+                )}
+                {showGuides && alignment.y !== undefined && (
+                  <div
+                    className="alignment-guide horizontal"
+                    style={{ top: alignment.y * scale }}
+                  />
+                )}
                 {photos
                   .filter((p) => p.visible)
                   .map((p) => (
@@ -339,7 +450,10 @@ export function Workspace({
                     project.mode === "annual" &&
                     project.cover?.showCalendar === false
                   ) && (
-                    <div className="selection-box" style={styleBox(selected)}>
+                    <div
+                      className="selection-box"
+                      style={styleBox(outline ?? selected)}
+                    >
                       <span className="selection-label">
                         {selection === "grid"
                           ? "Naptárrács"
@@ -411,6 +525,22 @@ export function Workspace({
             {previewMode ? "Nyomtatási előnézet" : "Válassz egy elemet"}
           </span>
         )}
+        <div className="alignment-controls">
+          <button
+            aria-pressed={showGuides}
+            title="Igazítási segédvonalak"
+            onClick={() => setShowGuides(!showGuides)}
+          >
+            Guide
+          </button>
+          <button
+            aria-pressed={magnet}
+            title="Illesztés az igazítási pontokhoz"
+            onClick={() => setMagnet(!magnet)}
+          >
+            Magnet
+          </button>
+        </div>
         <div className="zoom-controls">
           <input
             aria-label="Nagyítás"

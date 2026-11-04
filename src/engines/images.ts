@@ -78,6 +78,7 @@ export async function readPhoto(file: File): Promise<PhotoAsset> {
     data,
     pixelWidth: image.naturalWidth,
     pixelHeight: image.naturalHeight,
+    crop: { zoom: 1, panX: 0, panY: 0 },
   };
 }
 export function createSlot(p: Project): Photo {
@@ -219,6 +220,26 @@ export function paintPhoto(
     adjusted.height = 0;
   }
   ctx.restore();
+  const feather = p.edgeFeather;
+  if (feather && feather.distance + feather.spread > 0) {
+    ctx.save();
+    photoPath(ctx, p, offsetX, offsetY);
+    ctx.clip();
+    ctx.strokeStyle = feather.color;
+    // Concentric strokes compose a smooth inward color fade.
+    let opacity = 0;
+    const steps = feather.spread > 0 ? 32 : 1;
+    for (let i = 1; i <= steps; i++) {
+      const progress = i / steps;
+      const target = progress * progress * (3 - 2 * progress);
+      const depth = feather.distance + feather.spread * (1 - (i - 0.5) / steps);
+      ctx.globalAlpha = (target - opacity) / (1 - opacity);
+      ctx.lineWidth = 2 * depth;
+      ctx.stroke();
+      opacity = target;
+    }
+    ctx.restore();
+  }
   if (p.border) {
     photoPath(ctx, p, offsetX, offsetY);
     ctx.lineWidth = p.border;

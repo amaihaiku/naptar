@@ -177,6 +177,10 @@ export function templateOf(p: Project, name = "Saját sablon") {
       ...slot,
       ...emptyPhoto,
       edits: undefined,
+      crop: undefined,
+      zoom: 1,
+      panX: 0,
+      panY: 0,
       monthlyImages:
         slot.slotNumber === undefined && slot.monthlyImages ? {} : undefined,
     })),

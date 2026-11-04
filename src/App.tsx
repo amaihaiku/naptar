@@ -431,7 +431,7 @@ export default function App() {
               setGuides(true);
             }}
           >
-            Segédvonalak
+            Szerkesztés
           </button>
           <button
             className={preview ? "active" : ""}
@@ -664,6 +664,19 @@ export default function App() {
                       onChange={(v) => style("highlight", v)}
                     />
                   )}
+                  <Toggle
+                    label="Szabadnapok és egyéb napok kiemelése a borítón"
+                    value={p.cover?.highlightDays ?? false}
+                    onChange={(highlightDays) =>
+                      commit((root) => ({
+                        ...root,
+                        cover: {
+                          ...(root.cover ?? defaultCover(root)),
+                          highlightDays,
+                        },
+                      }))
+                    }
+                  />
                 </Section>
               </>
             )}
@@ -989,6 +1002,7 @@ export default function App() {
             onPreview={setDraft}
             onDate={setDate}
             previewMode={preview}
+            keyboardDisabled={Boolean(date || exportOpen || recovery || busy)}
             guides={guides}
           />
         ) : (

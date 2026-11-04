@@ -1531,3 +1531,41 @@ summary:focus-visible {
   border: 1px solid #e0e5dc;
   border-radius: 5px;
 }
+
+.mirror-buttons {
+  display: grid;
+  align-items: stretch;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.mirror-buttons > button {
+  min-width: 0;
+  white-space: normal;
+}
+.alignment-guide {
+  position: absolute;
+  pointer-events: none;
+  z-index: 16;
+  background: #d64ca0;
+}
+.alignment-guide.vertical {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+.alignment-guide.horizontal {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+.alignment-controls {
+  display: flex;
+  gap: 3px;
+}
+.alignment-controls button {
+  font-size: 10px;
+  padding: 4px 5px;
+}
+.alignment-controls button[aria-pressed="true"] {
+  background: #eaf0e6;
+  border-color: #8ca58b;
+}
