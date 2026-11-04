@@ -5,6 +5,7 @@ import {
   viewProject,
   yearBoxFor,
   pagePhotos,
+  pageText,
 } from "../model";
 import {
   type CivilDate,
@@ -15,7 +16,7 @@ import {
   isoWeek,
   dateKey,
 } from "./date";
-import { holidays } from "./holidays";
+import { holidayLabels, holidays } from "./holidays";
 import { namedays } from "./namedays";
 import { eventLabel, eventsFor } from "./events";
 import { baseline, mmPerPt, textWidth, wrap, missingGlyphs } from "./fonts";
@@ -207,6 +208,35 @@ export function buildScene(root: Project, month = root.month): Scene {
       code: "title-size",
       message: "A cím betűmérete nagyobb a címmező magasságánál.",
     });
+  for (const item of pageText(p)) {
+    const t = item.typography;
+    const lineHeight = t.size * mmPerPt * t.lineHeight;
+    const lines = item.text
+      .split("\n")
+      .flatMap((line) => (line.trim() ? wrap(line, t, item.box.w) : [""]));
+    const height = lines.length * lineHeight;
+    const extra = Math.max(0, item.box.h - height);
+    const top =
+      item.box.y +
+      (t.vertical === "bottom"
+        ? extra
+        : t.vertical === "middle"
+          ? extra / 2
+          : 0);
+    const clip = { ...item.box, r: 0 };
+    lines.forEach((line, i) => {
+      if (line)
+        text(line, { ...item.box, y: top + i * lineHeight }, t, 60, clip);
+    });
+    if (height > item.box.h && item.text)
+      issues.push({
+        severity: "error",
+        code: "text-height",
+        message: "A hozzáadott szöveg nem fér el a szövegdobozban.",
+      });
+    if (item.text) headerBoxes.push(["Szövegdoboz", item.box]);
+  }
+  const observances = holidayLabels(p.year);
   const holidayMap = holidays(p.year);
   function calendar(m: number, region: Box, annual: boolean) {
     const raw = monthCells(
@@ -308,15 +338,31 @@ export function buildScene(root: Project, month = root.month): Scene {
       };
       if (highlight || publicHoliday) dt.color = s.holidayColor;
       if (!inMonth) dt.color = "#a7ada9";
+      const holidayName =
+        !annual && inMonth ? observances.get(dateKey(d)) : undefined;
+      const holidayType: Typography = {
+        ...s.typography.weekday,
+        size: Math.max(2, Math.min(6.5, (p.page.width / 210) * 6.5)),
+        align: "center",
+        color: s.holidayColor,
+      };
+      const holidayLines = holidayName
+        ? wrap(holidayName, holidayType, b.w - 2 * pad)
+        : [];
+      const holidayLineHeight =
+        holidayType.size * mmPerPt * holidayType.lineHeight;
+      const holidayHeight = holidayLines.length * holidayLineHeight;
+      const holidayTop = b.y + b.h - pad - holidayHeight;
+      const contentLimit = holidayTop - (holidayHeight ? 0.7 : 0);
       const positionY = (
         vertical: Typography["vertical"],
         height: number,
         fallback: number,
       ) =>
         vertical === "middle"
-          ? b.y + (b.h - height) / 2
+          ? b.y + (b.h - holidayHeight - height) / 2
           : vertical === "bottom"
-            ? b.y + b.h - pad - height
+            ? contentLimit - height
             : vertical === "top"
               ? b.y + pad
               : fallback;
@@ -375,12 +421,29 @@ export function buildScene(root: Project, month = root.month): Scene {
           cursor = contentBottom + 0.6;
         }
         if (inMonth) {
-          let bottom = b.y + b.h - pad;
+          let bottom = contentLimit;
+          const cellClip = { ...b, r: 0 };
+          holidayLines.forEach((line, i) =>
+            text(
+              line,
+              box(
+                b.x + pad,
+                holidayTop + i * holidayLineHeight,
+                b.w - 2 * pad,
+                holidayLineHeight,
+              ),
+              holidayType,
+              3,
+              cellClip,
+            ),
+          );
           for (const event of events) {
             const et =
               event.kind === "birthday"
                 ? s.typography.birthday
-                : s.typography.personalNameday;
+                : event.kind === "other"
+                  ? (s.typography.otherEvent ?? s.typography.personalNameday)
+                  : s.typography.personalNameday;
             const iconSize =
               event.kind === "other" ? 0 : Math.min(2.5, et.size * mmPerPt);
             const iconSpace = iconSize ? iconSize + 0.8 : 0;
@@ -392,7 +455,12 @@ export function buildScene(root: Project, month = root.month): Scene {
             const height =
               lines.length * et.size * mmPerPt * et.lineHeight + 0.7;
             bottom -= height;
-            if (bottom < cursor)
+            const [dx, dy] = s.eventOffsets?.[event.kind] ?? [0, 0];
+            if (
+              bottom + dy < cursor ||
+              bottom + dy + height > (holidayHeight ? holidayTop : b.y + b.h) ||
+              Math.abs(dx) >= b.w - 2 * pad
+            )
               issues.push({
                 severity: "error",
                 code: "overflow",
@@ -400,18 +468,21 @@ export function buildScene(root: Project, month = root.month): Scene {
               });
             if (iconSize)
               nodes.push({
-                ...common(box(b.x + pad, bottom + 0.5, iconSize, iconSize), 3),
+                ...common(
+                  box(b.x + pad + dx, bottom + dy + 0.5, iconSize, iconSize),
+                  3,
+                ),
                 kind: "icon",
                 icon: event.kind === "birthday" ? "cake" : "flower",
                 color: et.color,
-                clip,
+                clip: cellClip,
               });
             lines.forEach((line, index) =>
               text(
                 line,
                 box(
-                  b.x + pad + iconSpace,
-                  bottom + index * et.size * mmPerPt * et.lineHeight,
+                  b.x + pad + iconSpace + dx,
+                  bottom + dy + index * et.size * mmPerPt * et.lineHeight,
                   b.w - 2 * pad - iconSpace,
                   b.h,
                 ),
@@ -422,7 +493,7 @@ export function buildScene(root: Project, month = root.month): Scene {
             );
           }
         }
-        if (contentBottom > b.y + b.h - pad + 0.001)
+        if (contentBottom > contentLimit + 0.001)
           issues.push({
             severity: "error",
             code: "overflow",

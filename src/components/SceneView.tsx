@@ -1,8 +1,55 @@
-import { pagePhotos, type Project } from "../model";
+import { useEffect, useMemo, useState } from "react";
+import { pagePhotos, type Project, type Photo } from "../model";
 import type { Scene, SceneNode } from "../engines/layout";
 import { advance, mmPerPt } from "../engines/fonts";
-import { cropGeometry, photoColorMatrix } from "../engines/images";
-import { roundPath, cakeRects, flowerCircles } from "../engines/render";
+import {
+  cropGeometry,
+  decodeImage,
+  imageCache,
+  photoColorMatrix,
+} from "../engines/images";
+import {
+  roundPath,
+  cakeRects,
+  flowerCircles,
+  hasPhotoEffects,
+  rasterPhoto,
+} from "../engines/render";
+function StyledPhoto({ photo }: { photo: Photo }) {
+  const [decoded, setDecoded] = useState("");
+  const ready = imageCache.has(photo.data);
+  useEffect(() => {
+    if (ready) return;
+    let active = true;
+    void decodeImage(photo.data)
+      .then(() => {
+        if (active) setDecoded(photo.data);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [photo.data, ready]);
+  const artwork = useMemo(() => {
+    if (!ready) return null;
+    const { canvas, bounds } = rasterPhoto(photo, 6);
+    const href = canvas.toDataURL("image/png");
+    canvas.width = 0;
+    return { href, bounds };
+  }, [photo, ready, decoded]);
+  if (!artwork) return null;
+  const { href, bounds } = artwork;
+  return (
+    <image
+      href={href}
+      x={bounds.x}
+      y={bounds.y}
+      width={bounds.w}
+      height={bounds.h}
+      preserveAspectRatio="none"
+    />
+  );
+}
 export function SceneView({
   scene,
   project,
@@ -67,11 +114,12 @@ export function SceneView({
         );
     if (n.kind === "image") {
       const p = pagePhotos(project, scene.page).find((i) => i.id === n.photoId);
-      if (p) {
+      if (p && hasPhotoEffects(p)) content = <StyledPhoto photo={p} />;
+      else if (p) {
         const c = cropGeometry(p);
         const matrix = photoColorMatrix(p.edits);
-        const cx = p.box.x + p.box.w / 2,
-          cy = p.box.y + p.box.h / 2;
+        const cx = c.x + c.w / 2,
+          cy = c.y + c.h / 2;
         const transform = `translate(${cx} ${cy}) rotate(${p.edits?.rotation ?? 0}) scale(${p.edits?.flipX ? -1 : 1} ${p.edits?.flipY ? -1 : 1}) translate(${-cx} ${-cy})`;
         const shape =
           p.shape === "rectangle" ? (

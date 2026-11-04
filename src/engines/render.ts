@@ -1,7 +1,7 @@
 import { pagePhotos, type Project, type Photo } from "../model";
 import type { Scene, Clip } from "./layout";
 import { advance, mmPerPt } from "./fonts";
-import { paintPhoto } from "./images";
+import { paintPhoto, photoPath } from "./images";
 export function roundPath(b: Clip): string {
   const { x, y, w, h } = b,
     r = Math.min(b.r, w / 2, h / 2);
@@ -95,7 +95,13 @@ export function renderCanvas(
     }
     if (n.kind === "image") {
       const photo = pagePhotos(p, scene.page).find((i) => i.id === n.photoId);
-      if (photo) paintPhoto(ctx, photo);
+      if (photo) {
+        if (hasPhotoEffects(photo)) {
+          const { canvas, bounds } = rasterPhoto(photo);
+          ctx.drawImage(canvas, bounds.x, bounds.y, bounds.w, bounds.h);
+          canvas.width = 0;
+        } else paintPhoto(ctx, photo);
+      }
     }
     if (n.kind === "icon") {
       ctx.fillStyle = n.color;
@@ -112,14 +118,136 @@ export function renderCanvas(
   }
   ctx.restore();
 }
-export function rasterPhoto(p: Photo): HTMLCanvasElement {
-  const scale = 300 / 25.4;
+export const hasPhotoEffects = (p: Photo) =>
+  Boolean(
+    (p.shadowStyle && p.shadowStyle.opacity > 0) ||
+    (p.reflection && p.reflection.opacity > 0) ||
+    (p.border > 0 && p.borderStyle && p.borderStyle !== "solid"),
+  );
+export function photoArtworkBounds(p: Photo) {
+  const shadow = p.shadowStyle?.opacity ? p.shadowStyle : undefined;
+  const padding = Math.max(
+    p.border / 2,
+    shadow ? 3 * shadow.blur + shadow.distance + 5 : 0,
+  );
+  const reflection = p.reflection?.opacity ? p.box.h * p.reflection.length : 0;
+  return {
+    x: p.box.x - padding,
+    y: p.box.y - padding,
+    w: p.box.w + 2 * padding,
+    h: p.box.h + 2 * padding + reflection,
+  };
+}
+function photoCanvas(width: number, height: number) {
   const canvas = document.createElement("canvas");
-  canvas.width = Math.round(p.box.w * scale);
-  canvas.height = Math.round(p.box.h * scale);
+  canvas.width = Math.max(1, Math.ceil(width));
+  canvas.height = Math.max(1, Math.ceil(height));
   const ctx = canvas.getContext("2d", { colorSpace: "srgb" });
   if (!ctx) throw new Error("A böngésző nem támogatja a képexportot.");
-  ctx.scale(canvas.width / p.box.w, canvas.height / p.box.h);
-  paintPhoto(ctx, { ...p, border: 0 }, p.box.x, p.box.y);
-  return canvas;
+  return { canvas, ctx };
+}
+export function rasterPhoto(p: Photo, resolution = 300 / 25.4) {
+  const bounds = photoArtworkBounds(p);
+  const scale = Math.min(
+    resolution,
+    Math.sqrt(36_000_000 / (bounds.w * bounds.h)),
+  );
+  const { canvas, ctx } = photoCanvas(bounds.w * scale, bounds.h * scale);
+  const sx = canvas.width / bounds.w,
+    sy = canvas.height / bounds.h;
+  ctx.setTransform(sx, 0, 0, sy, -bounds.x * sx, -bounds.y * sy);
+  const shadow = p.shadowStyle;
+  if (shadow?.opacity) {
+    ctx.save();
+    const angle = (shadow.angle * Math.PI) / 180;
+    const dx = Math.cos(angle) * shadow.distance,
+      dy = Math.sin(angle) * shadow.distance;
+    const alpha = Math.round(shadow.opacity * 255)
+      .toString(16)
+      .padStart(2, "0");
+    ctx.fillStyle = shadow.color + alpha;
+    if (shadow.blur > 0) {
+      ctx.shadowColor = shadow.color + alpha;
+      ctx.shadowBlur = shadow.blur * sx * 2;
+      const far = bounds.w + 200;
+      ctx.shadowOffsetX = far * sx;
+      ctx.translate(-far, 0);
+      ctx.fillStyle = "#000000";
+    }
+    if (shadow.kind === "drop") {
+      photoPath(ctx, {
+        ...p,
+        box: { ...p.box, x: p.box.x + dx, y: p.box.y + dy },
+      });
+    } else {
+      const y = p.box.y + p.box.h + dy;
+      const h = Math.min(4, p.box.h * 0.12);
+      ctx.beginPath();
+      if (shadow.kind === "contact") {
+        ctx.ellipse(
+          p.box.x + p.box.w / 2 + dx,
+          y,
+          p.box.w * 0.47,
+          h,
+          0,
+          0,
+          Math.PI * 2,
+        );
+      } else {
+        for (const side of [0.22, 0.78]) {
+          const x = p.box.x + p.box.w * side + dx;
+          ctx.moveTo(x + p.box.w * 0.24, y);
+          ctx.ellipse(
+            x,
+            y,
+            p.box.w * 0.24,
+            h,
+            side < 0.5 ? -0.12 : 0.12,
+            0,
+            Math.PI * 2,
+          );
+        }
+      }
+    }
+    ctx.fill();
+    ctx.restore();
+  }
+  const border = p.border / 2;
+  const front = {
+    x: p.box.x - border,
+    y: p.box.y - border,
+    w: p.box.w + 2 * border,
+    h: p.box.h + 2 * border,
+  };
+  const reflection = p.reflection;
+  if (reflection?.opacity) {
+    const source = photoCanvas(front.w * sx, front.h * sy);
+    source.ctx.scale(
+      source.canvas.width / front.w,
+      source.canvas.height / front.h,
+    );
+    paintPhoto(source.ctx, p, front.x, front.y);
+    const length = p.box.h * reflection.length;
+    const mirrored = photoCanvas(source.canvas.width, length * sy);
+    mirrored.ctx.translate(0, source.canvas.height);
+    mirrored.ctx.scale(1, -1);
+    mirrored.ctx.drawImage(source.canvas, 0, 0);
+    mirrored.ctx.resetTransform();
+    mirrored.ctx.globalCompositeOperation = "destination-in";
+    const fade = mirrored.ctx.createLinearGradient(
+      0,
+      0,
+      0,
+      mirrored.canvas.height,
+    );
+    fade.addColorStop(0, `rgba(0,0,0,${reflection.opacity})`);
+    fade.addColorStop(1, "transparent");
+    mirrored.ctx.fillStyle = fade;
+    mirrored.ctx.fillRect(0, 0, mirrored.canvas.width, mirrored.canvas.height);
+    ctx.drawImage(source.canvas, front.x, front.y, front.w, front.h);
+    ctx.drawImage(mirrored.canvas, front.x, front.y + front.h, front.w, length);
+    source.canvas.width = 0;
+    mirrored.canvas.width = 0;
+  } else paintPhoto(ctx, p);
+  return { canvas, bounds };
 }

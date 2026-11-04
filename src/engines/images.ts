@@ -21,6 +21,8 @@ export function cropGeometry(p: Photo) {
     y: p.box.y + (p.box.h - h) / 2 + (p.panY * (h - requiredH)) / 2,
     w,
     h,
+    extraX: w - requiredW,
+    extraY: h - requiredH,
   };
 }
 export async function decodeImage(data: string): Promise<HTMLImageElement> {
@@ -204,8 +206,8 @@ export function paintPhoto(
   photoPath(ctx, p, offsetX, offsetY);
   ctx.clip();
   const g = cropGeometry(p);
-  const centerX = p.box.x + p.box.w / 2;
-  const centerY = p.box.y + p.box.h / 2;
+  const centerX = g.x + g.w / 2;
+  const centerY = g.y + g.h / 2;
   ctx.translate(centerX - offsetX, centerY - offsetY);
   ctx.rotate(((p.edits?.rotation ?? 0) * Math.PI) / 180);
   ctx.scale(p.edits?.flipX ? -1 : 1, p.edits?.flipY ? -1 : 1);
@@ -221,6 +223,39 @@ export function paintPhoto(
     photoPath(ctx, p, offsetX, offsetY);
     ctx.lineWidth = p.border;
     ctx.strokeStyle = p.borderColor;
-    ctx.stroke();
+    if (p.borderStyle === "dashed")
+      ctx.setLineDash([p.border * 4, p.border * 2]);
+    if (p.borderStyle === "dotted") {
+      ctx.lineCap = "round";
+      ctx.setLineDash([0, p.border * 2]);
+    }
+    if (p.borderStyle === "double" || p.borderStyle === "frame") {
+      ctx.lineWidth = p.border / 3;
+      ctx.stroke();
+      const inset = (p.border * 2) / 3;
+      if (p.box.w > inset * 2 && p.box.h > inset * 2) {
+        photoPath(
+          ctx,
+          {
+            ...p,
+            radius: Math.max(0, p.radius - inset),
+            box: {
+              ...p.box,
+              x: p.box.x + inset,
+              y: p.box.y + inset,
+              w: p.box.w - 2 * inset,
+              h: p.box.h - 2 * inset,
+            },
+          },
+          offsetX,
+          offsetY,
+        );
+        if (p.borderStyle === "frame") {
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = p.border / 2;
+        }
+        ctx.stroke();
+      }
+    } else ctx.stroke();
   }
 }

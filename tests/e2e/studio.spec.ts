@@ -179,6 +179,14 @@ test("photograph crop settings survive a portable project round trip", async ({
   await page
     .getByRole("slider", { name: "Telítettség", exact: true })
     .press("Home");
+  await page
+    .getByLabel("Keret stílusa", { exact: true })
+    .selectOption("dashed");
+  await page
+    .getByLabel("Árnyék típusa", { exact: true })
+    .selectOption("contact");
+  await page.getByLabel("Tükröződés", { exact: true }).check();
+  await page.getByRole("button", { name: "Feljebb", exact: true }).click();
   const pending = page.waitForEvent("download");
   await page
     .getByRole("button", { name: "Projekt mentése", exact: true })
@@ -213,6 +221,8 @@ test("photograph crop settings survive a portable project round trip", async ({
   const [r, g, b] = png.data.subarray(i, i + 3);
   expect(r).toBeLessThan(250);
   expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThanOrEqual(2);
+  const reflected = (1050 * png.width + 1240) * 4;
+  expect(png.data[reflected]).toBeLessThan(252);
 });
 test("preview zoom does not change exported PNG dimensions", async ({
   page,
