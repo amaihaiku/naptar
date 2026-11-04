@@ -122,6 +122,7 @@ export const hasPhotoEffects = (p: Photo) =>
   Boolean(
     (p.shadowStyle && p.shadowStyle.opacity > 0) ||
     (p.reflection && p.reflection.opacity > 0) ||
+    (p.edgeFeather && p.edgeFeather.distance + p.edgeFeather.spread > 0) ||
     (p.border > 0 && p.borderStyle && p.borderStyle !== "solid"),
   );
 export function photoArtworkBounds(p: Photo) {
@@ -174,41 +175,10 @@ export function rasterPhoto(p: Photo, resolution = 300 / 25.4) {
       ctx.translate(-far, 0);
       ctx.fillStyle = "#000000";
     }
-    if (shadow.kind === "drop") {
-      photoPath(ctx, {
-        ...p,
-        box: { ...p.box, x: p.box.x + dx, y: p.box.y + dy },
-      });
-    } else {
-      const y = p.box.y + p.box.h + dy;
-      const h = Math.min(4, p.box.h * 0.12);
-      ctx.beginPath();
-      if (shadow.kind === "contact") {
-        ctx.ellipse(
-          p.box.x + p.box.w / 2 + dx,
-          y,
-          p.box.w * 0.47,
-          h,
-          0,
-          0,
-          Math.PI * 2,
-        );
-      } else {
-        for (const side of [0.22, 0.78]) {
-          const x = p.box.x + p.box.w * side + dx;
-          ctx.moveTo(x + p.box.w * 0.24, y);
-          ctx.ellipse(
-            x,
-            y,
-            p.box.w * 0.24,
-            h,
-            side < 0.5 ? -0.12 : 0.12,
-            0,
-            Math.PI * 2,
-          );
-        }
-      }
-    }
+    photoPath(ctx, {
+      ...p,
+      box: { ...p.box, x: p.box.x + dx, y: p.box.y + dy },
+    });
     ctx.fill();
     ctx.restore();
   }

@@ -19,7 +19,14 @@ import {
 import { holidayLabels, holidays } from "./holidays";
 import { namedays } from "./namedays";
 import { eventLabel, eventsFor } from "./events";
-import { baseline, mmPerPt, textWidth, wrap, missingGlyphs } from "./fonts";
+import {
+  inkBounds,
+  baseline,
+  mmPerPt,
+  textWidth,
+  wrap,
+  missingGlyphs,
+} from "./fonts";
 export interface Clip {
   x: number;
   y: number;
@@ -76,6 +83,7 @@ export interface Scene {
   issues: Issue[];
   month: number;
   page?: number;
+  textBounds?: Record<string, Pick<Box, "x" | "y" | "w" | "h">>;
 }
 const box = (x: number, y: number, w: number, h: number): Box => ({
   x,
@@ -187,9 +195,44 @@ export function buildScene(root: Project, month = root.month): Scene {
       opacity: photo.opacity,
     });
   }
-  function header(label: string, value: string, b: Box, t: Typography) {
+  const textBounds: NonNullable<Scene["textBounds"]> = {};
+  function measureText(id: string, first: number) {
+    for (const node of nodes.slice(first)) {
+      if (node.kind !== "text") continue;
+      const ink = inkBounds(node.text, node.type);
+      if (!ink) continue;
+      let x = node.x + ink.x,
+        y = node.y + ink.y;
+      let right = x + ink.w,
+        bottom = y + ink.h;
+      if (node.clip) {
+        x = Math.max(x, node.clip.x);
+        y = Math.max(y, node.clip.y);
+        right = Math.min(right, node.clip.x + node.clip.w);
+        bottom = Math.min(bottom, node.clip.y + node.clip.h);
+      }
+      if (x >= right || y >= bottom) continue;
+      const prior = textBounds[id];
+      if (prior) {
+        right = Math.max(right, prior.x + prior.w);
+        bottom = Math.max(bottom, prior.y + prior.h);
+        x = Math.min(x, prior.x);
+        y = Math.min(y, prior.y);
+      }
+      textBounds[id] = { x, y, w: right - x, h: bottom - y };
+    }
+  }
+  function header(
+    id: string,
+    label: string,
+    value: string,
+    b: Box,
+    t: Typography,
+  ) {
     if (!value) return;
+    const first = nodes.length;
     text(value, b, t);
+    measureText(id, first);
     const node = nodes[nodes.length - 1] as TextNode;
     headerBoxes.push([
       label,
@@ -200,8 +243,8 @@ export function buildScene(root: Project, month = root.month): Scene {
     p.mode === "annual" ? (p.cover?.title ?? "Naptár") : months[month - 1];
   const titleType = s.typography.title;
   if (s.showYear)
-    header("Évszám", String(p.year), yearBoxFor(p), s.typography.year);
-  if (title) header("Cím", title, p.titleBox, titleType);
+    header("year", "Évszám", String(p.year), yearBoxFor(p), s.typography.year);
+  if (title) header("title", "Cím", title, p.titleBox, titleType);
   if (titleType.size * mmPerPt > p.titleBox.h)
     issues.push({
       severity: "warning",
@@ -224,10 +267,12 @@ export function buildScene(root: Project, month = root.month): Scene {
           ? extra / 2
           : 0);
     const clip = { ...item.box, r: 0 };
+    const first = nodes.length;
     lines.forEach((line, i) => {
       if (line)
         text(line, { ...item.box, y: top + i * lineHeight }, t, 60, clip);
     });
+    measureText(item.id, first);
     if (height > item.box.h && item.text)
       issues.push({
         severity: "error",
@@ -306,14 +351,20 @@ export function buildScene(root: Project, month = root.month): Scene {
       if (!d || (!inMonth && (annual || !p.adjacent))) return;
       if (inMonth) cells.push({ ...b, date: d, inMonth: true });
       const holiday = inMonth ? holidayMap.get(dateKey(d)) : undefined;
+      const coverHighlight = annual && p.cover?.highlightDays;
       const events =
-        !annual && inMonth
+        (!annual || coverHighlight) && inMonth
           ? eventsFor(p, d).filter((event) => !event.hidden)
           : [];
       const customBackground = events.some((event) => event.coloredDay);
       const publicHoliday = events.some((event) => event.publicHoliday);
       const highlight =
-        !annual && s.highlight && inMonth && (holiday || weekday(d) >= 6);
+        (annual ? coverHighlight : s.highlight) &&
+        inMonth &&
+        (holiday ||
+          publicHoliday ||
+          weekday(d) >= 6 ||
+          (coverHighlight && observances.has(dateKey(d))));
       if (highlight || customBackground)
         rect(
           b,
@@ -688,5 +739,6 @@ export function buildScene(root: Project, month = root.month): Scene {
     issues: [...new Map(issues.map((i) => [i.message, i])).values()],
     month,
     page: p.mode === "annual" ? 0 : month,
+    textBounds,
   };
 }

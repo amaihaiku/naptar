@@ -5,7 +5,10 @@ export interface Font {
   unitsPerEm: number;
   ascent: number;
   descent: number;
-  glyphForCodePoint(cp: number): { advanceWidth: number };
+  glyphForCodePoint(cp: number): {
+    advanceWidth: number;
+    bbox: { minX: number; minY: number; maxX: number; maxY: number };
+  };
   hasGlyphForCodePoint(cp: number): boolean;
 }
 export interface LoadedFont {
@@ -124,4 +127,29 @@ export function validTypography(t: Typography): Typography {
         weight: options[0]?.weight ?? 400,
         italic: options[0]?.italic ?? false,
       };
+}
+
+// Bounds of the positioned glyphs, in millimeters relative to the baseline.
+export function inkBounds(text: string, t: Typography) {
+  const font = getFont(t).font;
+  const scale = (t.size * mmPerPt) / font.unitsPerEm;
+  let x = 0;
+  let left = Infinity,
+    top = Infinity,
+    right = -Infinity,
+    bottom = -Infinity;
+  for (const char of text) {
+    const glyph = font.glyphForCodePoint(char.codePointAt(0)!);
+    if (char.trim()) {
+      const bounds = glyph.bbox;
+      left = Math.min(left, x + bounds.minX * scale);
+      right = Math.max(right, x + bounds.maxX * scale);
+      top = Math.min(top, -bounds.maxY * scale);
+      bottom = Math.max(bottom, -bounds.minY * scale);
+    }
+    x += glyph.advanceWidth * scale + t.spacing;
+  }
+  return Number.isFinite(left) && right > left && bottom > top
+    ? { x: left, y: top, w: right - left, h: bottom - top }
+    : undefined;
 }

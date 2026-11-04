@@ -182,9 +182,8 @@ test("photograph crop settings survive a portable project round trip", async ({
   await page
     .getByLabel("Keret stílusa", { exact: true })
     .selectOption("dashed");
-  await page
-    .getByLabel("Árnyék típusa", { exact: true })
-    .selectOption("contact");
+  await page.getByLabel("Vetett árnyék", { exact: true }).check();
+  await page.getByLabel("Képszél elmosása", { exact: true }).check();
   await page.getByLabel("Tükröződés", { exact: true }).check();
   await page.getByRole("button", { name: "Feljebb", exact: true }).click();
   const pending = page.waitForEvent("download");

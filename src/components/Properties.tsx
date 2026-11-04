@@ -30,6 +30,7 @@ import {
   slotLabel,
   emptyPhoto,
   setSlotAsset,
+  updateSlotCrop,
   yearBoxFor,
 } from "../model";
 import { months } from "../engines/date";
@@ -198,13 +199,14 @@ export function Properties({
   }
   function editPhoto(patch: NonNullable<Photo["edits"]>) {
     if (!photo?.data) return;
-    const { name, data, pixelWidth, pixelHeight } = photo;
+    const { name, data, pixelWidth, pixelHeight, crop } = photo;
     commit((root) =>
       setSlotAsset(root, photo.id, p.mode === "annual" ? 0 : p.month, {
         name,
         data,
         pixelWidth,
         pixelHeight,
+        crop,
         edits: { ...photo.edits, ...patch },
       }),
     );
@@ -319,7 +321,9 @@ export function Properties({
                 max={8}
                 step={0.05}
                 unit="×"
-                onChange={(zoom) => image({ zoom })}
+                onChange={(zoom) =>
+                  commit((root) => updateSlotCrop(root, photo, { zoom }))
+                }
               />
             )}
             <button
@@ -495,7 +499,7 @@ export function Properties({
       </Section>
       {photo?.data && (
         <Section title="Képszerkesztés">
-          <div className="button-row">
+          <div className="button-row mirror-buttons">
             <button
               aria-pressed={photo.edits?.flipX ?? false}
               onClick={() => editPhoto({ flipX: !photo.edits?.flipX })}
@@ -533,29 +537,22 @@ export function Properties({
       )}
       {photo && (
         <Section title="Árnyék és tükröződés">
-          <Select
-            label="Árnyék típusa"
-            value={photo.shadowStyle?.kind ?? "none"}
-            options={[
-              ["none", "Nincs"],
-              ["drop", "Vetett árnyék"],
-              ["contact", "Érintkezési árnyék"],
-              ["curved", "Ívelt árnyék"],
-            ]}
-            onChange={(kind) =>
+          <Toggle
+            label="Vetett árnyék"
+            value={Boolean(photo.shadowStyle)}
+            onChange={(on) =>
               image({
-                shadowStyle:
-                  kind === "none"
-                    ? undefined
-                    : {
-                        blur: 2,
-                        distance: 2,
-                        angle: 45,
-                        opacity: 0.35,
-                        color: "#000000",
-                        ...photo.shadowStyle,
-                        kind: kind as NonNullable<Photo["shadowStyle"]>["kind"],
-                      },
+                shadow: 0,
+                shadowStyle: on
+                  ? {
+                      kind: "drop",
+                      blur: 2,
+                      distance: 2,
+                      angle: 45,
+                      opacity: 0.35,
+                      color: "#000000",
+                    }
+                  : undefined,
               })
             }
           />
@@ -685,6 +682,48 @@ export function Properties({
             step={0.1}
             onChange={(radius) => image({ radius })}
           />
+          <Toggle
+            label="Képszél elmosása"
+            value={Boolean(photo.edgeFeather)}
+            onChange={(on) =>
+              image({
+                edgeFeather: on
+                  ? { color: s.background, distance: 0, spread: 4 }
+                  : undefined,
+              })
+            }
+          />
+          {photo.edgeFeather && (
+            <>
+              <Color
+                label="Képszél színe"
+                value={photo.edgeFeather.color}
+                onChange={(color) =>
+                  image({ edgeFeather: { ...photo.edgeFeather!, color } })
+                }
+              />
+              <Slider
+                label="Befelé távolság"
+                min={0}
+                max={30}
+                step={0.1}
+                value={photo.edgeFeather.distance}
+                onChange={(distance) =>
+                  image({ edgeFeather: { ...photo.edgeFeather!, distance } })
+                }
+              />
+              <Slider
+                label="Képszél szórása"
+                min={0}
+                max={30}
+                step={0.1}
+                value={photo.edgeFeather.spread}
+                onChange={(spread) =>
+                  image({ edgeFeather: { ...photo.edgeFeather!, spread } })
+                }
+              />
+            </>
+          )}
           <Select
             label="Keret stílusa"
             value={photo.borderStyle ?? "solid"}

@@ -21,9 +21,9 @@ test("thirteen page icons and exclusive guide/print mode", async ({ page }) => {
     page.getByRole("button", { name: "Nyomtatási nézet", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
   await expect(
-    page.getByRole("button", { name: "Segédvonalak", exact: true }),
+    page.getByRole("button", { name: "Szerkesztés", exact: true }),
   ).toHaveAttribute("aria-pressed", "false");
-  await page.getByRole("button", { name: "Segédvonalak", exact: true }).click();
+  await page.getByRole("button", { name: "Szerkesztés", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Nyomtatási nézet", exact: true }),
   ).toHaveAttribute("aria-pressed", "false");
@@ -203,7 +203,8 @@ test("photo mask freely resizes and its image can be panned within it", async ({
   expect(Number(await photo.getAttribute("x"))).toBeGreaterThan(initialX);
   const cropped = await savedProject(page);
   expect(
-    Math.abs(cropped.photos[0].panX) + Math.abs(cropped.photos[0].panY),
+    Math.abs(cropped.photos[0].monthlyImages["3"].crop.panX) +
+      Math.abs(cropped.photos[0].monthlyImages["3"].crop.panY),
   ).toBeGreaterThan(0);
   await expect(page.getByLabel("X pozíció", { exact: true })).toHaveCount(0);
   await expect(page.getByText("Árnyék mérete", { exact: true })).toHaveCount(0);
@@ -254,6 +255,9 @@ test("a shared slot keeps its mask and stores independently edited photos per mo
   }
   await upload();
   await page
+    .getByRole("slider", { name: "Kép mérete a maszkban", exact: true })
+    .press("ArrowRight");
+  await page
     .getByRole("button", { name: "Tükrözés vízszintesen", exact: true })
     .click();
   await page
@@ -291,6 +295,8 @@ test("a shared slot keeps its mask and stores independently edited photos per mo
     brightness: 1,
   });
   expect(project.photos[0].monthlyImages["4"].edits).toBeUndefined();
+  expect(project.photos[0].monthlyImages["3"].crop.zoom).toBeGreaterThan(1);
+  expect(project.photos[0].monthlyImages["4"].crop.zoom).toBe(1);
 
   await page.getByRole("button", { name: "Stílus", exact: true }).click();
   await page.getByLabel("Sablon neve", { exact: true }).fill("Nyári sablon");
@@ -362,6 +368,32 @@ test("custom text uses the live geometry fields and stays on its page", async ({
   ).toBeVisible();
   const p = await savedProject(page);
   expect(p.textElements[0].box).toMatchObject({ x: 32.5, w: 85 });
+  await page
+    .getByRole("button", { name: "Szöveg 1 kiválasztása", exact: true })
+    .click();
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("Shift+ArrowDown");
+  await expect(
+    page.getByRole("spinbutton", { name: "Aktív elem: X", exact: true }),
+  ).toHaveValue("33.5");
+  await expect(
+    page.getByRole("spinbutton", { name: "Aktív elem: Y", exact: true }),
+  ).toHaveValue(String(p.textElements[0].box.y + 10));
+  await page.getByRole("button", { name: "Magnet", exact: true }).click();
+  const ink = await page.locator(".selection-box").boundingBox();
+  const paper = await page.getByTestId("calendar-paper").boundingBox();
+  const x = ink!.x + ink!.width / 2,
+    y = ink!.y + ink!.height / 2;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(paper!.x + paper!.width / 2 + 2, y, { steps: 5 });
+  await expect(page.locator(".alignment-guide.vertical")).toBeVisible();
+  await page.mouse.up();
+  const aligned = await page.locator(".selection-box").boundingBox();
+  expect(
+    Math.abs(aligned!.x + aligned!.width / 2 - paper!.x - paper!.width / 2),
+  ).toBeLessThan(1);
+
   await page
     .getByRole("navigation", { name: "Naptároldalak" })
     .getByRole("button", { name: "Április", exact: true })
