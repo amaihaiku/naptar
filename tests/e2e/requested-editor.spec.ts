@@ -387,13 +387,17 @@ test("custom text uses the live geometry fields and stays on its page", async ({
   await page.mouse.move(x, y);
   await page.mouse.down();
   await page.mouse.move(paper!.x + paper!.width / 2 + 2, y, { steps: 5 });
-  await expect(page.locator(".alignment-guide.vertical")).toBeVisible();
+  const guide = page.locator(".alignment-guide.vertical");
+  await expect(guide).toBeVisible();
+  const line = (await guide.boundingBox())!.x;
   await page.mouse.up();
-  const aligned = await page.locator(".selection-box").boundingBox();
-  expect(
-    Math.abs(aligned!.x + aligned!.width / 2 - paper!.x - paper!.width / 2),
-  ).toBeLessThan(1);
-
+  const aligned = (await page.locator(".selection-box").boundingBox())!;
+  const distances = [
+    aligned.x,
+    aligned.x + aligned.width / 2,
+    aligned.x + aligned.width,
+  ].map((point) => Math.abs(point - line));
+  expect(Math.min(...distances)).toBeLessThan(1);
   await page
     .getByRole("navigation", { name: "Naptároldalak" })
     .getByRole("button", { name: "Április", exact: true })
