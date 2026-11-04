@@ -46,6 +46,8 @@ import {
   applyMargin,
   setSlotAsset,
   slotLabel,
+  slotOnPage,
+  currentPage,
   parseProject,
   serializeProject,
   projectSchema,
@@ -783,7 +785,13 @@ export default function App() {
                           if (
                             !pagePhotos(p).some((item) => item.id === slot.id)
                           )
-                            selectPage(slot.page ?? p.month);
+                            selectPage(
+                              slot.page === 0
+                                ? 0
+                                : (slot.activeMonths?.[0] ??
+                                    slot.page ??
+                                    p.month),
+                            );
                           setSelection(slot.id);
                         }}
                       >
@@ -806,35 +814,83 @@ export default function App() {
                       </button>
                     </div>
                     <small>
-                      {slot.sharedSlot
-                        ? slot.page === 0
-                          ? "Borító és mind a 12 hónap"
-                          : "Mind a 12 hónap"
-                        : slot.page === 0
-                          ? "Borító"
-                          : months[(slot.page ?? p.month) - 1]}
+                      {[
+                        ...(slot.page === 0 ? ["Borító"] : []),
+                        ...(slot.sharedSlot
+                          ? ["Mind a 12 hónap"]
+                          : Array.from({ length: 12 }, (_, i) => i + 1)
+                              .filter((month) => slotOnPage(slot, month))
+                              .map((month) => months[month - 1])),
+                      ].join(", ") || "Nincs aktív oldal"}
                     </small>
                     <Toggle
                       label="Minden hónapban"
                       value={slot.sharedSlot ?? false}
                       onChange={(sharedSlot) => {
+                        const next = { ...slot, sharedSlot };
                         commit((root) => ({
                           ...root,
                           photos: root.photos.map((item) =>
-                            item.id === slot.id
-                              ? { ...item, sharedSlot }
-                              : item,
+                            item.id === slot.id ? next : item,
                           ),
                         }));
-                        const currentPage = p.mode === "annual" ? 0 : p.month;
                         if (
-                          !sharedSlot &&
                           selection === slot.id &&
-                          slot.page !== currentPage
+                          !slotOnPage(next, currentPage(p))
                         )
                           setSelection("title");
                       }}
                     />
+                    <div
+                      className="slot-months"
+                      role="group"
+                      aria-label={`${slotLabel(slot)} hónapjai`}
+                    >
+                      {months.map((month, i) => {
+                        const active =
+                          !slot.sharedSlot && slotOnPage(slot, i + 1);
+                        return (
+                          <button
+                            type="button"
+                            key={month}
+                            title={month}
+                            aria-label={month}
+                            aria-pressed={active}
+                            className={active ? "selected" : ""}
+                            onClick={() => {
+                              const selectedMonths = slot.sharedSlot
+                                ? []
+                                : (slot.activeMonths ??
+                                  (slot.page ? [slot.page] : []));
+                              const activeMonths = active
+                                ? selectedMonths.filter((n) => n !== i + 1)
+                                : [...selectedMonths, i + 1].sort(
+                                    (a, b) => a - b,
+                                  );
+                              const next = {
+                                ...slot,
+                                sharedSlot: false,
+                                activeMonths,
+                              };
+                              commit((root) => ({
+                                ...root,
+                                photos: root.photos.map((item) =>
+                                  item.id === slot.id ? next : item,
+                                ),
+                              }));
+                              if (
+                                selection === slot.id &&
+                                !slotOnPage(next, currentPage(p))
+                              )
+                                setSelection("title");
+                            }}
+                          >
+                            <CalendarDays size={11} />
+                            {i + 1}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 ))}
               </Section>

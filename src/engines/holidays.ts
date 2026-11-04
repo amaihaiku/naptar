@@ -34,3 +34,26 @@ export function holidays(y: number): Map<string, string> {
   }
   return result;
 }
+
+// Printed observances include dates that are not part of the statutory holiday map.
+export function holidayLabels(year: number): Map<string, string> {
+  const labels = holidays(year);
+  for (const [key, label] of [
+    ["5-1", "Munka ünnepe"],
+    ["8-20", "Államalapítás"],
+    ["12-24", "Szenteste"],
+    ["12-26", "Karácsony"],
+  ])
+    labels.set(key, label);
+  const date = easter(year);
+  for (const [offset, label] of [
+    [0, "Húsvét vasárnap"],
+    [1, "Húsvét hétfő"],
+    [49, "Pünkösd vasárnap"],
+    [50, "Pünkösd hétfő"],
+  ] as const) {
+    const day = addDays(date, offset);
+    if (day) labels.set(dateKey(day), label);
+  }
+  return labels;
+}

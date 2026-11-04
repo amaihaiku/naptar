@@ -88,11 +88,17 @@ test("monthly formatting remains identical across all twelve pages and cover rem
   page,
 }) => {
   await page.getByLabel("Betűméret", { exact: true }).fill("29");
-  await page.getByRole("button", { name: "December", exact: true }).click();
+  await page
+    .getByRole("navigation", { name: "Naptároldalak" })
+    .getByRole("button", { name: "December", exact: true })
+    .click();
   await expect(page.getByLabel("Betűméret", { exact: true })).toHaveValue("29");
   await page.getByRole("button", { name: "Borító", exact: true }).click();
   await expect(page.getByLabel("Betűméret", { exact: true })).toHaveValue("32");
-  await page.getByRole("button", { name: "Január", exact: true }).click();
+  await page
+    .getByRole("navigation", { name: "Naptároldalak" })
+    .getByRole("button", { name: "Január", exact: true })
+    .click();
   await expect(page.getByLabel("Betűméret", { exact: true })).toHaveValue("29");
   await page.getByLabel("Elem", { exact: true }).selectOption("grid");
   await expect(page.getByLabel("X pozíció", { exact: true })).toHaveCount(0);
@@ -109,7 +115,10 @@ test("day and nameday cell positions are independently shared across months", as
   await page
     .getByLabel("Névnapok függőleges elhelyezése")
     .selectOption("bottom");
-  await page.getByRole("button", { name: "December", exact: true }).click();
+  await page
+    .getByRole("navigation", { name: "Naptároldalak" })
+    .getByRole("button", { name: "December", exact: true })
+    .click();
   await page.getByLabel("Szövegelem", { exact: true }).selectOption("nameday");
   await expect(page.getByLabel("Névnapok függőleges elhelyezése")).toHaveValue(
     "bottom",
@@ -173,6 +182,11 @@ test("photo mask freely resizes and its image can be panned within it", async ({
     before.photos[0].box.w / before.photos[0].box.h,
     2,
   );
+  await page
+    .getByRole("button", { name: "Tükrözés vízszintesen", exact: true })
+    .click();
+  const photo = page.getByTestId("calendar-paper").locator("image");
+  const initialX = Number(await photo.getAttribute("x"));
   const hit = await page
     .getByRole("button", {
       name: "foto.png kiválasztása és mozgatása a maszkban",
@@ -186,6 +200,7 @@ test("photo mask freely resizes and its image can be panned within it", async ({
     { steps: 8 },
   );
   await page.mouse.up();
+  expect(Number(await photo.getAttribute("x"))).toBeGreaterThan(initialX);
   const cropped = await savedProject(page);
   expect(
     Math.abs(cropped.photos[0].panX) + Math.abs(cropped.photos[0].panY),
@@ -244,7 +259,10 @@ test("a shared slot keeps its mask and stores independently edited photos per mo
   await page
     .getByRole("slider", { name: "Fényerő", exact: true })
     .press("ArrowRight");
-  await page.getByRole("button", { name: "Április", exact: true }).click();
+  await page
+    .getByRole("navigation", { name: "Naptároldalak" })
+    .getByRole("button", { name: "Április", exact: true })
+    .click();
   await page
     .locator(".photo-layer")
     .getByRole("button", { name: "Képhely 1", exact: true })
@@ -256,6 +274,16 @@ test("a shared slot keeps its mask and stores independently edited photos per mo
     page.getByRole("button", { name: "Képcsere", exact: true }),
   ).toHaveCount(0);
   await upload();
+  const slotMonths = page.getByRole("group", { name: "Képhely 1 hónapjai" });
+  await slotMonths
+    .getByRole("button", { name: "Április", exact: true })
+    .click();
+  await expect(
+    page.getByLabel("Minden hónapban", { exact: true }),
+  ).not.toBeChecked();
+  await expect(
+    slotMonths.getByRole("button", { name: "Április", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
   const project = await savedProject(page);
   expect(project.photos).toHaveLength(1);
   expect(project.photos[0].monthlyImages["3"].edits).toEqual({
@@ -310,4 +338,37 @@ test("an out-of-page title can be exported with the cover and all months", async
   expect((await PDFDocument.load(await readFile(file!))).getPageCount()).toBe(
     13,
   );
+});
+
+test("custom text uses the live geometry fields and stays on its page", async ({
+  page,
+}) => {
+  await page
+    .getByRole("button", { name: "Szöveg hozzáadása", exact: true })
+    .click();
+  await page
+    .getByRole("textbox", { name: "Szöveg", exact: true })
+    .fill("Közös emlékek");
+  await page
+    .getByRole("spinbutton", { name: "Aktív elem: X", exact: true })
+    .fill("32.5");
+  await page
+    .getByRole("spinbutton", { name: "Aktív elem: Szélesség", exact: true })
+    .fill("85");
+  await expect(
+    page
+      .getByTestId("calendar-paper")
+      .getByText("Közös emlékek", { exact: true }),
+  ).toBeVisible();
+  const p = await savedProject(page);
+  expect(p.textElements[0].box).toMatchObject({ x: 32.5, w: 85 });
+  await page
+    .getByRole("navigation", { name: "Naptároldalak" })
+    .getByRole("button", { name: "Április", exact: true })
+    .click();
+  await expect(
+    page
+      .getByTestId("calendar-paper")
+      .getByText("Közös emlékek", { exact: true }),
+  ).toHaveCount(0);
 });

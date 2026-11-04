@@ -158,6 +158,7 @@ export function templateOf(p: Project, name = "Saját sablon") {
     yearBox,
     cover,
     monthOverrides,
+    textElements,
     photos,
   } = p;
   return {
@@ -171,6 +172,7 @@ export function templateOf(p: Project, name = "Saját sablon") {
     yearBox,
     cover,
     monthOverrides,
+    textElements,
     photos: photos.map((slot) => ({
       ...slot,
       ...emptyPhoto,
@@ -190,6 +192,7 @@ const templateSchema = projectSchema
     yearBox: true,
     cover: true,
     monthOverrides: true,
+    textElements: true,
     photos: true,
   })
   .extend({

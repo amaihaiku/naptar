@@ -57,7 +57,7 @@ describe("Requested cover/month and typography behavior", () => {
         kind: "other",
         name: "Iskolai ünnep",
         month: 3,
-        day: 1,
+        day: 15,
         birthYear: null,
         showAge: false,
         hidden: false,
@@ -65,7 +65,15 @@ describe("Requested cover/month and typography behavior", () => {
         coloredDay: true,
       },
     ];
+    const original = buildScene(p);
+    p.style.eventOffsets = { other: [2, -1] };
     const scene = buildScene(p);
+    const findText = (scene: ReturnType<typeof buildScene>, label: string) =>
+      scene.nodes.find((n) => n.kind === "text" && n.text === label)!;
+    const event = findText(scene, "Iskolai ünnep");
+    const holiday = findText(scene, "Nemzeti ünnep");
+    expect(event.x - findText(original, "Iskolai ünnep").x).toBe(2);
+    expect(event.y < holiday.y).toBe(true);
     expect(
       scene.nodes.some((n) => n.kind === "text" && n.text === "Iskolai ünnep"),
     ).toBe(true);
@@ -76,7 +84,7 @@ describe("Requested cover/month and typography behavior", () => {
       scene.nodes.some(
         (n) =>
           n.kind === "text" &&
-          n.text === "1" &&
+          n.text === "15" &&
           n.type.color === p.style.holidayColor,
       ),
     ).toBe(true);

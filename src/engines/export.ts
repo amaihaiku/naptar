@@ -21,6 +21,7 @@ import { validatePhotos } from "./images";
 import {
   renderCanvas,
   rasterPhoto,
+  photoArtworkBounds,
   roundPath,
   cakeRects,
   flowerCircles,
@@ -78,7 +79,8 @@ export function validateExport(
     ),
   );
   for (const photo of exportPhotos.values()) {
-    const pixels = rasterDimensions(photo.box.w, photo.box.h);
+    const bounds = photoArtworkBounds(photo);
+    const pixels = rasterDimensions(bounds.w, bounds.h);
     if (format === "pdf" && pixels.width * pixels.height > 40_000_000)
       issues.push({
         severity: "error",
@@ -207,49 +209,18 @@ export async function createPdf(
       if (n.kind === "image") {
         const photo = pagePhotos(p, scene.page).find((i) => i.id === n.photoId);
         if (photo) {
-          const canvas = rasterPhoto(photo);
+          const { canvas, bounds } = rasterPhoto(photo);
           const data = await canvasBlob(canvas, "png");
           const img = await doc.embedPng(
             new Uint8Array(await data.arrayBuffer()),
           );
           page.drawImage(img, {
-            x: n.x * pt,
-            y: H - (n.y + n.h) * pt,
-            width: n.w * pt,
-            height: n.h * pt,
+            x: bounds.x * pt,
+            y: H - (bounds.y + bounds.h) * pt,
+            width: bounds.w * pt,
+            height: bounds.h * pt,
             opacity: n.opacity,
           });
-          if (photo.border > 0) {
-            if (photo.shape === "rectangle") {
-              page.drawSvgPath(roundPath({ ...photo.box, r: photo.radius }), {
-                x: 0,
-                y: H,
-                scale: pt,
-                color: undefined,
-                borderColor: color(photo.borderColor),
-                borderWidth: photo.border,
-                opacity: 0,
-                borderOpacity: n.opacity,
-              });
-            } else {
-              const rx =
-                photo.shape === "circle"
-                  ? Math.min(photo.box.w, photo.box.h) / 2
-                  : photo.box.w / 2;
-              const ry = photo.shape === "circle" ? rx : photo.box.h / 2;
-              page.drawEllipse({
-                x: (photo.box.x + photo.box.w / 2) * pt,
-                y: H - (photo.box.y + photo.box.h / 2) * pt,
-                xScale: rx * pt,
-                yScale: ry * pt,
-                color: undefined,
-                borderColor: color(photo.borderColor),
-                borderWidth: photo.border * pt,
-                opacity: 0,
-                borderOpacity: n.opacity,
-              });
-            }
-          }
           canvas.width = 0;
           canvas.height = 0;
         }

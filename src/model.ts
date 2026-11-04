@@ -38,6 +38,7 @@ export const categories = [
   "nameday",
   "birthday",
   "personalNameday",
+  "otherEvent",
 ] as const;
 export type Category = (typeof categories)[number];
 export const typeSchema = z
@@ -81,6 +82,14 @@ export const styleSchema = z
     namedayLayout: z.enum(["row", "stack"]).optional(),
     namedayX: num(-30, 30).optional(),
     namedayY: num(-30, 30).optional(),
+    eventOffsets: z
+      .object({
+        birthday: z.tuple([num(-30, 30), num(-30, 30)]).optional(),
+        nameday: z.tuple([num(-30, 30), num(-30, 30)]).optional(),
+        other: z.tuple([num(-30, 30), num(-30, 30)]).optional(),
+      })
+      .strict()
+      .optional(),
     weekX: num(-20, 20).optional(),
     weekY: num(-20, 20).optional(),
     showYear: z.boolean(),
@@ -108,6 +117,7 @@ export const styleSchema = z
         nameday: typeSchema,
         birthday: typeSchema,
         personalNameday: typeSchema,
+        otherEvent: typeSchema.optional(),
       })
       .strict(),
   })
@@ -187,6 +197,25 @@ export const imageSchema = z
     page: z.number().int().min(0).max(12).optional(),
     slotNumber: z.number().int().positive().optional(),
     sharedSlot: z.boolean().optional(),
+    activeMonths: z.array(z.number().int().min(1).max(12)).max(12).optional(),
+    borderStyle: z
+      .enum(["solid", "dashed", "dotted", "double", "frame"])
+      .optional(),
+    shadowStyle: z
+      .object({
+        kind: z.enum(["drop", "contact", "curved"]),
+        blur: num(0, 20),
+        distance: num(0, 20),
+        angle: num(0, 360),
+        opacity: num(0, 1),
+        color,
+      })
+      .strict()
+      .optional(),
+    reflection: z
+      .object({ opacity: num(0, 1), length: num(0.1, 1) })
+      .strict()
+      .optional(),
     monthlyImages: z
       .record(
         z.string().regex(/^(?:[1-9]|1[0-2])$/),
@@ -211,12 +240,26 @@ const styleOverrideSchema = styleSchema
         nameday: typeSchema.partial(),
         birthday: typeSchema.partial(),
         personalNameday: typeSchema.partial(),
+        otherEvent: typeSchema.partial(),
       })
       .partial()
       .strict()
       .optional(),
   })
   .strict();
+const textElementSchema = z
+  .object({
+    id: z.string().min(1).max(80),
+    page: z.number().int().min(0).max(12),
+    text: z.string().max(500),
+    box: boxSchema,
+    typography: typeSchema,
+  })
+  .strict();
+export type TextElement = z.infer<typeof textElementSchema>;
+export const currentPage = (p: Project) => (p.mode === "annual" ? 0 : p.month);
+export const pageText = (p: Project) =>
+  (p.textElements ?? []).filter((item) => item.page === currentPage(p));
 const coverSchema = z
   .object({
     title: z.string().max(100),
@@ -266,10 +309,17 @@ export const projectSchema = z
       z.array(z.string().trim().min(1).max(60)).max(2),
     ),
     photos: z.array(imageSchema).max(16),
+    textElements: z.array(textElementSchema).max(100).optional(),
   })
   .strict()
   .superRefine((p, ctx) => {
-    for (const st of [p.style, p.cover?.style]) {
+    for (const st of [
+      p.style,
+      p.cover?.style,
+      ...(p.textElements ?? []).map((e) => ({
+        typography: { text: e.typography },
+      })),
+    ]) {
       if (!st) continue;
       for (const ty of Object.values(st.typography)) {
         if (!ty) continue;
@@ -306,7 +356,11 @@ export const projectSchema = z
         code: "custom",
         message: "A projekt összes képadatának mérete legfeljebb 75 MB lehet.",
       });
-    const ids = [...p.events.map((e) => e.id), ...p.photos.map((e) => e.id)];
+    const ids = [
+      ...p.events.map((e) => e.id),
+      ...p.photos.map((e) => e.id),
+      ...(p.textElements ?? []).map((e) => e.id),
+    ];
     if (new Set(ids).size !== ids.length)
       ctx.addIssue({ code: "custom", message: "Ismétlődő azonosítók." });
     for (const key of Object.keys(p.namedayOverrides)) {
@@ -520,13 +574,22 @@ export function photoAssets(photos: Photo[]): PhotoAsset[] {
     ])
     .filter((asset) => asset.data);
 }
+export function slotOnPage(photo: Photo, page: number) {
+  if (page === 0) return photo.page === 0;
+  return Boolean(
+    photo.sharedSlot ||
+    (photo.activeMonths
+      ? photo.activeMonths.includes(page)
+      : photo.page === page),
+  );
+}
 export function pagePhotos(
   p: Project,
   page = p.mode === "annual" ? 0 : p.month,
 ): Photo[] {
   return p.photos.flatMap((photo) => {
     if (photo.slotNumber !== undefined) {
-      if (photo.page !== page && !(photo.sharedSlot && page > 0)) return [];
+      if (!slotOnPage(photo, page)) return [];
       if (page === 0) return [photo];
       const asset = photo.monthlyImages?.[page];
       return [{ ...photo, ...emptyPhoto, edits: undefined, ...asset }];
@@ -598,6 +661,45 @@ export function applyMargin(
       titleBox: textInset(cover.titleBox),
       yearBox: textInset(cover.yearBox),
     },
+  };
+}
+export function elementBox(p: Project, id: string): Box | undefined {
+  const view = viewProject(p);
+  if (id === "grid")
+    return p.mode === "annual" && p.cover?.showCalendar === false
+      ? undefined
+      : { ...view.grid, y: view.grid.y + view.style.titleGap - 10 };
+  if (id === "title") return view.titleBox;
+  if (id === "year") return view.style.showYear ? yearBoxFor(p) : undefined;
+  return (
+    pageText(p).find((e) => e.id === id)?.box ??
+    pagePhotos(p).find((e) => e.id === id)?.box
+  );
+}
+export function updateElementBox(
+  p: Project,
+  id: string,
+  patch: Partial<Box>,
+): Project {
+  const old = elementBox(p, id);
+  if (!old) return p;
+  const box = { ...old, ...patch };
+  if (id === "grid")
+    return updateView(p, {
+      grid: { ...box, y: box.y - (effectiveStyle(p).titleGap - 10) },
+    });
+  if (id === "title") return updateView(p, { titleBox: box });
+  if (id === "year") return updateView(p, { yearBox: box });
+  if (p.textElements?.some((item) => item.id === id))
+    return {
+      ...p,
+      textElements: p.textElements.map((item) =>
+        item.id === id ? { ...item, box } : item,
+      ),
+    };
+  return {
+    ...p,
+    photos: p.photos.map((item) => (item.id === id ? { ...item, box } : item)),
   };
 }
 export function yearBoxFor(p: Project): Box {

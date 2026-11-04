@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Lock, Move, Maximize2 } from "lucide-react";
 import {
-  effectiveStyle,
+  elementBox,
+  updateElementBox,
+  pageText,
   viewProject,
-  updateView,
   yearBoxFor,
   pagePhotos,
   slotLabel,
@@ -12,8 +13,48 @@ import {
 } from "../model";
 import type { Scene } from "../engines/layout";
 import type { CivilDate } from "../engines/date";
+import { Field } from "./Controls";
 import { SceneView } from "./SceneView";
 import { cropGeometry } from "../engines/images";
+function GeometryInput({
+  label,
+  value,
+  min,
+  max,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
+}) {
+  const [draft, setDraft] = useState<string | null>(null);
+  return (
+    <Field label={label}>
+      <span className="number-wrap">
+        <input
+          type="number"
+          aria-label={`Aktív elem: ${label}`}
+          min={min}
+          max={max}
+          step={0.1}
+          value={draft ?? Number(value.toFixed(3))}
+          onBlur={() => setDraft(null)}
+          onChange={(e) => {
+            setDraft(e.target.value);
+            const n = e.target.valueAsNumber;
+            if (Number.isFinite(n) && n >= min && n <= max) onChange(n);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") e.currentTarget.blur();
+          }}
+        />
+        <i>mm</i>
+      </span>
+    </Field>
+  );
+}
 export type Selection = "grid" | "title" | "year" | string;
 export function Workspace({
   project,
@@ -65,14 +106,8 @@ export function Workspace({
       (available.h - 80) / project.page.height,
     ),
     scale = Math.max(0.4, fit) * zoom;
-  const actualBox = (id: string) =>
-    id === "grid"
-      ? { ...v.grid, y: v.grid.y + (v.style.titleGap - 10) }
-      : id === "title"
-        ? v.titleBox
-        : id === "year"
-          ? yearBoxFor(project)
-          : photos.find((p) => p.id === id)?.box;
+  const actualBox = (id: string) => elementBox(project, id);
+  const texts = pageText(project);
   function start(
     e: React.PointerEvent,
     id: string,
@@ -104,8 +139,8 @@ export function Workspace({
     let next: Project;
     if (d.kind === "crop" && photo) {
       const c = cropGeometry(photo),
-        extraX = c.w - photo.box.w,
-        extraY = c.h - photo.box.h;
+        extraX = c.extraX,
+        extraY = c.extraY;
       next = {
         ...d.p,
         photos: d.p.photos.map((p) =>
@@ -142,21 +177,7 @@ export function Workspace({
         if (Math.abs(b.x + b.w / 2 - project.page.width / 2) < 1.5)
           b.x = (project.page.width - b.w) / 2;
       }
-      next =
-        d.id === "grid"
-          ? updateView(d.p, {
-              grid: { ...b, y: b.y - (effectiveStyle(d.p).titleGap - 10) },
-            })
-          : d.id === "title"
-            ? updateView(d.p, { titleBox: b })
-            : d.id === "year"
-              ? updateView(d.p, { yearBox: b })
-              : {
-                  ...d.p,
-                  photos: d.p.photos.map((p) =>
-                    p.id === d.id ? { ...p, box: b, aspectLock: false } : p,
-                  ),
-                };
+      next = updateElementBox(d.p, d.id, b);
     }
     d.next = next;
     onPreview(next);
@@ -299,6 +320,19 @@ export function Workspace({
                     onPointerCancel={stop}
                   />
                 )}
+                {texts.map((item, i) => (
+                  <button
+                    key={item.id}
+                    className="title-hit custom-text-hit"
+                    aria-label={`Szöveg ${i + 1} kiválasztása`}
+                    style={styleBox(item.box)}
+                    onClick={() => onSelect(item.id)}
+                    onPointerDown={(e) => start(e, item.id)}
+                    onPointerMove={move}
+                    onPointerUp={stop}
+                    onPointerCancel={stop}
+                  />
+                ))}
                 {selected &&
                   !(
                     selection === "grid" &&
@@ -313,7 +347,9 @@ export function Workspace({
                             ? "Cím"
                             : selection === "year"
                               ? "Évszám"
-                              : "Kép maszk"}
+                              : texts.some((e) => e.id === selection)
+                                ? "Szöveg"
+                                : "Kép maszk"}
                         {selected.locked && <Lock size={10} />}
                       </span>
                       {!selected.locked && (
@@ -346,13 +382,35 @@ export function Workspace({
         </div>
       </div>
       <div className="workspace-bottom">
-        <span>
-          {previewMode
-            ? "Nyomtatási előnézet"
-            : project.mode === "annual"
-              ? "A képet a maszkon belül húzva igazíthatod"
-              : "Kattints egy dátumra esemény hozzáadásához"}
-        </span>
+        {selected && !previewMode ? (
+          <div className="element-geometry" aria-label="Aktív elem méretei">
+            {(
+              [
+                ["x", "X", -600, 1200],
+                ["y", "Y", -600, 1200],
+                ["w", "Szélesség", 10, 600],
+                ["h", "Magasság", 10, 600],
+              ] as const
+            ).map(([key, label, min, max]) => (
+              <GeometryInput
+                key={selection + key}
+                label={label}
+                value={selected[key]}
+                min={min}
+                max={max}
+                onChange={(value) =>
+                  onCommit(
+                    updateElementBox(project, selection, { [key]: value }),
+                  )
+                }
+              />
+            ))}
+          </div>
+        ) : (
+          <span>
+            {previewMode ? "Nyomtatási előnézet" : "Válassz egy elemet"}
+          </span>
+        )}
         <div className="zoom-controls">
           <input
             aria-label="Nagyítás"
