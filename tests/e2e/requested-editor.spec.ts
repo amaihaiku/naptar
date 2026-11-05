@@ -408,3 +408,49 @@ test("custom text uses the live geometry fields and stays on its page", async ({
       .getByText("Közös emlékek", { exact: true }),
   ).toHaveCount(0);
 });
+
+test("large uploads appear only after optimization and save the same compressed asset", async ({
+  page,
+}) => {
+  const original = await page.evaluate(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 4800;
+    canvas.height = 3400;
+    const ctx = canvas.getContext("2d")!;
+    const gradient = ctx.createLinearGradient(0, 0, 4800, 3400);
+    gradient.addColorStop(0, "#334b77");
+    gradient.addColorStop(1, "#eeaa63");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 4800, 3400);
+    const data = canvas.toDataURL("image/jpeg", 0.98);
+    canvas.width = 0;
+    return data;
+  });
+  await page.getByRole("button", { name: "Képhelyek", exact: true }).click();
+  await page.getByRole("button", { name: "Új képhely", exact: true }).click();
+  const pending = page.waitForEvent("filechooser");
+  await page
+    .getByRole("button", { name: "Kép betöltése", exact: true })
+    .click();
+  await (
+    await pending
+  ).setFiles({
+    name: "nagy.jpg",
+    mimeType: "image/jpeg",
+    buffer: Buffer.from(original.split(",")[1], "base64"),
+  });
+  await expect(
+    page.getByRole("button", { name: "Képcsere", exact: true }),
+  ).toBeVisible();
+  const project = await savedProject(page);
+  const asset = project.photos[0].monthlyImages[String(project.month)];
+  expect(asset.pixelWidth * asset.pixelHeight).toBeLessThanOrEqual(2480 * 3508);
+  expect(asset.pixelWidth).toBeLessThan(4800);
+  expect(asset.data).toMatch(/^data:image\/(webp|jpeg);base64,/);
+  expect(asset.data).not.toBe(original);
+  const href = await page
+    .getByTestId("calendar-paper")
+    .locator("image")
+    .getAttribute("href");
+  expect(href === asset.data).toBe(true);
+});

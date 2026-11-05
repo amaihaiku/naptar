@@ -17,7 +17,7 @@ import JSZip from "jszip";
 import { pagePhotos, photoAssets, type Project } from "../model";
 import { buildScene, type Scene, type Clip } from "./layout";
 import { advance, fontKey, getFont, mmPerPt } from "./fonts";
-import { validatePhotos } from "./images";
+import { decodeImage, imageCache } from "./images";
 import {
   renderCanvas,
   rasterPhoto,
@@ -158,7 +158,6 @@ export async function createPdf(
   scenes: Scene[],
   onProgress: (v: string) => void = () => {},
 ): Promise<Uint8Array> {
-  await validatePhotos(p.photos);
   const doc = await PDFDocument.create();
   doc.registerFontkit(fontkit);
   doc.setTitle(p.title);
@@ -209,20 +208,29 @@ export async function createPdf(
       if (n.kind === "image") {
         const photo = pagePhotos(p, scene.page).find((i) => i.id === n.photoId);
         if (photo) {
-          const { canvas, bounds } = rasterPhoto(photo);
-          const data = await canvasBlob(canvas, "png");
-          const img = await doc.embedPng(
-            new Uint8Array(await data.arrayBuffer()),
-          );
-          page.drawImage(img, {
-            x: bounds.x * pt,
-            y: H - (bounds.y + bounds.h) * pt,
-            width: bounds.w * pt,
-            height: bounds.h * pt,
-            opacity: n.opacity,
-          });
-          canvas.width = 0;
-          canvas.height = 0;
+          const retained = imageCache.has(photo.data);
+          try {
+            await decodeImage(photo.data);
+            const { canvas, bounds } = rasterPhoto(photo);
+            try {
+              const data = await canvasBlob(canvas, "png");
+              const img = await doc.embedPng(
+                new Uint8Array(await data.arrayBuffer()),
+              );
+              page.drawImage(img, {
+                x: bounds.x * pt,
+                y: H - (bounds.y + bounds.h) * pt,
+                width: bounds.w * pt,
+                height: bounds.h * pt,
+                opacity: n.opacity,
+              });
+            } finally {
+              canvas.width = 0;
+              canvas.height = 0;
+            }
+          } finally {
+            if (!retained) imageCache.delete(photo.data);
+          }
         }
       }
       if (n.kind === "icon") {
@@ -284,12 +292,24 @@ export async function createRaster(
   canvas.height = height;
   const ctx = canvas.getContext("2d", { colorSpace: "srgb" });
   if (!ctx) throw new Error("A böngésző nem támogatja a vászonrajzolást.");
+  const imageIds = new Set(
+    scene.nodes.flatMap((node) =>
+      node.kind === "image" ? [node.photoId] : [],
+    ),
+  );
+  const transient = new Set<string>();
   try {
+    for (const photo of pagePhotos(p, scene.page)) {
+      if (!imageIds.has(photo.id) || imageCache.has(photo.data)) continue;
+      transient.add(photo.data);
+      await decodeImage(photo.data);
+    }
     ctx.scale(width / scene.width, height / scene.height);
     renderCanvas(ctx, scene, p, 1);
     const blob = await canvasBlob(canvas, format);
     return withDpi(new Uint8Array(await blob.arrayBuffer()), format);
   } finally {
+    for (const data of transient) imageCache.delete(data);
     canvas.width = 0;
     canvas.height = 0;
   }
@@ -302,7 +322,6 @@ export async function exportCalendar(
   ignoreWarnings = false,
 ): Promise<void> {
   await document.fonts.ready;
-  await validatePhotos(p.photos);
   const { scenes, issues } = validateExport(p, pages, format);
   const errors = issues.filter(
     (i) => isExportBlocker(i) || (!ignoreWarnings && i.severity === "error"),

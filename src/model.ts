@@ -1,6 +1,7 @@
 import { z } from "zod";
 import fontManifest from "./data/fonts.json";
 import { daysInMonth } from "./engines/date";
+export const PHOTO_STORAGE_LIMIT = 75_000_000;
 const num = (min: number, max: number) => z.number().finite().min(min).max(max);
 const color = z.string().regex(/^#[0-9a-fA-F]{6}$/);
 export const families = [
@@ -358,9 +359,7 @@ export const projectSchema = z
             "A szabványos papírméret adatai nem egyeznek a választott mérettel.",
         });
     }
-    if (
-      photoAssets(p.photos).reduce((n, i) => n + i.data.length, 0) > 75_000_000
-    )
+    if (photoStorageSize(p.photos) > PHOTO_STORAGE_LIMIT)
       ctx.addIssue({
         code: "custom",
         message: "A projekt összes képadatának mérete legfeljebb 75 MB lehet.",
@@ -582,6 +581,12 @@ export function photoAssets(photos: Photo[]): PhotoAsset[] {
       ),
     ])
     .filter((asset) => asset.data);
+}
+export function photoStorageSize(photos: Photo[]) {
+  return photoAssets(photos).reduce(
+    (size, asset) => size + asset.data.length,
+    0,
+  );
 }
 export function slotOnPage(photo: Photo, page: number) {
   if (page === 0) return photo.page === 0;

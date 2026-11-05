@@ -21,9 +21,11 @@ function StyledPhoto({ photo }: { photo: Photo }) {
   useEffect(() => {
     if (ready) return;
     let active = true;
-    void decodeImage(photo.data)
-      .then(() => {
-        if (active) setDecoded(photo.data);
+    void decodeImage(photo.data, false)
+      .then((image) => {
+        if (!active) return;
+        imageCache.set(photo.data, image);
+        setDecoded(photo.data);
       })
       .catch(() => {});
     return () => {

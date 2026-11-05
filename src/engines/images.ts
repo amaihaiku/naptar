@@ -25,7 +25,10 @@ export function cropGeometry(p: Photo) {
     extraY: h - requiredH,
   };
 }
-export async function decodeImage(data: string): Promise<HTMLImageElement> {
+export async function decodeImage(
+  data: string,
+  retain = true,
+): Promise<HTMLImageElement> {
   const old = imageCache.get(data);
   if (old) return old;
   const image = new Image();
@@ -33,12 +36,12 @@ export async function decodeImage(data: string): Promise<HTMLImageElement> {
   await image.decode();
   if (image.naturalWidth * image.naturalHeight > 40_000_000)
     throw new Error("A kép legfeljebb 40 megapixeles lehet.");
-  imageCache.set(data, image);
+  if (retain) imageCache.set(data, image);
   return image;
 }
 export async function validatePhotos(photos: Photo[]): Promise<void> {
   for (const p of photoAssets(photos)) {
-    const img = await decodeImage(p.data);
+    const img = await decodeImage(p.data, false);
     if (
       img.naturalWidth !== p.pixelWidth ||
       img.naturalHeight !== p.pixelHeight
@@ -47,11 +50,34 @@ export async function validatePhotos(photos: Photo[]): Promise<void> {
   }
 }
 export function pruneImages(photos: Photo[]) {
-  const active = new Set(photoAssets(photos).map((p) => p.data));
+  const active = new Set(photos.map((p) => p.data));
   for (const key of imageCache.keys())
     if (!active.has(key)) imageCache.delete(key);
 }
-export async function readPhoto(file: File): Promise<PhotoAsset> {
+export const PHOTO_SPACE_MESSAGE =
+  "A projektben nincs elég hely ehhez a képhez. Távolíts el egy másik képet, vagy válassz kisebb fotót.";
+const PHOTO_TARGET_BYTES = 1_500_000;
+const MAX_PHOTO_PIXELS = 2480 * 3508;
+function encodePhoto(
+  canvas: HTMLCanvasElement,
+  type: string,
+  quality: number,
+): Promise<Blob> {
+  return new Promise((resolve, reject) =>
+    canvas.toBlob(
+      (blob) =>
+        blob
+          ? resolve(blob)
+          : reject(new Error("A képet nem sikerült tömöríteni.")),
+      type,
+      quality,
+    ),
+  );
+}
+export async function readPhoto(
+  file: File,
+  storageBudget = Infinity,
+): Promise<PhotoAsset> {
   if (file.size > 25_000_000) throw new Error("A kép legfeljebb 25 MB lehet.");
   const bytes = new Uint8Array(await file.slice(0, 16).arrayBuffer());
   const png =
@@ -62,22 +88,85 @@ export async function readPhoto(file: File): Promise<PhotoAsset> {
     String.fromCharCode(...bytes.slice(8, 12)) === "WEBP";
   if (!(png || jpg || webp))
     throw new Error("Csak valódi JPG, PNG vagy WebP kép tölthető fel.");
+  if (storageBudget < 32) throw new Error(PHOTO_SPACE_MESSAGE);
+
+  const url = URL.createObjectURL(file);
+  const image = new Image();
+  const canvas = document.createElement("canvas");
+  let optimized: { blob: Blob; width: number; height: number } | undefined;
+  try {
+    image.src = url;
+    try {
+      await image.decode();
+    } catch {
+      throw new Error("A képfájl sérült vagy nem olvasható.");
+    }
+    const width = image.naturalWidth,
+      height = image.naturalHeight;
+    const pixels = width * height;
+    if (pixels > 40_000_000)
+      throw new Error("A kép legfeljebb 40 megapixeles lehet.");
+    const edge = Math.max(width, height);
+    let scale = Math.min(1, 4096 / edge, Math.sqrt(MAX_PHOTO_PIXELS / pixels));
+    const minimumScale = Math.min(scale, 1600 / edge);
+    const ctx = canvas.getContext("2d", { colorSpace: "srgb" });
+    if (!ctx) throw new Error("A böngésző nem tudja átméretezni a képet.");
+    let format = "image/webp";
+    const target = Math.min(
+      PHOTO_TARGET_BYTES,
+      Math.max(0, Math.floor((storageBudget - 32) / 4) * 3),
+    );
+    for (let pass = 0; pass < 5; pass++) {
+      canvas.width = Math.max(1, Math.floor(width * scale));
+      canvas.height = Math.max(1, Math.floor(height * scale));
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      let reachedTarget = false;
+      for (const quality of [0.92, 0.87, 0.82]) {
+        let blob = await encodePhoto(canvas, format, quality);
+        if (format === "image/webp" && blob.type !== format) {
+          format = jpg ? "image/jpeg" : "image/png";
+          if (format !== blob.type)
+            blob = await encodePhoto(canvas, format, quality);
+        }
+        const storedLength =
+          `data:${blob.type};base64,`.length + 4 * Math.ceil(blob.size / 3);
+        if (
+          storedLength <= storageBudget &&
+          (!optimized || blob.size < optimized.blob.size)
+        ) {
+          optimized = { blob, width: canvas.width, height: canvas.height };
+        }
+        if (blob.size <= target && storedLength <= storageBudget) {
+          optimized = { blob, width: canvas.width, height: canvas.height };
+          reachedTarget = true;
+          break;
+        }
+        if (blob.type === "image/png") break;
+      }
+      if (reachedTarget || scale <= minimumScale) break;
+      scale = Math.max(minimumScale, scale * 0.84);
+    }
+  } finally {
+    image.removeAttribute("src");
+    URL.revokeObjectURL(url);
+    canvas.width = 0;
+    canvas.height = 0;
+  }
+  if (!optimized) throw new Error(PHOTO_SPACE_MESSAGE);
+
+  const { blob, width, height } = optimized;
   const data = await new Promise<string>((resolve, reject) => {
     const r = new FileReader();
-    r.onerror = () => reject(new Error("A kép nem olvasható."));
+    r.onerror = () => reject(new Error("A tömörített kép nem olvasható."));
     r.onload = () => resolve(String(r.result));
-    r.readAsDataURL(
-      new Blob([file], {
-        type: png ? "image/png" : jpg ? "image/jpeg" : "image/webp",
-      }),
-    );
+    r.readAsDataURL(blob);
   });
-  const image = await decodeImage(data);
   return {
     name: file.name.slice(0, 120),
     data,
-    pixelWidth: image.naturalWidth,
-    pixelHeight: image.naturalHeight,
+    pixelWidth: width,
+    pixelHeight: height,
     crop: { zoom: 1, panX: 0, panY: 0 },
   };
 }
