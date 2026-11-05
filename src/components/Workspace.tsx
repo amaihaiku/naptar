@@ -229,13 +229,11 @@ export function Workspace({
           }
         }
       }
-      const content = peers[1];
-      const gapTargets = emptySpaceTargets(
-        shifted,
-        peers.slice(2),
-        content,
-        axis,
-      );
+      const gapTargets = peers
+        .slice(0, 2)
+        .flatMap((boundary) =>
+          emptySpaceTargets(shifted, peers.slice(2), boundary, axis),
+        );
       const middle = points[1];
       for (const target of gapTargets) {
         const distance = target.position - middle;
