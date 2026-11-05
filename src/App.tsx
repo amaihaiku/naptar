@@ -95,6 +95,7 @@ import {
   Slider,
 } from "./components/Controls";
 import { Properties } from "./components/Properties";
+import { HolidayList } from "./components/HolidayList";
 import { EventEditor } from "./components/EventEditor";
 import { Workspace, type Selection } from "./components/Workspace";
 const RECOVERY = "naptar-studio-recovery-v1";
@@ -934,6 +935,7 @@ export default function App() {
             )}
             {tab === "events" && (
               <>
+                <HolidayList project={p} commit={commit} />
                 <Section title="Személyes események">
                   <p className="section-intro">
                     Kattints egy napra a havi naptárban, és add hozzá a

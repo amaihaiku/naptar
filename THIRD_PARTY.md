@@ -10,7 +10,7 @@ A 365 napos alapadat nem tartalmazott február 29-i rekordot. A külön `nameday
 
 ## Ünnepnapok
 
-Forrás: [2012. évi I. törvény 102. §](https://njt.hu/jogszabaly/2012-1-00-00), a nagypénteket hozzáadó [2017. évi XIII. törvény](https://mkogy.jogtar.hu/jogszabaly?docid=A1700013.TV). A strukturált szabályrekord ellenőrzési dátuma 2026. november 2.; ellenőrzött tartománya 2017–2026. Ez a tartomány az alap munkaszüneti napok szabályaira vonatkozik, nem éves munkarend-áthelyezési rendeletekre.
+Forrás: [2012. évi I. törvény 102. §](https://njt.hu/jogszabaly/2012-1-00-00), a nagypénteket hozzáadó [2017. évi XIII. törvény](https://mkogy.jogtar.hu/jogszabaly?docid=A1700013.TV). A strukturált szabályrekord ellenőrzési dátuma 2026. november 2.; ellenőrzött tartománya 2017–2026. Ez a tartomány az alap munkaszüneti napok szabályaira vonatkozik, nem éves munkarend-áthelyezési rendeletekre. December 24. 2026-tól történő felvételének forrása a [kormány 2026. november 3-i közleménye](https://kormany.hu/hirek/munkaszuneti-nappa-nyilvanitotta-az-orszaggyules-december-24-et). Az ünnepnap-lista név- és kiemelési beállításai projektenként felülírhatók.
 
 Ezen kívül a program minden évben egyértelműen modern szabályrendszer szerinti vetítést jelöl. Nem állítja, hogy a jelenkori ünnepek az ókorban vagy a távoli jövőben jogilag munkaszüneti napok lennének. Történelmi naptárreformok kihagyott napjait sem modellezi: a dátumrendszer proleptikus Gergely-naptár.
 
@@ -26,15 +26,15 @@ A PDF a betűfájlokat teljes egészükben ágyazza be, így a szöveg másik g�
 
 ## Futtatási függőségek
 
-| Csomag | Licenc | Feladat |
-| --- | --- | --- |
-| React, React DOM | MIT | Szerkesztőfelület |
-| Zod | MIT | Szigorú projekt- és sablonséma |
-| pdf-lib | MIT | Vektoros PDF és betűbeágyazás |
-| @pdf-lib/fontkit | MIT | TTF-feldolgozás, karakterek mérése |
-| JSZip | MIT opció választva | 12 hónapos képcsomag |
-| idb-keyval | Apache-2.0 | Böngészős helyreállítás |
-| lucide-react | ISC | Kezelőfelületi ikonok |
+| Csomag           | Licenc              | Feladat                            |
+| ---------------- | ------------------- | ---------------------------------- |
+| React, React DOM | MIT                 | Szerkesztőfelület                  |
+| Zod              | MIT                 | Szigorú projekt- és sablonséma     |
+| pdf-lib          | MIT                 | Vektoros PDF és betűbeágyazás      |
+| @pdf-lib/fontkit | MIT                 | TTF-feldolgozás, karakterek mérése |
+| JSZip            | MIT opció választva | 12 hónapos képcsomag               |
+| idb-keyval       | Apache-2.0          | Böngészős helyreállítás            |
+| lucide-react     | ISC                 | Kezelőfelületi ikonok              |
 
 A pontos telepített verziókat a `package-lock.json` rögzíti. Fejlesztéshez TypeScript (Apache-2.0), Vite és tsx (MIT), Playwright (Apache-2.0), valamint @napi-rs/canvas és pngjs (MIT) használatos. A fejlesztői Canvas nem kerül a böngészős csomagba. A torta- és virágikonok az exportban a projekt saját egyszerű vektoralakzatai, nem emoji-betűk.
 

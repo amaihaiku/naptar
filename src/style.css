@@ -1569,3 +1569,24 @@ summary:focus-visible {
   background: #eaf0e6;
   border-color: #8ca58b;
 }
+
+.holiday-entry {
+  margin: 12px 0;
+  padding: 10px;
+  border: 1px solid #e0e5dc;
+  border-radius: 5px;
+}
+.holiday-entry .button-row > small {
+  flex: 1;
+  color: #819080;
+}
+.holiday-entry .field {
+  margin-top: 8px;
+}
+.add-holiday {
+  margin: 12px 0;
+}
+.add-holiday summary {
+  cursor: pointer;
+  margin-bottom: 10px;
+}
