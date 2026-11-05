@@ -280,6 +280,25 @@ const coverSchema = z
     style: styleSchema,
   })
   .strict();
+const holidaySettingSchema = z
+  .object({
+    name: z.string().max(100),
+    showName: z.boolean(),
+    highlight: z.boolean(),
+  })
+  .strict();
+export type HolidaySetting = z.infer<typeof holidaySettingSchema>;
+const customHolidaySchema = holidaySettingSchema
+  .extend({
+    id: z.string().min(1).max(80),
+    month: z.number().int().min(1).max(12),
+    day: z.number().int().min(1).max(31),
+  })
+  .strict()
+  .refine(
+    (item) => item.day <= daysInMonth(2000, item.month),
+    "Érvénytelen ünnepnapdátum.",
+  );
 export const projectSchema = z
   .object({
     version: z.literal(1),
@@ -314,6 +333,10 @@ export const projectSchema = z
     yearBox: boxSchema.optional(),
     cover: coverSchema.optional(),
     events: z.array(eventSchema).max(2000),
+    holidayOverrides: z
+      .record(z.string().max(80), holidaySettingSchema.nullable())
+      .optional(),
+    customHolidays: z.array(customHolidaySchema).max(366).optional(),
     namedayOverrides: z.record(
       z.string().regex(/^(?:[1-9]|1[0-2])-(?:[1-9]|[12]\d|3[01])$/),
       z.array(z.string().trim().min(1).max(60)).max(2),

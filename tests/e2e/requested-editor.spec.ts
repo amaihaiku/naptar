@@ -454,3 +454,60 @@ test("large uploads appear only after optimization and save the same compressed 
     .getAttribute("href");
   expect(href === asset.data).toBe(true);
 });
+
+test("holiday list renames, hides, adds and removes days in the saved calendar", async ({
+  page,
+}) => {
+  await page
+    .getByRole("navigation", { name: "Naptároldalak" })
+    .getByRole("button", { name: "December", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Események", exact: true }).click();
+  const christmas = page.getByRole("group", {
+    name: "December 24. ünnepnap",
+    exact: true,
+  });
+  await expect(
+    christmas.getByLabel("Háttérszínezés", { exact: true }),
+  ).toBeChecked();
+  await christmas
+    .getByRole("textbox", { name: "Nap neve", exact: true })
+    .fill("Családi ünnep");
+  await expect(
+    page
+      .getByTestId("calendar-paper")
+      .getByText("Családi ünnep", { exact: true }),
+  ).toBeVisible();
+  await christmas.getByLabel("Név megjelenítése", { exact: true }).uncheck();
+  await expect(
+    page
+      .getByTestId("calendar-paper")
+      .getByText("Családi ünnep", { exact: true }),
+  ).toHaveCount(0);
+  await page
+    .getByText("Új munkaszüneti nap hozzáadása", { exact: true })
+    .click();
+  await page.getByLabel("Új nap hónapja", { exact: true }).selectOption("12");
+  await page.getByLabel("Új nap dátuma", { exact: true }).fill("23");
+  await page.getByLabel("Új nap neve", { exact: true }).fill("Szabadság");
+  await page
+    .getByRole("button", { name: "Nap hozzáadása", exact: true })
+    .click();
+  await expect(
+    page.getByTestId("calendar-paper").getByText("Szabadság", { exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("group", { name: "December 23. ünnepnap", exact: true })
+    .getByRole("button", { name: "12.23. törlése", exact: true })
+    .click();
+  await expect(
+    page.getByTestId("calendar-paper").getByText("Szabadság", { exact: true }),
+  ).toHaveCount(0);
+  const p = await savedProject(page);
+  expect(p.holidayOverrides["fixed-12-24"]).toEqual({
+    name: "Családi ünnep",
+    showName: false,
+    highlight: true,
+  });
+  expect(p.customHolidays).toHaveLength(0);
+});

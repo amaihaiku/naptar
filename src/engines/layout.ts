@@ -16,7 +16,7 @@ import {
   isoWeek,
   dateKey,
 } from "./date";
-import { holidayLabels, holidays } from "./holidays";
+import { calendarHolidays } from "./holidays";
 import { namedays } from "./namedays";
 import { eventLabel, eventsFor } from "./events";
 import {
@@ -281,8 +281,11 @@ export function buildScene(root: Project, month = root.month): Scene {
       });
     if (item.text) headerBoxes.push(["Szövegdoboz", item.box]);
   }
-  const observances = holidayLabels(p.year);
-  const holidayMap = holidays(p.year);
+  const holidayDays = new Map<string, ReturnType<typeof calendarHolidays>>();
+  for (const item of calendarHolidays(p)) {
+    const key = item.month + "-" + item.day;
+    holidayDays.set(key, [...(holidayDays.get(key) ?? []), item]);
+  }
   function calendar(m: number, region: Box, annual: boolean) {
     const raw = monthCells(
         p.year,
@@ -350,7 +353,7 @@ export function buildScene(root: Project, month = root.month): Scene {
       const inMonth = d?.month === m && d.year === p.year;
       if (!d || (!inMonth && (annual || !p.adjacent))) return;
       if (inMonth) cells.push({ ...b, date: d, inMonth: true });
-      const holiday = inMonth ? holidayMap.get(dateKey(d)) : undefined;
+      const listedHolidays = inMonth ? (holidayDays.get(dateKey(d)) ?? []) : [];
       const coverHighlight = annual && p.cover?.highlightDays;
       const events =
         (!annual || coverHighlight) && inMonth
@@ -358,13 +361,12 @@ export function buildScene(root: Project, month = root.month): Scene {
           : [];
       const customBackground = events.some((event) => event.coloredDay);
       const publicHoliday = events.some((event) => event.publicHoliday);
+      const highlightedHoliday = listedHolidays.some((item) => item.highlight);
       const highlight =
-        (annual ? coverHighlight : s.highlight) &&
         inMonth &&
-        (holiday ||
-          publicHoliday ||
-          weekday(d) >= 6 ||
-          (coverHighlight && observances.has(dateKey(d))));
+        (!annual || coverHighlight) &&
+        (highlightedHoliday ||
+          (s.highlight && (publicHoliday || weekday(d) >= 6)));
       if (highlight || customBackground)
         rect(
           b,
@@ -390,7 +392,12 @@ export function buildScene(root: Project, month = root.month): Scene {
       if (highlight || publicHoliday) dt.color = s.holidayColor;
       if (!inMonth) dt.color = "#a7ada9";
       const holidayName =
-        !annual && inMonth ? observances.get(dateKey(d)) : undefined;
+        !annual && inMonth
+          ? listedHolidays
+              .filter((item) => item.showName && item.name.trim())
+              .map((item) => item.name)
+              .join("\n")
+          : undefined;
       const holidayType: Typography = {
         ...s.typography.weekday,
         size: Math.max(2, Math.min(6.5, (p.page.width / 210) * 6.5)),

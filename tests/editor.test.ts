@@ -9,6 +9,7 @@ import {
   serializeProject,
   applyPaper,
 } from "../src/model";
+import { calendarHolidays } from "../src/engines/holidays";
 import { buildScene } from "../src/engines/layout";
 import {
   registerFont,
@@ -88,6 +89,60 @@ describe("Requested cover/month and typography behavior", () => {
           n.type.color === p.style.holidayColor,
       ),
     ).toBe(true);
+  });
+  it("highlights Christmas Eve without its label and retains editable holiday settings", () => {
+    let p = { ...defaultProject(), year: 2027, month: 12 };
+    const rectForDay = (
+      project: ReturnType<typeof defaultProject>,
+      day: number,
+    ) => {
+      const scene = buildScene(project);
+      const cell = scene.cells.find((c) => c.date.day === day)!;
+      return scene.nodes.some(
+        (n) =>
+          n.kind === "rect" &&
+          n.x === cell.x &&
+          n.y === cell.y &&
+          n.fill === project.style.holidayBackground,
+      );
+    };
+    expect(rectForDay(p, 24)).toBe(true);
+    p = {
+      ...p,
+      holidayOverrides: {
+        "fixed-12-24": {
+          name: "Saját ünnep",
+          showName: false,
+          highlight: true,
+        },
+      },
+    };
+    expect(
+      buildScene(p).nodes.some(
+        (n) => n.kind === "text" && n.text === "Saját ünnep",
+      ),
+    ).toBe(false);
+    expect(rectForDay(p, 24)).toBe(true);
+    p.holidayOverrides!["fixed-12-24"] = null;
+    expect(rectForDay(p, 24)).toBe(false);
+    const saved = parseProject(serializeProject(p));
+    expect(
+      calendarHolidays(saved).some((day) => day.id === "fixed-12-24"),
+    ).toBe(false);
+    const renamed = {
+      ...p,
+      holidayOverrides: {
+        "easter-1": { name: "Húsvéti pihenő", showName: true, highlight: true },
+      },
+    };
+    expect(
+      calendarHolidays(renamed).find((day) => day.id === "easter-1")?.day,
+    ).toBe(29);
+    expect(
+      calendarHolidays({ ...renamed, year: 2028 }).find(
+        (day) => day.id === "easter-1",
+      )?.name,
+    ).toBe("Húsvéti pihenő");
   });
   it("defaults to the current Budapest year", () =>
     expect(defaultProject().year).toBe(

@@ -137,7 +137,8 @@ describe("Deterministic Gregorian date engine", () => {
     expect(holidays(2027).get("3-26")).toBe("Nagypéntek");
     expect(holidays(2027).get("3-29")).toBe("Húsvéthétfő");
     expect(holidays(2027).get("5-17")).toBe("Pünkösdhétfő");
-    expect(holidays(2027).size).toBe(11);
-    expect(holidays(2027).has("12-24")).toBe(false);
+    expect(holidays(2027).size).toBe(12);
+    expect(holidays(2027).get("12-24")).toBe("Szenteste");
+    expect(holidays(2025).has("12-24")).toBe(false);
   });
 });
