@@ -50,6 +50,9 @@ import {
   PHOTO_STORAGE_LIMIT,
   slotLabel,
   slotOnPage,
+  photoStyle,
+  linkPhotoStyle,
+  updatePhotoStyle,
   currentPage,
   parseProject,
   serializeProject,
@@ -836,6 +839,36 @@ export default function App() {
                         {slotLabel(slot)}
                       </button>
                       <button
+                        className="icon-button"
+                        aria-label={slotLabel(slot) + " másolása"}
+                        disabled={p.photos.length >= 16}
+                        onClick={() => {
+                          const copy = {
+                            ...slot,
+                            id: crypto.randomUUID(),
+                            slotNumber:
+                              Math.max(
+                                0,
+                                ...p.photos.map((item) => item.slotNumber ?? 0),
+                              ) + 1,
+                            ...emptyPhoto,
+                            edits: undefined,
+                            crop: undefined,
+                            zoom: 1,
+                            panX: 0,
+                            panY: 0,
+                            monthlyImages: undefined,
+                          };
+                          commit((root) => ({
+                            ...root,
+                            photos: [...root.photos, copy],
+                          }));
+                          setSelection(copy.id);
+                        }}
+                      >
+                        <Copy size={16} />
+                      </button>
+                      <button
                         className="icon-button danger"
                         aria-label={`${slotLabel(slot)} törlése`}
                         onClick={() => {
@@ -879,6 +912,36 @@ export default function App() {
                           setSelection("title");
                       }}
                     />
+                    <Toggle
+                      label="Azonos stílus"
+                      value={slot.sameStyle !== false}
+                      onChange={(linked) =>
+                        commit((root) => linkPhotoStyle(root, slot.id, linked))
+                      }
+                    />
+                    <button
+                      className="full"
+                      onClick={() => {
+                        commit((root) =>
+                          updatePhotoStyle(root, slot.id, {
+                            border: 0,
+                            borderColor: "#ffffff",
+                            borderStyle: undefined,
+                            shadowStyle: undefined,
+                            shadow: 0,
+                            reflection: undefined,
+                            edgeFeather: undefined,
+                            background: undefined,
+                            backgroundOpacity: undefined,
+                            opacity: 1,
+                            radius: 0,
+                            shape: "rectangle",
+                          }),
+                        );
+                      }}
+                    >
+                      Stílus törlése
+                    </button>
                     <div
                       className="slot-months"
                       role="group"

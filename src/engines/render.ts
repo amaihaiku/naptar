@@ -52,6 +52,11 @@ export function renderCanvas(
       ctx.roundRect(n.clip.x, n.clip.y, n.clip.w, n.clip.h, n.clip.r);
       ctx.clip();
     }
+    if (n.kind === "group") {
+      const { canvas, bounds } = rasterGroup(n, scene, p);
+      ctx.drawImage(canvas, bounds.x, bounds.y, bounds.w, bounds.h);
+      canvas.width = 0;
+    }
     if (n.kind === "rect") {
       ctx.beginPath();
       ctx.roundRect(n.x, n.y, n.w, n.h, Math.min(n.radius, n.w / 2, n.h / 2));
@@ -219,5 +224,87 @@ export function rasterPhoto(p: Photo, resolution = 300 / 25.4) {
     source.canvas.width = 0;
     mirrored.canvas.width = 0;
   } else paintPhoto(ctx, p);
+  return { canvas, bounds };
+}
+
+export function groupArtworkBounds(n: import("./layout").GroupNode) {
+  const shadow = n.appearance.shadowStyle;
+  const pad = shadow?.opacity ? shadow.distance + shadow.blur * 3 + 2 : 0;
+  const extra = n.appearance.reflection?.opacity
+    ? n.h * n.appearance.reflection.length
+    : 0;
+  return {
+    x: n.x - pad,
+    y: n.y - pad,
+    w: n.w + pad * 2,
+    h: n.h + pad * 2 + extra,
+  };
+}
+export function rasterGroup(
+  n: import("./layout").GroupNode,
+  scene: Scene,
+  p: Project,
+  resolution = 300 / 25.4,
+) {
+  const bounds = groupArtworkBounds(n);
+  const scale = Math.min(
+    resolution,
+    Math.sqrt(36_000_000 / (bounds.w * bounds.h)),
+  );
+  const front = photoCanvas(n.w * scale, n.h * scale);
+  front.ctx.setTransform(scale, 0, 0, scale, -n.x * scale, -n.y * scale);
+  if (n.appearance.background) {
+    front.ctx.fillStyle = n.appearance.background;
+    front.ctx.globalAlpha = n.appearance.backgroundOpacity ?? 1;
+    front.ctx.fillRect(n.x, n.y, n.w, n.h);
+    front.ctx.globalAlpha = 1;
+  }
+  renderCanvas(front.ctx, { ...scene, nodes: n.children }, p, 1);
+  const { canvas, ctx } = photoCanvas(bounds.w * scale, bounds.h * scale);
+  const x = (n.x - bounds.x) * scale,
+    y = (n.y - bounds.y) * scale;
+  const shadow = n.appearance.shadowStyle;
+  if (shadow?.opacity) {
+    ctx.save();
+    const far = canvas.width + front.canvas.width + 100;
+    ctx.shadowColor =
+      shadow.color +
+      Math.round(shadow.opacity * 255)
+        .toString(16)
+        .padStart(2, "0");
+    ctx.shadowBlur = shadow.blur * scale * 2;
+    ctx.shadowOffsetX =
+      far + Math.cos((shadow.angle * Math.PI) / 180) * shadow.distance * scale;
+    ctx.shadowOffsetY =
+      Math.sin((shadow.angle * Math.PI) / 180) * shadow.distance * scale;
+    ctx.drawImage(front.canvas, x - far, y);
+    ctx.restore();
+  }
+  ctx.drawImage(front.canvas, x, y);
+  const reflection = n.appearance.reflection;
+  if (reflection?.opacity) {
+    const mirror = photoCanvas(
+      front.canvas.width,
+      n.h * reflection.length * scale,
+    );
+    mirror.ctx.translate(0, front.canvas.height);
+    mirror.ctx.scale(1, -1);
+    mirror.ctx.drawImage(front.canvas, 0, 0);
+    mirror.ctx.resetTransform();
+    mirror.ctx.globalCompositeOperation = "destination-in";
+    const gradient = mirror.ctx.createLinearGradient(
+      0,
+      0,
+      0,
+      mirror.canvas.height,
+    );
+    gradient.addColorStop(0, "rgba(0,0,0," + reflection.opacity + ")");
+    gradient.addColorStop(1, "transparent");
+    mirror.ctx.fillStyle = gradient;
+    mirror.ctx.fillRect(0, 0, mirror.canvas.width, mirror.canvas.height);
+    ctx.drawImage(mirror.canvas, x, y + front.canvas.height);
+    mirror.canvas.width = 0;
+  }
+  front.canvas.width = 0;
   return { canvas, bounds };
 }

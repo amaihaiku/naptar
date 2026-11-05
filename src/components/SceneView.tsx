@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { pagePhotos, type Project, type Photo } from "../model";
-import type { Scene, SceneNode } from "../engines/layout";
+import type { Scene, SceneNode, GroupNode } from "../engines/layout";
 import { advance, mmPerPt } from "../engines/fonts";
 import {
   cropGeometry,
@@ -14,6 +14,7 @@ import {
   flowerCircles,
   hasPhotoEffects,
   rasterPhoto,
+  rasterGroup,
 } from "../engines/render";
 function StyledPhoto({ photo }: { photo: Photo }) {
   const [decoded, setDecoded] = useState("");
@@ -52,6 +53,31 @@ function StyledPhoto({ photo }: { photo: Photo }) {
     />
   );
 }
+function StyledGroup({
+  node,
+  scene,
+  project,
+}: {
+  node: GroupNode;
+  scene: Scene;
+  project: Project;
+}) {
+  const artwork = useMemo(() => {
+    const { canvas, bounds } = rasterGroup(node, scene, project, 6);
+    const href = canvas.toDataURL("image/png");
+    canvas.width = 0;
+    return { href, bounds };
+  }, [node, scene, project]);
+  return (
+    <image
+      href={artwork.href}
+      x={artwork.bounds.x}
+      y={artwork.bounds.y}
+      width={artwork.bounds.w}
+      height={artwork.bounds.h}
+    />
+  );
+}
 export function SceneView({
   scene,
   project,
@@ -62,6 +88,8 @@ export function SceneView({
   function node(n: SceneNode) {
     const clip = n.clip ? `clip-${n.id}` : undefined;
     let content;
+    if (n.kind === "group")
+      content = <StyledGroup node={n} scene={scene} project={project} />;
     if (n.kind === "rect")
       content = (
         <rect
@@ -150,6 +178,11 @@ export function SceneView({
           );
         content = (
           <g>
+            {p.background && (
+              <g fill={p.background} opacity={p.backgroundOpacity ?? 1}>
+                {shape}
+              </g>
+            )}
             <defs>
               <clipPath id={`photo-${p.id}`}>{shape}</clipPath>
               {matrix && (

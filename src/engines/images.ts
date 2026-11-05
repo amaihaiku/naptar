@@ -4,6 +4,7 @@ import {
   type Photo,
   type PhotoAsset,
   type Project,
+  photoStyle,
 } from "../model";
 export const imageCache = new Map<string, HTMLImageElement>();
 export function cropGeometry(p: Photo) {
@@ -196,6 +197,17 @@ export function createSlot(p: Project): Photo {
     opacity: 1,
     visible: true,
     aspectLock: false,
+    ...photoStyle(
+      p.photos.find((photo) => photo.sameStyle !== false) ??
+        ({
+          border: 0,
+          borderColor: "#ffffff",
+          shape: "rectangle",
+          radius: 0,
+          shadow: 0,
+          opacity: 1,
+        } as Photo),
+    ),
   };
 }
 export function photoPath(
@@ -293,6 +305,14 @@ export function paintPhoto(
   const image = imageCache.get(p.data);
   if (!image) throw new Error("A kép még nem áll készen: " + p.name);
   ctx.save();
+  if (p.background) {
+    ctx.save();
+    photoPath(ctx, p, offsetX, offsetY);
+    ctx.fillStyle = p.background;
+    ctx.globalAlpha *= p.backgroundOpacity ?? 1;
+    ctx.fill();
+    ctx.restore();
+  }
   photoPath(ctx, p, offsetX, offsetY);
   ctx.clip();
   const g = cropGeometry(p);

@@ -16,6 +16,7 @@ import type { Scene } from "../engines/layout";
 import type { CivilDate } from "../engines/date";
 import { Field } from "./Controls";
 import { SceneView } from "./SceneView";
+import { emptySpaceTargets } from "../engines/alignment";
 import { cropGeometry } from "../engines/images";
 function GeometryInput({
   label,
@@ -87,7 +88,12 @@ export function Workspace({
     [zoom, setZoom] = useState(1);
   const [showGuides, setShowGuides] = useState(true);
   const [magnet, setMagnet] = useState(false);
-  const [alignment, setAlignment] = useState<{ x?: number; y?: number }>({});
+  const [alignment, setAlignment] = useState<{
+    x?: number;
+    y?: number;
+    xLabel?: string;
+    yLabel?: string;
+  }>({});
   const drag = useRef<{
     p: Project;
     id: string;
@@ -176,6 +182,14 @@ export function Workspace({
     };
     const peers = [
       { x: 0, y: 0, w: project.page.width, h: project.page.height },
+      {
+        x: project.page.margin,
+        y: project.page.marginY ?? project.page.margin,
+        w: project.page.width - 2 * project.page.margin,
+        h:
+          project.page.height -
+          2 * (project.page.marginY ?? project.page.margin),
+      },
       ...[
         "grid",
         "title",
@@ -199,7 +213,8 @@ export function Workspace({
           y: visual.y + after.y - current.y,
         }
       : after;
-    const lines: { x?: number; y?: number } = {};
+    const lines: { x?: number; y?: number; xLabel?: string; yLabel?: string } =
+      {};
     for (const axis of ["x", "y"] as const) {
       const points = anchors(shifted, axis);
       let best = 6 / scale;
@@ -212,6 +227,22 @@ export function Workspace({
             delta = distance;
             lines[axis] = target;
           }
+        }
+      }
+      const gapTargets = peers
+        .slice(0, 2)
+        .flatMap((boundary) =>
+          emptySpaceTargets(shifted, peers.slice(2), boundary, axis),
+        );
+      const middle = points[1];
+      for (const target of gapTargets) {
+        const distance = target.position - middle;
+        if (Math.abs(distance) < best) {
+          best = Math.abs(distance);
+          delta = distance;
+          lines[axis] = target.position;
+          if (axis === "x") lines.xLabel = target.label;
+          else lines.yLabel = target.label;
         }
       }
       if (magnet)
@@ -369,12 +400,36 @@ export function Workspace({
                   <div
                     className="alignment-guide vertical"
                     style={{ left: alignment.x * scale }}
-                  />
+                  >
+                    {alignment.xLabel && <span>{alignment.xLabel}</span>}
+                  </div>
                 )}
                 {showGuides && alignment.y !== undefined && (
                   <div
                     className="alignment-guide horizontal"
                     style={{ top: alignment.y * scale }}
+                  >
+                    {alignment.yLabel && <span>{alignment.yLabel}</span>}
+                  </div>
+                )}
+                {actualBox("grid") && (
+                  <button
+                    className="grid-hit"
+                    aria-label="Naptárrács kiválasztása"
+                    style={styleBox(actualBox("grid")!)}
+                    onClick={() => onSelect("grid")}
+                    onPointerDown={(e) => start(e, "grid")}
+                    onPointerMove={move}
+                    onPointerUp={stop}
+                    onPointerCancel={stop}
+                  />
+                )}
+                {actualBox("header") && (
+                  <button
+                    className="header-hit"
+                    aria-label="Hétfejléc kiválasztása"
+                    style={styleBox(actualBox("header")!)}
+                    onClick={() => onSelect("header")}
                   />
                 )}
                 {photos
@@ -406,13 +461,16 @@ export function Workspace({
                       aria-label={`${cell.date.year}. ${cell.date.month}. ${cell.date.day}. – események szerkesztése`}
                       key={i}
                       style={styleBox(cell)}
-                      onClick={() => onDate(cell.date)}
+                      onClick={() => {
+                        onSelect("grid");
+                        onDate(cell.date);
+                      }}
                     />
                   ))}
                 <button
                   aria-label="Cím kiválasztása"
                   className="title-hit"
-                  style={styleBox(v.titleBox)}
+                  style={styleBox(visualBox("title") ?? v.titleBox)}
                   onClick={() => onSelect("title")}
                   onPointerDown={(e) => start(e, "title")}
                   onPointerMove={move}
@@ -423,7 +481,7 @@ export function Workspace({
                   <button
                     aria-label="Évszám kiválasztása"
                     className="title-hit"
-                    style={styleBox(yearBoxFor(project))}
+                    style={styleBox(visualBox("year") ?? yearBoxFor(project))}
                     onClick={() => onSelect("year")}
                     onPointerDown={(e) => start(e, "year")}
                     onPointerMove={move}
@@ -466,7 +524,7 @@ export function Workspace({
                                 : "Kép maszk"}
                         {selected.locked && <Lock size={10} />}
                       </span>
-                      {!selected.locked && (
+                      {!selected.locked && selection !== "header" && (
                         <>
                           <button
                             className="move-handle"

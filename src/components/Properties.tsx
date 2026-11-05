@@ -31,11 +31,16 @@ import {
   emptyPhoto,
   setSlotAsset,
   updateSlotCrop,
+  updatePhotoStyle,
+  updateAppearance,
+  elementAppearance,
+  type Appearance,
   yearBoxFor,
 } from "../model";
 import { months } from "../engines/date";
 import { fontVariants, validTypography } from "../engines/fonts";
 import type { Scene } from "../engines/layout";
+import { AppearanceControls } from "./AppearanceControls";
 import { Field, Num, Select, Color, Toggle, Section, Slider } from "./Controls";
 const names: Record<Category, string> = {
   title: "Cím",
@@ -73,6 +78,7 @@ export function Properties({
   useEffect(() => {
     if (selection === "title") setCategory("title");
     else if (selection === "year") setCategory("year");
+    else if (selection === "header") setCategory("weekday");
     else if (!cover && category === "month") setCategory("date");
   }, [selection, cover]);
   const showGrid = !cover || p.cover?.showCalendar !== false;
@@ -166,12 +172,7 @@ export function Properties({
     commit((root) => updateElementBox(root, selection, patch));
   }
   function image(patch: Partial<Photo>) {
-    commit((root) => ({
-      ...root,
-      photos: root.photos.map((i) =>
-        i.id === selection ? { ...i, ...patch } : i,
-      ),
-    }));
+    commit((root) => updatePhotoStyle(root, selection, patch));
   }
   function align(a: "left" | "center" | "right") {
     if (!b) return;
@@ -292,6 +293,9 @@ export function Properties({
             ["year", "Évszám"],
             ...(!cover || p.cover?.showCalendar !== false
               ? [["grid", "Naptárrács"] as const]
+              : []),
+            ...(showGrid && s.showWeekdays
+              ? [["header", "Hétfejléc"] as const]
               : []),
             ...photos.map((i) => [i.id, slotLabel(i)] as const),
             ...texts.map(
@@ -535,107 +539,35 @@ export function Properties({
           ))}
         </Section>
       )}
-      {photo && (
-        <Section title="Árnyék és tükröződés">
-          <Toggle
-            label="Vetett árnyék"
-            value={Boolean(photo.shadowStyle)}
-            onChange={(on) =>
-              image({
-                shadow: 0,
-                shadowStyle: on
-                  ? {
-                      kind: "drop",
-                      blur: 2,
-                      distance: 2,
-                      angle: 45,
-                      opacity: 0.35,
-                      color: "#000000",
-                    }
+      <AppearanceControls
+        title={
+          selection === "header" ? "Hétfejléc megjelenése" : "Elem megjelenése"
+        }
+        value={
+          photo
+            ? {
+                background: photo.background,
+                backgroundOpacity: photo.backgroundOpacity,
+                opacity: photo.opacity,
+                shadowStyle: photo.shadowStyle
+                  ? { ...photo.shadowStyle, kind: "drop" }
                   : undefined,
-              })
-            }
-          />
-          {photo.shadowStyle && (
-            <>
-              {(
-                [
-                  ["blur", "Árnyék életlensége", 20, "mm"],
-                  ["distance", "Árnyék távolsága", 20, "mm"],
-                  ["angle", "Árnyék szöge", 360, "°"],
-                  ["opacity", "Árnyék átlátszatlansága", 100, "%"],
-                ] as const
-              ).map(([key, label, max, unit]) => (
-                <Slider
-                  key={key}
-                  label={label}
-                  min={0}
-                  max={max}
-                  step={key === "blur" || key === "distance" ? 0.1 : 1}
-                  unit={unit}
-                  value={
-                    photo.shadowStyle![key] * (key === "opacity" ? 100 : 1)
-                  }
-                  onChange={(value) =>
-                    image({
-                      shadowStyle: {
-                        ...photo.shadowStyle!,
-                        [key]: key === "opacity" ? value / 100 : value,
-                      },
-                    })
-                  }
-                />
-              ))}
-              <Color
-                label="Árnyék színe"
-                value={photo.shadowStyle.color}
-                onChange={(color) =>
-                  image({ shadowStyle: { ...photo.shadowStyle!, color } })
-                }
-              />
-            </>
-          )}
-          <Toggle
-            label="Tükröződés"
-            value={Boolean(photo.reflection)}
-            onChange={(on) =>
-              image({
-                reflection: on ? { opacity: 0.4, length: 0.4 } : undefined,
-              })
-            }
-          />
-          {photo.reflection && (
-            <>
-              <Slider
-                label="Tükröződés erőssége"
-                min={0}
-                max={100}
-                step={1}
-                unit="%"
-                value={photo.reflection.opacity * 100}
-                onChange={(value) =>
-                  image({
-                    reflection: { ...photo.reflection!, opacity: value / 100 },
-                  })
-                }
-              />
-              <Slider
-                label="Tükröződés hossza"
-                min={10}
-                max={100}
-                step={1}
-                unit="%"
-                value={photo.reflection.length * 100}
-                onChange={(value) =>
-                  image({
-                    reflection: { ...photo.reflection!, length: value / 100 },
-                  })
-                }
-              />
-            </>
-          )}
-        </Section>
-      )}
+                reflection: photo.reflection,
+              }
+            : elementAppearance(p, selection)
+        }
+        onChange={(value) => {
+          if (photo)
+            image({
+              ...value,
+              shadow: 0,
+              background: value.background,
+              shadowStyle: value.shadowStyle,
+              reflection: value.reflection,
+            });
+          else commit((root) => updateAppearance(root, selection, value));
+        }}
+      />
       {photo ? (
         <Section title="Kép maszk tulajdonságok">
           <Select
@@ -766,15 +698,6 @@ export function Properties({
               </button>
             </div>
           </Field>
-          <Slider
-            label="Kép átlátszatlansága"
-            value={photo.opacity * 100}
-            min={5}
-            max={100}
-            step={1}
-            unit="%"
-            onChange={(opacity) => image({ opacity: opacity / 100 })}
-          />
           <Toggle
             label="Kép látható"
             value={photo.visible}

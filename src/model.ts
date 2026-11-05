@@ -57,9 +57,33 @@ export const typeSchema = z
   })
   .strict();
 export type Typography = z.infer<typeof typeSchema>;
+export const appearanceSchema = z
+  .object({
+    background: color.optional(),
+    backgroundOpacity: num(0, 1).optional(),
+    opacity: num(0, 1).optional(),
+    shadowStyle: z
+      .object({
+        kind: z.literal("drop"),
+        blur: num(0, 20),
+        distance: num(0, 20),
+        angle: num(0, 360),
+        opacity: num(0, 1),
+        color,
+      })
+      .strict()
+      .optional(),
+    reflection: z
+      .object({ opacity: num(0, 1), length: num(0.1, 1) })
+      .strict()
+      .optional(),
+  })
+  .strict();
+export type Appearance = z.infer<typeof appearanceSchema>;
 export const styleSchema = z
   .object({
     background: color,
+    elementStyles: z.record(z.string().max(80), appearanceSchema).optional(),
     ink: color,
     accent: color,
     holidayColor: color,
@@ -196,8 +220,11 @@ export const imageSchema = z
     border: num(0, 10),
     borderColor: color,
     shadow: num(0, 15),
-    opacity: num(0.05, 1),
+    opacity: num(0, 1),
     visible: z.boolean(),
+    sameStyle: z.boolean().optional(),
+    background: color.optional(),
+    backgroundOpacity: num(0, 1).optional(),
     aspectLock: z.boolean(),
     page: z.number().int().min(0).max(12).optional(),
     slotNumber: z.number().int().positive().optional(),
@@ -263,6 +290,7 @@ const textElementSchema = z
     text: z.string().max(500),
     box: boxSchema,
     typography: typeSchema,
+    appearance: appearanceSchema.optional(),
   })
   .strict();
 export type TextElement = z.infer<typeof textElementSchema>;
@@ -605,6 +633,116 @@ export function photoAssets(photos: Photo[]): PhotoAsset[] {
     ])
     .filter((asset) => asset.data);
 }
+export const photoStyleKeys = [
+  "border",
+  "borderColor",
+  "borderStyle",
+  "radius",
+  "shape",
+  "shadow",
+  "shadowStyle",
+  "reflection",
+  "edgeFeather",
+  "opacity",
+  "background",
+  "backgroundOpacity",
+] as const;
+export function photoStyle(photo: Photo): Partial<Photo> {
+  return Object.fromEntries(photoStyleKeys.map((key) => [key, photo[key]]));
+}
+export function hasSlotStyle(photo: Photo) {
+  return Boolean(
+    photo.border ||
+    photo.shadow ||
+    photo.shadowStyle ||
+    photo.reflection ||
+    photo.edgeFeather ||
+    photo.background ||
+    photo.opacity !== 1 ||
+    photo.radius ||
+    photo.shape !== "rectangle",
+  );
+}
+export function updatePhotoStyle(
+  p: Project,
+  id: string,
+  patch: Partial<Photo>,
+): Project {
+  const selected = p.photos.find((photo) => photo.id === id);
+  if (!selected) return p;
+  const stylePatch = Object.fromEntries(
+    photoStyleKeys
+      .filter((key) => key in patch)
+      .map((key) => [key, patch[key]]),
+  );
+  return {
+    ...p,
+    photos: p.photos.map((photo) => {
+      if (photo.id === id) return { ...photo, ...patch };
+      if (selected.sameStyle !== false && photo.sameStyle !== false)
+        return { ...photo, ...stylePatch };
+      return photo;
+    }),
+  };
+}
+export function linkPhotoStyle(
+  p: Project,
+  id: string,
+  linked: boolean,
+): Project {
+  const selected = p.photos.find((photo) => photo.id === id);
+  if (!selected) return p;
+  if (!linked)
+    return {
+      ...p,
+      photos: p.photos.map((photo) =>
+        photo.id === id ? { ...photo, sameStyle: false } : photo,
+      ),
+    };
+  const peers = p.photos.filter((photo) => photo.id !== id);
+  const source =
+    peers.find((photo) => photo.sameStyle !== false && hasSlotStyle(photo)) ??
+    peers.find(hasSlotStyle) ??
+    selected;
+  const style = photoStyle(source);
+  return {
+    ...p,
+    photos: p.photos.map((photo) =>
+      photo.id === id || photo.sameStyle !== false
+        ? {
+            ...photo,
+            ...style,
+            ...(photo.id === id ? { sameStyle: true } : {}),
+          }
+        : photo,
+    ),
+  };
+}
+export function elementAppearance(p: Project, id: string): Appearance {
+  const text = pageText(p).find((item) => item.id === id);
+  if (text) return text.appearance ?? {};
+  return viewProject(p).style.elementStyles?.[id] ?? {};
+}
+export function updateAppearance(
+  p: Project,
+  id: string,
+  appearance: Appearance,
+): Project {
+  if (p.textElements?.some((item) => item.id === id))
+    return {
+      ...p,
+      textElements: p.textElements.map((item) =>
+        item.id === id ? { ...item, appearance } : item,
+      ),
+    };
+  const style = viewProject(p).style;
+  return updateView(p, {
+    style: {
+      ...style,
+      elementStyles: { ...style.elementStyles, [id]: appearance },
+    },
+  });
+}
 export function photoStorageSize(photos: Photo[]) {
   return photoAssets(photos).reduce(
     (size, asset) => size + asset.data.length,
@@ -731,6 +869,17 @@ export function elementBox(p: Project, id: string): Box | undefined {
     return p.mode === "annual" && p.cover?.showCalendar === false
       ? undefined
       : { ...view.grid, y: view.grid.y + view.style.titleGap - 10 };
+  if (id === "header") {
+    if (p.mode === "annual" || !view.style.showWeekdays) return;
+    const grid = elementBox(p, "grid")!;
+    const week = p.isoWeeks ? Math.min(6, grid.w / 14) : 0;
+    return {
+      ...grid,
+      x: grid.x + week,
+      w: grid.w - week,
+      h: view.style.headerHeight,
+    };
+  }
   if (id === "title") return view.titleBox;
   if (id === "year") return view.style.showYear ? yearBoxFor(p) : undefined;
   return (
@@ -746,6 +895,19 @@ export function updateElementBox(
   const old = elementBox(p, id);
   if (!old) return p;
   const box = { ...old, ...patch };
+  if (id === "header") {
+    const view = viewProject(p);
+    const header = elementBox(p, "header")!;
+    return updateView(p, {
+      grid: {
+        ...view.grid,
+        x: view.grid.x + box.x - header.x,
+        y: view.grid.y + box.y - header.y,
+        w: Math.max(10, view.grid.w + box.w - header.w),
+      },
+      style: { ...view.style, headerHeight: Math.max(3, Math.min(20, box.h)) },
+    });
+  }
   if (id === "grid")
     return updateView(p, {
       grid: { ...box, y: box.y - (effectiveStyle(p).titleGap - 10) },

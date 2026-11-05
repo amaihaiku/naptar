@@ -1590,3 +1590,34 @@ summary:focus-visible {
   cursor: pointer;
   margin-bottom: 10px;
 }
+
+.grid-hit,
+.header-hit {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: auto;
+}
+.grid-hit {
+  z-index: 0;
+}
+.header-hit {
+  z-index: 3;
+}
+.alignment-guide > span {
+  position: absolute;
+  background: #fff;
+  color: #a02974;
+  padding: 2px 4px;
+  font-size: 9px;
+  white-space: nowrap;
+}
+.alignment-guide.vertical > span {
+  top: 4px;
+  left: 3px;
+}
+.alignment-guide.horizontal > span {
+  top: 3px;
+  left: 4px;
+}
