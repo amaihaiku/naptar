@@ -653,6 +653,7 @@ export function photoStyle(photo: Photo): Partial<Photo> {
 export function hasSlotStyle(photo: Photo) {
   return Boolean(
     photo.border ||
+    photo.shadow ||
     photo.shadowStyle ||
     photo.reflection ||
     photo.edgeFeather ||

@@ -42,6 +42,12 @@ export function emptySpaceTargets(
           [1 / 3, "1/3"],
           [2 / 3, "2/3"],
         ] as const
-      ).map(([ratio, label]) => ({ position: a + (b - a) * ratio, label })),
+      )
+        .map(([ratio, label]) => ({ position: a + (b - a) * ratio, label }))
+        .filter(
+          ({ position }) =>
+            position - moving[length] / 2 >= a &&
+            position + moving[length] / 2 <= b,
+        ),
     );
 }

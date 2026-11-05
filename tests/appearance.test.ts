@@ -98,5 +98,12 @@ describe("Element appearance and reusable photo styles", () => {
       { position: 50, label: "1/3" },
       { position: 70, label: "2/3" },
     ]);
+    const narrow = emptySpaceTargets(
+      { x: 0, y: 0, w: 28, h: 10 },
+      [],
+      { x: 0, y: 0, w: 30, h: 10 },
+      "x",
+    );
+    expect(narrow).toEqual([{ position: 15, label: "1/2" }]);
   });
 });
