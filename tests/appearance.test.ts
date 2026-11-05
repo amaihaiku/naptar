@@ -48,6 +48,9 @@ describe("Element appearance and reusable photo styles", () => {
   });
   it("new masks inherit the active shared style", () => {
     const p = defaultProject();
+    expect(
+      parseProject(serializeProject({ ...p, photos: [createSlot(p)] })).photos,
+    ).toHaveLength(1);
     p.photos = [{ ...createSlot(p), border: 3, borderColor: "#123456" }];
     const copy = createSlot(p);
     expect(copy.border).toBe(3);

@@ -204,6 +204,7 @@ export function createSlot(p: Project): Photo {
           borderColor: "#ffffff",
           shape: "rectangle",
           radius: 0,
+          shadow: 0,
           opacity: 1,
         } as Photo),
     ),
@@ -308,7 +309,7 @@ export function paintPhoto(
     ctx.save();
     photoPath(ctx, p, offsetX, offsetY);
     ctx.fillStyle = p.background;
-    ctx.globalAlpha = p.backgroundOpacity ?? 1;
+    ctx.globalAlpha *= p.backgroundOpacity ?? 1;
     ctx.fill();
     ctx.restore();
   }
