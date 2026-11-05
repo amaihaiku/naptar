@@ -72,6 +72,12 @@ describe("Element appearance and reusable photo styles", () => {
     expect(header.appearance.background).toBe("#123456");
     expect(header.children.filter((n) => n.kind === "text")).toHaveLength(7);
     expect(header.opacity).toBe(0.7);
+    const cover = buildScene({ ...saved, mode: "annual" });
+    expect(
+      cover.nodes.filter(
+        (n) => n.kind === "group" && n.appearance.background === "#123456",
+      ),
+    ).toHaveLength(12);
   });
   it("finds midpoint and thirds in empty gaps inside the margins", () => {
     const targets = emptySpaceTargets(

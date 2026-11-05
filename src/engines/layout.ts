@@ -340,6 +340,7 @@ export function buildScene(root: Project, month = root.month): Scene {
     );
     if (s.showWeekdays) {
       const priorOwner = owner;
+      const headerStart = nodes.length;
       owner = annual ? "grid" : "header";
       const order = Array.from(
         { length: 7 },
@@ -374,6 +375,20 @@ export function buildScene(root: Project, month = root.month): Scene {
           2,
           clip,
         );
+      }
+      const appearance = elementAppearance({ ...root, month }, "header");
+      if (
+        annual &&
+        Object.values(appearance).some((value) => value !== undefined)
+      ) {
+        const children = nodes.splice(headerStart);
+        nodes.push({
+          ...common(box(g.x + weekW, g.y, g.w - weekW, header), 2),
+          kind: "group",
+          children,
+          appearance,
+          opacity: appearance.opacity ?? 1,
+        });
       }
       owner = priorOwner;
     }

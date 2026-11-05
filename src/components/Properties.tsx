@@ -294,7 +294,7 @@ export function Properties({
             ...(!cover || p.cover?.showCalendar !== false
               ? [["grid", "Naptárrács"] as const]
               : []),
-            ...(!cover && s.showWeekdays
+            ...(showGrid && s.showWeekdays
               ? [["header", "Hétfejléc"] as const]
               : []),
             ...photos.map((i) => [i.id, slotLabel(i)] as const),

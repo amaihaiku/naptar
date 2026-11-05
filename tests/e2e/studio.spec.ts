@@ -283,6 +283,16 @@ test("weekday header appearance, click selection and effects export", async ({
   const data = await fs.readFile((await (await pending).path())!);
   expect([...data.subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
   expect(data.readUInt32BE(16)).toBe(2480);
+  await page.getByRole("button", { name: "Exportálás", exact: true }).click();
+  await page.getByRole("button", { name: /PDF/ }).click();
+  const pdfDownload = page.waitForEvent("download");
+  await page
+    .getByRole("button", {
+      name: /^(Letöltés|Figyelmeztetések figyelmen kívül hagyása és letöltés)$/i,
+    })
+    .click();
+  const pdf = await fs.readFile((await (await pdfDownload).path())!);
+  expect(pdf.subarray(0, 4).toString()).toBe("%PDF");
   expect(errors).toEqual([]);
 });
 
