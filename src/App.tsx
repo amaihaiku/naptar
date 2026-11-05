@@ -45,6 +45,9 @@ import {
   applyPaper,
   applyMargin,
   setSlotAsset,
+  emptyPhoto,
+  photoStorageSize,
+  PHOTO_STORAGE_LIMIT,
   slotLabel,
   slotOnPage,
   currentPage,
@@ -71,6 +74,7 @@ import { eventLabel, occurrence } from "./engines/events";
 import {
   createSlot,
   readPhoto,
+  PHOTO_SPACE_MESSAGE,
   validatePhotos,
   pruneImages,
 } from "./engines/images";
@@ -119,6 +123,7 @@ export default function App() {
   const projectInput = useRef<HTMLInputElement>(null),
     templateInput = useRef<HTMLInputElement>(null),
     photoInput = useRef<HTMLInputElement>(null),
+    processingPhoto = useRef(false),
     replacePhoto = useRef<{ id: string; page: number } | null>(null);
   const commit = history.commit;
   const s = effectiveStyle(p);
@@ -166,8 +171,8 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [message]);
   useEffect(() => {
-    if (!busy) pruneImages(history.project.photos);
-  }, [history.project.photos, busy]);
+    if (!busy) pruneImages(pagePhotos(history.project));
+  }, [history.project, busy]);
   const save = () => {
     download(
       serializeProject(history.project),
@@ -253,21 +258,40 @@ export default function App() {
   async function upload(file?: File) {
     const target = replacePhoto.current;
     replacePhoto.current = null;
-    if (!file || !target) return;
-    setBusy("Fénykép beolvasása…");
+    if (photoInput.current) photoInput.current.value = "";
+    if (!file || !target || processingPhoto.current || busy) return;
+    processingPhoto.current = true;
+    setBusy("Fénykép optimalizálása…");
     try {
-      const asset = await readPhoto(file);
-      commit((root) =>
-        projectSchema.parse(setSlotAsset(root, target.id, target.page, asset)),
+      const withoutPrevious = setSlotAsset(
+        history.project,
+        target.id,
+        target.page,
+        emptyPhoto,
       );
+      const budget =
+        PHOTO_STORAGE_LIMIT - photoStorageSize(withoutPrevious.photos);
+      const asset = await readPhoto(file, budget);
+      commit((root) => {
+        const next = setSlotAsset(root, target.id, target.page, asset);
+        if (photoStorageSize(next.photos) > PHOTO_STORAGE_LIMIT)
+          throw new Error(PHOTO_SPACE_MESSAGE);
+        const result = projectSchema.safeParse(next);
+        if (!result.success)
+          throw new Error(
+            result.error.issues[0]?.message ?? "A kép nem illeszthető be.",
+          );
+        return result.data;
+      });
     } catch (e) {
-      setMessage(String((e as Error).message));
+      setMessage(e instanceof Error ? e.message : "A kép nem illeszthető be.");
     } finally {
+      processingPhoto.current = false;
       setBusy("");
-      if (photoInput.current) photoInput.current.value = "";
     }
   }
   function chooseSlotPhoto(id: string) {
+    if (processingPhoto.current || busy) return;
     replacePhoto.current = { id, page: p.mode === "annual" ? 0 : p.month };
     photoInput.current?.click();
   }
