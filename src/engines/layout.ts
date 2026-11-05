@@ -2,6 +2,8 @@ import {
   type Box,
   type Project,
   type Typography,
+  type Appearance,
+  elementAppearance,
   viewProject,
   yearBoxFor,
   pagePhotos,
@@ -43,6 +45,7 @@ interface Common {
   z: number;
   opacity: number;
   clip?: Clip;
+  elementId?: string;
 }
 export interface RectNode extends Common {
   kind: "rect";
@@ -65,7 +68,12 @@ export interface IconNode extends Common {
   icon: "cake" | "flower";
   color: string;
 }
-export type SceneNode = RectNode | TextNode | ImageNode | IconNode;
+export interface GroupNode extends Common {
+  kind: "group";
+  children: SceneNode[];
+  appearance: Appearance;
+}
+export type SceneNode = RectNode | TextNode | ImageNode | IconNode | GroupNode;
 export interface CellHit extends Box {
   date: CivilDate;
   inMonth: boolean;
@@ -102,11 +110,13 @@ export function buildScene(root: Project, month = root.month): Scene {
     issues: Issue[] = [];
   const headerBoxes: Array<[string, Box]> = [];
   let seq = 0;
+  let owner: string | undefined;
   const common = (b: Pick<Box, "x" | "y" | "w" | "h">, z = 0) => ({
     ...b,
     id: `n${seq++}`,
     z,
     opacity: 1,
+    elementId: owner,
   });
   const rect = (
     b: Pick<Box, "x" | "y" | "w" | "h">,
@@ -188,6 +198,7 @@ export function buildScene(root: Project, month = root.month): Scene {
         photo.radius,
         (photo.z < 0 ? -30 + photo.z : 30 + photo.z) - 0.1,
       );
+    owner = photo.id;
     nodes.push({
       ...common(photo.box, photo.z < 0 ? -30 + photo.z : 30 + photo.z),
       kind: "image",
@@ -195,6 +206,7 @@ export function buildScene(root: Project, month = root.month): Scene {
       opacity: photo.opacity,
     });
   }
+  owner = undefined;
   const textBounds: NonNullable<Scene["textBounds"]> = {};
   function measureText(id: string, first: number) {
     for (const node of nodes.slice(first)) {
@@ -230,6 +242,7 @@ export function buildScene(root: Project, month = root.month): Scene {
     t: Typography,
   ) {
     if (!value) return;
+    owner = id;
     const first = nodes.length;
     text(value, b, t);
     measureText(id, first);
@@ -252,6 +265,7 @@ export function buildScene(root: Project, month = root.month): Scene {
       message: "A cím betűmérete nagyobb a címmező magasságánál.",
     });
   for (const item of pageText(p)) {
+    owner = item.id;
     const t = item.typography;
     const lineHeight = t.size * mmPerPt * t.lineHeight;
     const lines = item.text
@@ -281,6 +295,7 @@ export function buildScene(root: Project, month = root.month): Scene {
       });
     if (item.text) headerBoxes.push(["Szövegdoboz", item.box]);
   }
+  owner = "grid";
   const holidayDays = new Map<string, ReturnType<typeof calendarHolidays>>();
   for (const item of calendarHolidays(p)) {
     const key = item.month + "-" + item.day;
@@ -314,8 +329,18 @@ export function buildScene(root: Project, month = root.month): Scene {
       ...g,
       r: Math.min(s.radius * factor, g.w / 2, g.h / 2),
     };
-    rect(g, s.cellBackground, "none", 0, clip.r);
+    rect(
+      g,
+      elementAppearance({ ...root, month }, "grid").background
+        ? "none"
+        : s.cellBackground,
+      "none",
+      0,
+      clip.r,
+    );
     if (s.showWeekdays) {
+      const priorOwner = owner;
+      owner = annual ? "grid" : "header";
       const order = Array.from(
         { length: 7 },
         (_, i) => (p.firstDay - 1 + i) % 7,
@@ -339,12 +364,18 @@ export function buildScene(root: Project, month = root.month): Scene {
         };
         text(
           labels[order[i]],
-          box(g.x + weekW + i * col, g.y + header * 0.25, col, header),
+          box(
+            g.x + weekW + i * col + (annual ? 0 : s.padding),
+            g.y + header * 0.25,
+            col - (annual ? 0 : 2 * s.padding),
+            header,
+          ),
           t,
           2,
           clip,
         );
       }
+      owner = priorOwner;
     }
     raw.forEach((d, i) => {
       const r = Math.floor(i / 7),
@@ -738,6 +769,47 @@ export function buildScene(root: Project, month = root.month): Scene {
       code: "small-print",
       message: "A névnapok betűmérete 6 pt alatti.",
     });
+  const configured = [
+    "header",
+    "grid",
+    "title",
+    "year",
+    ...pageText(p).map((item) => item.id),
+  ];
+  for (const id of configured) {
+    const appearance = elementAppearance({ ...root, month }, id);
+    if (!Object.values(appearance).some((value) => value !== undefined))
+      continue;
+    const selected = nodes.filter(
+      (node) =>
+        node.elementId === id || (id === "grid" && node.elementId === "header"),
+    );
+    if (!selected.length) continue;
+    let bounds: Pick<Box, "x" | "y" | "w" | "h"> | undefined;
+    if (id === "grid") bounds = grid;
+    else if (id === "header") {
+      if (p.mode === "annual") continue;
+      const week = p.isoWeeks ? Math.min(6, grid.w / 14) : 0;
+      bounds = {
+        x: grid.x + week,
+        y: grid.y,
+        w: grid.w - week,
+        h: s.headerHeight,
+      };
+    } else bounds = textBounds[id];
+    if (!bounds) continue;
+    const chosen = new Set(selected);
+    for (let i = nodes.length - 1; i >= 0; i--)
+      if (chosen.has(nodes[i])) nodes.splice(i, 1);
+    nodes.push({
+      ...common(bounds, Math.min(...selected.map((node) => node.z))),
+      elementId: id,
+      kind: "group",
+      children: selected.sort((a, b) => a.z - b.z),
+      appearance,
+      opacity: appearance.opacity ?? 1,
+    });
+  }
   return {
     width: p.page.width,
     height: p.page.height,

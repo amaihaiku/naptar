@@ -21,6 +21,8 @@ import { decodeImage, imageCache } from "./images";
 import {
   renderCanvas,
   rasterPhoto,
+  rasterGroup,
+  groupArtworkBounds,
   photoArtworkBounds,
   roundPath,
   cakeRects,
@@ -88,6 +90,19 @@ export function validateExport(
         message: `${photo.name}: a fénykép 300 DPI-s feldolgozása meghaladja a biztonságos képméretet. Csökkentsd a kép keretét.`,
       });
   }
+  for (const scene of scenes)
+    for (const node of scene.nodes) {
+      if (node.kind !== "group") continue;
+      const bounds = groupArtworkBounds(node);
+      const pixels = rasterDimensions(bounds.w, bounds.h);
+      if (pixels.width * pixels.height > 36_000_000)
+        issues.push({
+          severity: "error",
+          code: "image-memory",
+          message:
+            "Az elem effektusokkal túl nagy a 300 DPI-s exporthoz. Csökkentsd az elem méretét vagy az effektus kiterjedését.",
+        });
+    }
   const decoded = photoAssets(p.photos).reduce(
     (bytes, photo) => bytes + photo.pixelWidth * photo.pixelHeight * 4,
     0,
@@ -171,6 +186,25 @@ export async function createPdf(
     for (const n of scene.nodes) {
       page.pushOperators(pushGraphicsState());
       if (n.clip) clipPdf(page, n.clip, H);
+      if (n.kind === "group") {
+        const { canvas, bounds } = rasterGroup(n, scene, p);
+        try {
+          const data = await canvasBlob(canvas, "png");
+          const image = await doc.embedPng(
+            new Uint8Array(await data.arrayBuffer()),
+          );
+          page.drawImage(image, {
+            x: bounds.x * pt,
+            y: H - (bounds.y + bounds.h) * pt,
+            width: bounds.w * pt,
+            height: bounds.h * pt,
+            opacity: n.opacity,
+          });
+        } finally {
+          canvas.width = 0;
+          canvas.height = 0;
+        }
+      }
       if (n.kind === "rect") {
         const fill = n.fill === "none" ? undefined : color(n.fill),
           stroke = n.stroke === "none" || !n.line ? undefined : color(n.stroke);

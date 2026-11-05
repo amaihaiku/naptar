@@ -242,3 +242,86 @@ test("preview zoom does not change exported PNG dimensions", async ({
   expect(data.readUInt32BE(16)).toBe(2480);
   expect(data.readUInt32BE(20)).toBe(3508);
 });
+
+test("weekday header appearance, click selection and effects export", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page
+    .getByRole("button", { name: "Hétfejléc kiválasztása", exact: true })
+    .click();
+  await expect(page.getByLabel("Elem", { exact: true })).toHaveValue("header");
+  await page.getByLabel("Betűtípus", { exact: true }).selectOption("Lato");
+  await page
+    .getByLabel("Szöveg igazítása", { exact: true })
+    .selectOption("right");
+  await page.getByLabel("Elem háttérszíne", { exact: true }).check();
+  await page.getByLabel("Háttérszín", { exact: true }).fill("#abc123");
+  await page.getByLabel("Vetett árnyék", { exact: true }).check();
+  await page.getByLabel("Tükröződés", { exact: true }).check();
+  await expect(page.getByTestId("calendar-paper").locator("image")).toHaveCount(
+    1,
+  );
+  await page
+    .getByRole("button", { name: "Cím kiválasztása", exact: true })
+    .click();
+  await expect(page.getByLabel("Elem", { exact: true })).toHaveValue("title");
+  await page.getByLabel("Vetett árnyék", { exact: true }).check();
+  await expect(page.getByTestId("calendar-paper").locator("image")).toHaveCount(
+    2,
+  );
+  await page.getByRole("button", { name: "Exportálás", exact: true }).click();
+  await page.getByRole("button", { name: /PNG/ }).click();
+  const pending = page.waitForEvent("download");
+  await page
+    .getByRole("button", {
+      name: /^(Letöltés|Figyelmeztetések figyelmen kívül hagyása és letöltés)$/i,
+    })
+    .click();
+  const fs = await import("node:fs/promises");
+  const data = await fs.readFile((await (await pending).path())!);
+  expect([...data.subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
+  expect(data.readUInt32BE(16)).toBe(2480);
+  expect(errors).toEqual([]);
+});
+
+test("mask duplication keeps dimensions and linked styles can be detached", async ({
+  page,
+}) => {
+  await page.getByRole("button", { name: "Képhelyek", exact: true }).click();
+  await page.getByRole("button", { name: "Új képhely", exact: true }).click();
+  await page
+    .getByRole("slider", { name: "Maszk keret vastagsága", exact: true })
+    .press("ArrowRight");
+  await page
+    .getByRole("button", { name: "Képhely 1 másolása", exact: true })
+    .click();
+  await expect(page.locator(".photo-layer")).toHaveCount(2);
+  const second = page.locator(".photo-layer").nth(1);
+  await expect(
+    second.getByLabel("Azonos stílus", { exact: true }),
+  ).toBeChecked();
+  await second.getByLabel("Azonos stílus", { exact: true }).uncheck();
+  await page
+    .getByRole("slider", { name: "Maszk keret vastagsága", exact: true })
+    .press("ArrowRight");
+  const pending = page.waitForEvent("download");
+  await page
+    .getByRole("button", { name: "Projekt mentése", exact: true })
+    .click();
+  const fs = await import("node:fs/promises");
+  const saved = JSON.parse(
+    await fs.readFile((await (await pending).path())!, "utf8"),
+  );
+  expect(saved.photos[1].box).toEqual(saved.photos[0].box);
+  expect(saved.photos[1].data).toBe("");
+  expect(saved.photos[1].border).toBeGreaterThan(saved.photos[0].border);
+  await second.getByLabel("Azonos stílus", { exact: true }).check();
+  await second
+    .getByRole("button", { name: "Stílus törlése", exact: true })
+    .click();
+  await expect(
+    page.getByRole("slider", { name: "Maszk keret vastagsága", exact: true }),
+  ).toHaveValue("0");
+});
