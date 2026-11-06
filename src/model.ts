@@ -104,6 +104,27 @@ export const styleSchema = z
     holidayColor: color,
     holidayBackground: color,
     customHolidayBackground: color.optional(),
+    holidayTextColor: color.optional(),
+    sharedWeekdayHeader: z.boolean().optional(),
+    weekdayHeaders: z
+      .record(
+        z.string().regex(/^(?:[1-9]|1[0-2])$/),
+        z
+          .object({
+            background: color.nullable().optional(),
+            typography: typeSchema
+              .pick({
+                family: true,
+                size: true,
+                color: true,
+                weight: true,
+                italic: true,
+              })
+              .optional(),
+          })
+          .strict(),
+      )
+      .optional(),
     cellBackground: color,
     gridColor: color,
     gridLine: num(0, 3),
@@ -476,7 +497,7 @@ const text = (
   italic: false,
   vertical: "auto",
 });
-export function defaultProject(): Project {
+export function defaultProject(mode: Project["mode"] = "monthly"): Project {
   const p: Project = {
     version: 1,
     title: "Az én naptáram",
@@ -487,7 +508,7 @@ export function defaultProject(): Project {
       }).format(new Date()),
     ),
     month: 3,
-    mode: "monthly",
+    mode,
     page: {
       size: "A4",
       orientation: "portrait",
@@ -742,10 +763,55 @@ export function linkPhotoStyle(
     ),
   };
 }
+function hasMonthlyWeekdayHeader(p: Project) {
+  return p.mode === "monthly" && p.style.sharedWeekdayHeader === false;
+}
+export function weekdayTypography(p: Project): Typography {
+  const shared = p.style.typography.weekday;
+  const local = hasMonthlyWeekdayHeader(p)
+    ? p.style.weekdayHeaders?.[p.month]?.typography
+    : undefined;
+  return local ? { ...shared, ...local } : shared;
+}
+export function updateWeekdayTypography(
+  p: Project,
+  typography: Typography,
+): Project {
+  const style = viewProject(p).style;
+  if (!hasMonthlyWeekdayHeader(p))
+    return updateView(p, {
+      style: {
+        ...style,
+        typography: { ...style.typography, weekday: typography },
+      },
+    });
+  const { family, size, color, weight, italic, ...shared } = typography;
+  return updateView(p, {
+    style: {
+      ...style,
+      typography: {
+        ...style.typography,
+        weekday: { ...style.typography.weekday, ...shared },
+      },
+      weekdayHeaders: {
+        ...style.weekdayHeaders,
+        [p.month]: {
+          ...style.weekdayHeaders?.[p.month],
+          typography: { family, size, color, weight, italic },
+        },
+      },
+    },
+  });
+}
 export function elementAppearance(p: Project, id: string): Appearance {
   const text = pageText(p).find((item) => item.id === id);
   if (text) return text.appearance ?? {};
-  return viewProject(p).style.elementStyles?.[id] ?? {};
+  const shared = viewProject(p).style.elementStyles?.[id] ?? {};
+  if (id !== "header" || !hasMonthlyWeekdayHeader(p)) return shared;
+  const background = p.style.weekdayHeaders?.[p.month]?.background;
+  return background === undefined
+    ? shared
+    : { ...shared, background: background ?? undefined };
 }
 export function updateAppearance(
   p: Project,
@@ -760,6 +826,32 @@ export function updateAppearance(
       ),
     };
   const style = viewProject(p).style;
+  if (id === "header" && hasMonthlyWeekdayHeader(p)) {
+    const local = style.weekdayHeaders?.[p.month];
+    const { background, ...shared } = appearance;
+    return updateView(p, {
+      style: {
+        ...style,
+        weekdayHeaders: {
+          ...style.weekdayHeaders,
+          [p.month]: {
+            ...local,
+            background:
+              background === elementAppearance(p, id).background
+                ? local?.background
+                : (background ?? null),
+          },
+        },
+        elementStyles: {
+          ...style.elementStyles,
+          header: {
+            ...shared,
+            background: style.elementStyles?.header?.background,
+          },
+        },
+      },
+    });
+  }
   return updateView(p, {
     style: {
       ...style,

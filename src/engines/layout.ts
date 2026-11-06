@@ -4,6 +4,7 @@ import {
   type Typography,
   type Appearance,
   elementAppearance,
+  weekdayTypography,
   appearanceBounds,
   viewProject,
   yearBoxFor,
@@ -343,6 +344,7 @@ export function buildScene(root: Project, month = root.month): Scene {
       const priorOwner = owner;
       const headerStart = nodes.length;
       owner = annual ? "grid" : "header";
+      const weekdayType = weekdayTypography(p);
       const order = Array.from(
         { length: 7 },
         (_, i) => (p.firstDay - 1 + i) % 7,
@@ -359,7 +361,7 @@ export function buildScene(root: Project, month = root.month): Scene {
                   : 2
           ];
         const t = {
-          ...s.typography.weekday,
+          ...weekdayType,
           ...(annual
             ? { size: Math.max(2, s.typography.weekday.size * 0.6875 * factor) }
             : {}),
@@ -415,6 +417,11 @@ export function buildScene(root: Project, month = root.month): Scene {
       const customBackground = events.some((event) => event.coloredDay);
       const publicHoliday = events.some((event) => event.publicHoliday);
       const highlightedHoliday = listedHolidays.some((item) => item.highlight);
+      const dayTextColor =
+        inMonth &&
+        (listedHolidays.length > 0 || publicHoliday || customBackground)
+          ? s.holidayTextColor
+          : undefined;
       const highlight =
         inMonth &&
         (!annual || coverHighlight) &&
@@ -455,7 +462,7 @@ export function buildScene(root: Project, month = root.month): Scene {
         ...s.typography.weekday,
         size: Math.max(2, Math.min(6.5, (p.page.width / 210) * 6.5)),
         align: "center",
-        color: s.holidayColor,
+        color: dayTextColor ?? s.holidayColor,
       };
       const holidayLines = holidayName
         ? wrap(holidayName, holidayType, b.w - 2 * pad)
@@ -487,7 +494,10 @@ export function buildScene(root: Project, month = root.month): Scene {
         let contentBottom = dateY + dateHeight;
         let cursor = contentBottom + 0.7;
         if (s.showNamedays) {
-          const nt = s.typography.nameday;
+          const namedayType = s.typography.nameday;
+          const nt = dayTextColor
+            ? { ...namedayType, color: dayTextColor }
+            : namedayType;
           const names = namedays(d.month, d.day, p.namedayOverrides, d.year);
           const availableWidth = b.w - 2 * pad;
           const nameLines = !names.length
@@ -549,12 +559,15 @@ export function buildScene(root: Project, month = root.month): Scene {
             ),
           );
           for (const event of events) {
-            const et =
+            const eventType =
               event.kind === "birthday"
                 ? s.typography.birthday
                 : event.kind === "other"
                   ? (s.typography.otherEvent ?? s.typography.personalNameday)
                   : s.typography.personalNameday;
+            const et = dayTextColor
+              ? { ...eventType, color: dayTextColor }
+              : eventType;
             const iconSize =
               event.kind === "other" ? 0 : Math.min(2.5, et.size * mmPerPt);
             const iconSpace = iconSize ? iconSize + 0.8 : 0;

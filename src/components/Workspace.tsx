@@ -446,7 +446,7 @@ export function Workspace({
                           ? `${p.name} kiválasztása és mozgatása a maszkban`
                           : slotLabel(p)
                       }
-                      className={`photo-hit ${p.data ? "" : "empty-slot"} ${selection === p.id ? "active" : ""}`}
+                      className={`photo-hit ${p.data ? "" : "empty-slot"} ${selection === p.id ? "active" : ""} ${p.role === "background" && p.z < 0 ? "behind-calendar" : ""}`}
                       style={{
                         ...styleBox(appearanceBounds(p.box, p)),
                         zIndex: p.z < 0 ? 1 : 5,

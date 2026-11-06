@@ -10,6 +10,7 @@ async function savedProject(page: Page) {
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("calendar-paper")).toBeVisible();
+  await page.getByRole("button", { name: "Március", exact: true }).click();
 });
 test("thirteen page icons and exclusive guide/print mode", async ({ page }) => {
   const nav = page.getByRole("navigation", { name: "Naptároldalak" });
@@ -510,4 +511,70 @@ test("holiday list renames, hides, adds and removes days in the saved calendar",
     highlight: true,
   });
   expect(p.customHolidays).toHaveLength(0);
+});
+
+test("month-specific weekday header settings survive switching to shared and back", async ({
+  page,
+}) => {
+  const selectHeader = () =>
+    page.getByLabel("Elem", { exact: true }).selectOption("header");
+  const shared = page.getByLabel("Azonos hétfejléc minden hónapban", {
+    exact: true,
+  });
+  const family = page.getByLabel("Betűtípus", { exact: true });
+  const size = page.getByLabel("Betűméret", { exact: true });
+  const color = page.getByLabel("Betűszín", { exact: true });
+  const backgroundEnabled = page.getByLabel("Elem háttérszíne", {
+    exact: true,
+  });
+  const background = page.getByLabel("Háttérszín", { exact: true });
+  await selectHeader();
+  await expect(shared).toBeChecked();
+  const defaultFamily = await family.inputValue();
+  await shared.uncheck();
+  await family.selectOption("Lato");
+  await size.fill("11");
+  await color.fill("#224488");
+  const headers = page
+    .getByTestId("calendar-paper")
+    .locator('text[fill="#224488"][font-family="Lato"]');
+  await expect(headers).toHaveCount(7);
+  await backgroundEnabled.check();
+  await background.fill("#eeddaa");
+  await page.getByRole("button", { name: "Április", exact: true }).click();
+  await selectHeader();
+  await expect(family).toHaveValue(defaultFamily);
+  await expect(backgroundEnabled).not.toBeChecked();
+  await page.getByRole("button", { name: "Március", exact: true }).click();
+  await selectHeader();
+  await shared.check();
+  await expect(family).toHaveValue(defaultFamily);
+  await shared.uncheck();
+  await expect(family).toHaveValue("Lato");
+  await expect(size).toHaveValue("11");
+  await expect(color).toHaveValue("#224488");
+  await expect(background).toHaveValue("#eeddaa");
+});
+
+test("the cover calendar remains selectable over an active background photo", async ({
+  page,
+}) => {
+  await page.getByRole("button", { name: "Borító", exact: true }).click();
+  await page.getByRole("button", { name: "Képhelyek", exact: true }).click();
+  await page.getByRole("button", { name: "Új képhely", exact: true }).click();
+  const chooser = page.waitForEvent("filechooser");
+  await page
+    .getByRole("button", { name: "Kép betöltése", exact: true })
+    .click();
+  await (await chooser).setFiles("tests/fixtures/foto.png");
+  await expect(
+    page.getByRole("button", { name: "Képcsere", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByLabel("Kép szerepe", { exact: true })
+    .selectOption("background");
+  await page
+    .getByRole("button", { name: "Naptárrács kiválasztása", exact: true })
+    .click();
+  await expect(page.getByLabel("Elem", { exact: true })).toHaveValue("grid");
 });
