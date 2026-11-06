@@ -548,6 +548,9 @@ export function Properties({
             ? {
                 background: photo.background,
                 backgroundOpacity: photo.backgroundOpacity,
+                paddingX: photo.paddingX,
+                paddingY: photo.paddingY,
+                backgroundRadius: photo.backgroundRadius,
                 opacity: photo.opacity,
                 shadowStyle: photo.shadowStyle
                   ? { ...photo.shadowStyle, kind: "drop" }

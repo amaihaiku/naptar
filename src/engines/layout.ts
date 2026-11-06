@@ -4,6 +4,7 @@ import {
   type Typography,
   type Appearance,
   elementAppearance,
+  appearanceBounds,
   viewProject,
   yearBoxFor,
   pagePhotos,
@@ -383,7 +384,13 @@ export function buildScene(root: Project, month = root.month): Scene {
       ) {
         const children = nodes.splice(headerStart);
         nodes.push({
-          ...common(box(g.x + weekW, g.y, g.w - weekW, header), 2),
+          ...common(
+            appearanceBounds(
+              box(g.x + weekW, g.y, g.w - weekW, header),
+              appearance,
+            ),
+            2,
+          ),
           kind: "group",
           children,
           appearance,
@@ -729,11 +736,7 @@ export function buildScene(root: Project, month = root.month): Scene {
     text(s.watermark, box(5, p.page.height - 12, p.page.width - 10, 10), t, 50);
     nodes[nodes.length - 1].opacity = s.watermarkOpacity;
   }
-  for (const [label, b] of [
-    ...(showCalendar ? [["Naptárrács", grid]] : []),
-    ...headerBoxes,
-    ...photos.filter((i) => i.visible && i.data).map((i) => [i.name, i.box]),
-  ] as [string, Box][]) {
+  function checkBounds(label: string, b: Pick<Box, "x" | "y" | "w" | "h">) {
     if (
       b.x < 0 ||
       b.y < 0 ||
@@ -757,6 +760,13 @@ export function buildScene(root: Project, month = root.month): Scene {
         message: `${label}: az elem a beállított margóra nyúlik.`,
       });
   }
+  if (showCalendar) checkBounds("Naptárrács", grid);
+  for (const [label, bounds] of headerBoxes) checkBounds(label, bounds);
+  for (const photo of photos.filter((i) => i.visible && i.data))
+    checkBounds(
+      photo.name,
+      photo.background ? appearanceBounds(photo.box, photo) : photo.box,
+    );
   for (const photo of photos.filter((i) => i.visible && i.data)) {
     const scale =
       Math.max(
@@ -817,7 +827,10 @@ export function buildScene(root: Project, month = root.month): Scene {
     for (let i = nodes.length - 1; i >= 0; i--)
       if (chosen.has(nodes[i])) nodes.splice(i, 1);
     nodes.push({
-      ...common(bounds, Math.min(...selected.map((node) => node.z))),
+      ...common(
+        appearanceBounds(bounds, appearance),
+        Math.min(...selected.map((node) => node.z)),
+      ),
       elementId: id,
       kind: "group",
       children: selected.sort((a, b) => a.z - b.z),
@@ -825,6 +838,18 @@ export function buildScene(root: Project, month = root.month): Scene {
       opacity: appearance.opacity ?? 1,
     });
   }
+  function checkExpandedGroups(items: SceneNode[]) {
+    for (const node of items) {
+      if (node.kind !== "group") continue;
+      if (
+        node.appearance.background &&
+        (node.appearance.paddingX || node.appearance.paddingY)
+      )
+        checkBounds("Kibővített elemháttér", node);
+      checkExpandedGroups(node.children);
+    }
+  }
+  checkExpandedGroups(nodes);
   return {
     width: p.page.width,
     height: p.page.height,

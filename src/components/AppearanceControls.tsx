@@ -42,6 +42,44 @@ export function AppearanceControls({
         </>
       )}
       <Slider
+        label="Befoglaló bővítése vízszintesen"
+        min={0}
+        max={50}
+        step={0.1}
+        unit="mm"
+        value={value.paddingX ?? 0}
+        onChange={(paddingX) =>
+          onChange({ ...value, paddingX: paddingX || undefined })
+        }
+      />
+      <Slider
+        label="Befoglaló bővítése függőlegesen"
+        min={0}
+        max={50}
+        step={0.1}
+        unit="mm"
+        value={value.paddingY ?? 0}
+        onChange={(paddingY) =>
+          onChange({ ...value, paddingY: paddingY || undefined })
+        }
+      />
+      {value.background && (
+        <Slider
+          label="Háttér sarkainak lekerekítése"
+          min={0}
+          max={50}
+          step={0.1}
+          unit="mm"
+          value={value.backgroundRadius ?? 0}
+          onChange={(backgroundRadius) =>
+            onChange({
+              ...value,
+              backgroundRadius: backgroundRadius || undefined,
+            })
+          }
+        />
+      )}
+      <Slider
         label="Elem átlátszatlansága"
         min={0}
         max={100}

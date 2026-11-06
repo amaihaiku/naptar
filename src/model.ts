@@ -61,6 +61,9 @@ export const appearanceSchema = z
   .object({
     background: color.optional(),
     backgroundOpacity: num(0, 1).optional(),
+    paddingX: num(0, 50).optional(),
+    paddingY: num(0, 50).optional(),
+    backgroundRadius: num(0, 50).optional(),
     opacity: num(0, 1).optional(),
     shadowStyle: z
       .object({
@@ -80,6 +83,18 @@ export const appearanceSchema = z
   })
   .strict();
 export type Appearance = z.infer<typeof appearanceSchema>;
+export function appearanceBounds<T extends Pick<Box, "x" | "y" | "w" | "h">>(
+  box: T,
+  { paddingX = 0, paddingY = 0 }: Pick<Appearance, "paddingX" | "paddingY">,
+): T {
+  return {
+    ...box,
+    x: box.x - paddingX,
+    y: box.y - paddingY,
+    w: box.w + 2 * paddingX,
+    h: box.h + 2 * paddingY,
+  };
+}
 export const styleSchema = z
   .object({
     background: color,
@@ -225,6 +240,9 @@ export const imageSchema = z
     sameStyle: z.boolean().optional(),
     background: color.optional(),
     backgroundOpacity: num(0, 1).optional(),
+    paddingX: num(0, 50).optional(),
+    paddingY: num(0, 50).optional(),
+    backgroundRadius: num(0, 50).optional(),
     aspectLock: z.boolean(),
     page: z.number().int().min(0).max(12).optional(),
     slotNumber: z.number().int().positive().optional(),
@@ -646,6 +664,9 @@ export const photoStyleKeys = [
   "opacity",
   "background",
   "backgroundOpacity",
+  "paddingX",
+  "paddingY",
+  "backgroundRadius",
 ] as const;
 export function photoStyle(photo: Photo): Partial<Photo> {
   return Object.fromEntries(photoStyleKeys.map((key) => [key, photo[key]]));
@@ -658,6 +679,9 @@ export function hasSlotStyle(photo: Photo) {
     photo.reflection ||
     photo.edgeFeather ||
     photo.background ||
+    photo.paddingX ||
+    photo.paddingY ||
+    photo.backgroundRadius ||
     photo.opacity !== 1 ||
     photo.radius ||
     photo.shape !== "rectangle",

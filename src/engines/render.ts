@@ -1,7 +1,12 @@
-import { pagePhotos, type Project, type Photo } from "../model";
-import type { Scene, Clip } from "./layout";
+import {
+  appearanceBounds,
+  pagePhotos,
+  type Project,
+  type Photo,
+} from "../model";
+import type { Scene, Clip, GroupNode } from "./layout";
 import { advance, mmPerPt } from "./fonts";
-import { paintPhoto, photoPath } from "./images";
+import { paintPhoto, photoPath, photoBackgroundPath } from "./images";
 export function roundPath(b: Clip): string {
   const { x, y, w, h } = b,
     r = Math.min(b.r, w / 2, h / 2);
@@ -128,21 +133,29 @@ export const hasPhotoEffects = (p: Photo) =>
     (p.shadowStyle && p.shadowStyle.opacity > 0) ||
     (p.reflection && p.reflection.opacity > 0) ||
     (p.edgeFeather && p.edgeFeather.distance + p.edgeFeather.spread > 0) ||
-    (p.border > 0 && p.borderStyle && p.borderStyle !== "solid"),
+    (p.border > 0 && p.borderStyle && p.borderStyle !== "solid") ||
+    (p.background && (p.paddingX || p.paddingY || p.backgroundRadius)),
   );
+function photoFrontBounds(p: Photo) {
+  return appearanceBounds(p.box, {
+    paddingX: Math.max(p.border / 2, p.background ? (p.paddingX ?? 0) : 0),
+    paddingY: Math.max(p.border / 2, p.background ? (p.paddingY ?? 0) : 0),
+  });
+}
+function photoReflectionLength(p: Photo) {
+  const height = p.box.h + 2 * (p.background ? (p.paddingY ?? 0) : 0);
+  return p.reflection?.opacity ? height * p.reflection.length : 0;
+}
 export function photoArtworkBounds(p: Photo) {
   const shadow = p.shadowStyle?.opacity ? p.shadowStyle : undefined;
-  const padding = Math.max(
-    p.border / 2,
-    shadow ? 3 * shadow.blur + shadow.distance + 5 : 0,
-  );
-  const reflection = p.reflection?.opacity ? p.box.h * p.reflection.length : 0;
-  return {
-    x: p.box.x - padding,
-    y: p.box.y - padding,
-    w: p.box.w + 2 * padding,
-    h: p.box.h + 2 * padding + reflection,
-  };
+  const padding = shadow
+    ? Math.max(0, 3 * shadow.blur + shadow.distance + 5 - p.border / 2)
+    : 0;
+  const bounds = appearanceBounds(photoFrontBounds(p), {
+    paddingX: padding,
+    paddingY: padding,
+  });
+  return { ...bounds, h: bounds.h + photoReflectionLength(p) };
 }
 function photoCanvas(width: number, height: number) {
   const canvas = document.createElement("canvas");
@@ -180,20 +193,16 @@ export function rasterPhoto(p: Photo, resolution = 300 / 25.4) {
       ctx.translate(-far, 0);
       ctx.fillStyle = "#000000";
     }
-    photoPath(ctx, {
+    const shadowPhoto = {
       ...p,
       box: { ...p.box, x: p.box.x + dx, y: p.box.y + dy },
-    });
+    };
+    if (p.background) photoBackgroundPath(ctx, shadowPhoto);
+    else photoPath(ctx, shadowPhoto);
     ctx.fill();
     ctx.restore();
   }
-  const border = p.border / 2;
-  const front = {
-    x: p.box.x - border,
-    y: p.box.y - border,
-    w: p.box.w + 2 * border,
-    h: p.box.h + 2 * border,
-  };
+  const front = photoFrontBounds(p);
   const reflection = p.reflection;
   if (reflection?.opacity) {
     const source = photoCanvas(front.w * sx, front.h * sy);
@@ -202,7 +211,7 @@ export function rasterPhoto(p: Photo, resolution = 300 / 25.4) {
       source.canvas.height / front.h,
     );
     paintPhoto(source.ctx, p, front.x, front.y);
-    const length = p.box.h * reflection.length;
+    const length = photoReflectionLength(p);
     const mirrored = photoCanvas(source.canvas.width, length * sy);
     mirrored.ctx.translate(0, source.canvas.height);
     mirrored.ctx.scale(1, -1);
@@ -227,21 +236,40 @@ export function rasterPhoto(p: Photo, resolution = 300 / 25.4) {
   return { canvas, bounds };
 }
 
-export function groupArtworkBounds(n: import("./layout").GroupNode) {
+function groupFrontBounds(n: GroupNode) {
+  let { x, y } = n;
+  let right = n.x + n.w,
+    bottom = n.y + n.h;
+  for (const child of n.children) {
+    if (
+      child.kind !== "group" ||
+      (!child.appearance.paddingX && !child.appearance.paddingY)
+    )
+      continue;
+    const bounds = groupArtworkBounds(child);
+    x = Math.min(x, bounds.x);
+    y = Math.min(y, bounds.y);
+    right = Math.max(right, bounds.x + bounds.w);
+    bottom = Math.max(bottom, bounds.y + bounds.h);
+  }
+  return { x, y, w: right - x, h: bottom - y };
+}
+export function groupArtworkBounds(n: GroupNode) {
+  const front = groupFrontBounds(n);
   const shadow = n.appearance.shadowStyle;
   const pad = shadow?.opacity ? shadow.distance + shadow.blur * 3 + 2 : 0;
   const extra = n.appearance.reflection?.opacity
-    ? n.h * n.appearance.reflection.length
+    ? front.h * n.appearance.reflection.length
     : 0;
   return {
-    x: n.x - pad,
-    y: n.y - pad,
-    w: n.w + pad * 2,
-    h: n.h + pad * 2 + extra,
+    x: front.x - pad,
+    y: front.y - pad,
+    w: front.w + pad * 2,
+    h: front.h + pad * 2 + extra,
   };
 }
 export function rasterGroup(
-  n: import("./layout").GroupNode,
+  n: GroupNode,
   scene: Scene,
   p: Project,
   resolution = 300 / 25.4,
@@ -251,18 +279,27 @@ export function rasterGroup(
     resolution,
     Math.sqrt(36_000_000 / (bounds.w * bounds.h)),
   );
-  const front = photoCanvas(n.w * scale, n.h * scale);
-  front.ctx.setTransform(scale, 0, 0, scale, -n.x * scale, -n.y * scale);
+  const area = groupFrontBounds(n);
+  const front = photoCanvas(area.w * scale, area.h * scale);
+  front.ctx.setTransform(scale, 0, 0, scale, -area.x * scale, -area.y * scale);
   if (n.appearance.background) {
     front.ctx.fillStyle = n.appearance.background;
     front.ctx.globalAlpha = n.appearance.backgroundOpacity ?? 1;
-    front.ctx.fillRect(n.x, n.y, n.w, n.h);
+    front.ctx.beginPath();
+    front.ctx.roundRect(
+      n.x,
+      n.y,
+      n.w,
+      n.h,
+      Math.min(n.appearance.backgroundRadius ?? 0, n.w / 2, n.h / 2),
+    );
+    front.ctx.fill();
     front.ctx.globalAlpha = 1;
   }
   renderCanvas(front.ctx, { ...scene, nodes: n.children }, p, 1);
   const { canvas, ctx } = photoCanvas(bounds.w * scale, bounds.h * scale);
-  const x = (n.x - bounds.x) * scale,
-    y = (n.y - bounds.y) * scale;
+  const x = (area.x - bounds.x) * scale,
+    y = (area.y - bounds.y) * scale;
   const shadow = n.appearance.shadowStyle;
   if (shadow?.opacity) {
     ctx.save();
@@ -285,7 +322,7 @@ export function rasterGroup(
   if (reflection?.opacity) {
     const mirror = photoCanvas(
       front.canvas.width,
-      n.h * reflection.length * scale,
+      area.h * reflection.length * scale,
     );
     mirror.ctx.translate(0, front.canvas.height);
     mirror.ctx.scale(1, -1);

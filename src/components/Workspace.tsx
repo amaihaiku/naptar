@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Lock, Move, Maximize2 } from "lucide-react";
 import {
   elementBox,
+  elementAppearance,
+  appearanceBounds,
   updateSlotCrop,
   updateElementBox,
   pageText,
@@ -124,8 +126,10 @@ export function Workspace({
     const b = actualBox(id);
     if (!b) return;
     const text = scene.textBounds?.[id];
-    if (text) return { ...b, ...text };
-    if (photos.find((photo) => photo.id === id)?.shape === "circle") {
+    const photo = photos.find((photo) => photo.id === id);
+    const appearance = photo ?? elementAppearance(project, id);
+    if (text) return appearanceBounds({ ...b, ...text }, appearance);
+    if (photo?.shape === "circle" && !photo.paddingX && !photo.paddingY) {
       const size = Math.min(b.w, b.h);
       return {
         ...b,
@@ -135,7 +139,7 @@ export function Workspace({
         h: size,
       };
     }
-    return b;
+    return appearanceBounds(b, appearance);
   }
   useEffect(() => {
     if (previewMode || keyboardDisabled) return;
@@ -416,7 +420,7 @@ export function Workspace({
                   <button
                     className="grid-hit"
                     aria-label="Naptárrács kiválasztása"
-                    style={styleBox(actualBox("grid")!)}
+                    style={styleBox(visualBox("grid")!)}
                     onClick={() => onSelect("grid")}
                     onPointerDown={(e) => start(e, "grid")}
                     onPointerMove={move}
@@ -428,7 +432,7 @@ export function Workspace({
                   <button
                     className="header-hit"
                     aria-label="Hétfejléc kiválasztása"
-                    style={styleBox(actualBox("header")!)}
+                    style={styleBox(visualBox("header")!)}
                     onClick={() => onSelect("header")}
                   />
                 )}
@@ -443,7 +447,10 @@ export function Workspace({
                           : slotLabel(p)
                       }
                       className={`photo-hit ${p.data ? "" : "empty-slot"} ${selection === p.id ? "active" : ""}`}
-                      style={{ ...styleBox(p.box), zIndex: p.z < 0 ? 1 : 5 }}
+                      style={{
+                        ...styleBox(appearanceBounds(p.box, p)),
+                        zIndex: p.z < 0 ? 1 : 5,
+                      }}
                       onPointerDown={(e) =>
                         start(e, p.id, p.data ? "crop" : "move")
                       }
@@ -494,7 +501,9 @@ export function Workspace({
                     key={item.id}
                     className="title-hit custom-text-hit"
                     aria-label={`Szöveg ${i + 1} kiválasztása`}
-                    style={styleBox(item.box)}
+                    style={styleBox(
+                      appearanceBounds(item.box, item.appearance ?? {}),
+                    )}
                     onClick={() => onSelect(item.id)}
                     onPointerDown={(e) => start(e, item.id)}
                     onPointerMove={move}

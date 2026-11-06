@@ -1,5 +1,6 @@
 import {
   emptyPhoto,
+  appearanceBounds,
   photoAssets,
   type Photo,
   type PhotoAsset,
@@ -296,6 +297,26 @@ function adjustColors(image: HTMLImageElement, matrix: number[]) {
   ctx.putImageData(pixels, 0, 0);
   return canvas;
 }
+export function photoBackgroundPath(
+  ctx: CanvasRenderingContext2D,
+  p: Photo,
+  offsetX = 0,
+  offsetY = 0,
+) {
+  if (!p.paddingX && !p.paddingY && !p.backgroundRadius) {
+    photoPath(ctx, p, offsetX, offsetY);
+    return;
+  }
+  const { x, y, w, h } = appearanceBounds(p.box, p);
+  ctx.beginPath();
+  ctx.roundRect(
+    x - offsetX,
+    y - offsetY,
+    w,
+    h,
+    Math.min(p.backgroundRadius ?? 0, w / 2, h / 2),
+  );
+}
 export function paintPhoto(
   ctx: CanvasRenderingContext2D,
   p: Photo,
@@ -307,7 +328,7 @@ export function paintPhoto(
   ctx.save();
   if (p.background) {
     ctx.save();
-    photoPath(ctx, p, offsetX, offsetY);
+    photoBackgroundPath(ctx, p, offsetX, offsetY);
     ctx.fillStyle = p.background;
     ctx.globalAlpha *= p.backgroundOpacity ?? 1;
     ctx.fill();
