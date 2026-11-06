@@ -31,6 +31,7 @@ test("A4 JPG has actual print pixels and 300 DPI density", async ({ page }) => {
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("calendar-paper")).toBeVisible();
+  await page.getByRole("button", { name: "Március", exact: true }).click();
   await page.getByLabel("Év", { exact: true }).fill("2027");
 });
 test("birthday entry, project save/load and undo/redo", async ({ page }) => {

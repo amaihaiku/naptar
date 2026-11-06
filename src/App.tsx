@@ -394,7 +394,7 @@ export default function App() {
         <div className="file-actions">
           <button
             onClick={() => {
-              commit(defaultProject());
+              commit(defaultProject("annual"));
               setSelection("grid");
             }}
           >

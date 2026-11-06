@@ -1600,7 +1600,10 @@ summary:focus-visible {
   pointer-events: auto;
 }
 .grid-hit {
-  z-index: 0;
+  z-index: 1;
+}
+.photo-hit.behind-calendar {
+  z-index: 0 !important;
 }
 .header-hit {
   z-index: 3;

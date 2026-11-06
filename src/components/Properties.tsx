@@ -20,6 +20,8 @@ import {
   categories,
   families,
   viewProject,
+  weekdayTypography,
+  updateWeekdayTypography,
   updateView,
   defaultCover,
   pagePhotos,
@@ -95,7 +97,7 @@ export function Properties({
   const custom = texts.find((item) => item.id === selection);
   const t =
     custom?.typography ??
-    s.typography[cat] ??
+    (cat === "weekday" ? weekdayTypography(p) : s.typography[cat]) ??
     (cat === "otherEvent"
       ? s.typography.personalNameday
       : { ...s.typography.weekday, size: 5 });
@@ -147,6 +149,15 @@ export function Properties({
             : item,
         ),
       }));
+      return;
+    }
+    if (cat === "weekday") {
+      commit((root) =>
+        updateWeekdayTypography(
+          root,
+          validTypography({ ...weekdayTypography(root), ...patch }),
+        ),
+      );
       return;
     }
     commit((root) => {
@@ -308,6 +319,13 @@ export function Properties({
           ]}
           onChange={onSelect}
         />
+        {!cover && selection === "header" && (
+          <Toggle
+            label="Azonos hétfejléc minden hónapban"
+            value={s.sharedWeekdayHeader !== false}
+            onChange={(shared) => style("sharedWeekdayHeader", shared)}
+          />
+        )}
         {photo ? (
           <>
             <button
@@ -1074,6 +1092,11 @@ export function Properties({
                     onChange={(value) =>
                       style("customHolidayBackground", value)
                     }
+                  />
+                  <Color
+                    label="Ünnepnapok és egyéni kiemelt napok szövegszíne"
+                    value={s.holidayTextColor ?? s.holidayColor}
+                    onChange={(value) => style("holidayTextColor", value)}
                   />
 
                   {!cover && (

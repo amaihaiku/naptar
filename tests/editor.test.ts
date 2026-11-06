@@ -52,6 +52,8 @@ describe("Requested cover/month and typography behavior", () => {
     const p = { ...defaultProject(), year: 2027, month: 3 };
     p.style.highlight = false;
     p.style.customHolidayBackground = "#fedcba";
+    p.style.holidayTextColor = "#193264";
+    p.namedayOverrides = { "3-15": ["Ünnepi névnap"] };
     p.events = [
       {
         id: "other",
@@ -73,6 +75,10 @@ describe("Requested cover/month and typography behavior", () => {
       scene.nodes.find((n) => n.kind === "text" && n.text === label)!;
     const event = findText(scene, "Iskolai ünnep");
     const holiday = findText(scene, "Nemzeti ünnep");
+    expect(event.kind === "text" && event.type.color).toBe("#193264");
+    expect(holiday.kind === "text" && holiday.type.color).toBe("#193264");
+    const nameday = findText(scene, "Ünnepi névnap");
+    expect(nameday.kind === "text" && nameday.type.color).toBe("#193264");
     expect(event.x - findText(original, "Iskolai ünnep").x).toBe(2);
     expect(event.y < holiday.y).toBe(true);
     expect(

@@ -8,6 +8,10 @@ test("SVG preview and 300 DPI PNG preserve the same visible geometry", async ({
   await page.goto("/");
   const paper = page.getByTestId("calendar-paper");
   await expect(paper).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Borító", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Március", exact: true }).click();
   await page
     .getByRole("button", { name: "Nyomtatási nézet", exact: true })
     .click();

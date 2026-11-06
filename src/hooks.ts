@@ -1,7 +1,9 @@
 import { useCallback, useRef, useState } from "react";
 import { defaultProject, type Project } from "./model";
 export function useProject() {
-  const [project, setProject] = useState<Project>(defaultProject);
+  const [project, setProject] = useState<Project>(() =>
+    defaultProject("annual"),
+  );
   const past = useRef<Project[]>([]),
     future = useRef<Project[]>([]);
   const current = useRef(project);
