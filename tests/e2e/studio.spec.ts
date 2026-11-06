@@ -258,6 +258,24 @@ test("weekday header appearance, click selection and effects export", async ({
     .selectOption("right");
   await page.getByLabel("Elem háttérszíne", { exact: true }).check();
   await page.getByLabel("Háttérszín", { exact: true }).fill("#abc123");
+  for (const name of [
+    "Befoglaló bővítése vízszintesen",
+    "Befoglaló bővítése függőlegesen",
+    "Háttér sarkainak lekerekítése",
+  ]) {
+    const slider = page.getByRole("slider", { name, exact: true });
+    for (let i = 0; i < 10; i++) await slider.press("ArrowRight");
+    await expect(slider).toHaveValue("1");
+  }
+  const { PNG } = await import("pngjs");
+  const headerArtwork = page.getByTestId("calendar-paper").locator("image");
+  const href = await headerArtwork.getAttribute("href");
+  const preview = PNG.sync.read(Buffer.from(href!.split(",")[1], "base64"));
+  expect(preview.data[3]).toBe(0);
+  const insetPixel = (3 * preview.width + 3) * 4;
+  expect([...preview.data.subarray(insetPixel, insetPixel + 4)]).toEqual([
+    171, 193, 35, 255,
+  ]);
   await page.getByLabel("Vetett árnyék", { exact: true }).check();
   await page.getByLabel("Tükröződés", { exact: true }).check();
   await expect(page.getByTestId("calendar-paper").locator("image")).toHaveCount(
